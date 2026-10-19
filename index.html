@@ -71,8 +71,8 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .p2{right:2%;top:0;width:46%;height:250px;transform:rotate(5deg);z-index:2}
 .p3{left:22%;bottom:0;width:52%;height:170px;transform:rotate(-2deg);z-index:3}
 .heroR{min-width:0;width:100%;max-width:430px;justify-self:center}
-.heroR .collage{width:100%;max-width:none;margin-bottom:34px}
-.pecito{display:block;width:170px;max-width:60%;height:auto;margin:0 0 0 auto;transform:rotate(-4deg);filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));pointer-events:none}
+.heroR .collage{width:100%;max-width:none}
+.collage .pecito{position:absolute;right:1%;bottom:4px;width:22%;min-width:84px;height:auto;z-index:1;transform:rotate(-5deg);filter:drop-shadow(0 4px 8px rgba(0,0,0,.5));pointer-events:none}
 .waves{position:absolute;left:0;right:0;bottom:-1px;height:64px;z-index:1}
 .waves path{animation:drift 16s linear infinite}
 @keyframes drift{to{transform:translateX(-50%)}}
@@ -455,9 +455,9 @@ footer p{max-width:780px;margin:6px 0}
         <div class="polaroid p1"><img src="img/t/f05.jpg" alt=""></div>
         <div class="polaroid p2"><img src="img/t/f31.jpg" alt=""></div>
         <div class="polaroid p3"><img src="img/t/f24.jpg" alt=""></div>
+        <!-- El pez ocupa el hueco libre de la esquina inferior derecha, sin tocar las fotos -->
+        <img class="pecito" src="img/pez-dorado.png" alt="" width="190" height="100">
       </div>
-      <!-- El pez va debajo del collage, nunca encima de las fotos -->
-      <img class="pecito" src="img/pez-dorado.png" alt="" width="190" height="100">
     </div>
   </div>
 
