@@ -1,0 +1,16 @@
+﻿{
+  "name": "LevelBass · Nivel de embalses",
+  "short_name": "LevelBass",
+  "description": "Nivel de agua de los embalses de España, tiempo, viento y luna para pescadores de black bass.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06141c",
+  "theme_color": "#06141c",
+  "lang": "es",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
