@@ -15,6 +15,17 @@ const norm = (s) =>
     .replace(/\bembalse\b|\bpantano\b/g, "").replace(/\b(de|del|la|las|el|los|l|d)\b/g, "")
     .replace(/[^a-z0-9]+/g, " ").trim();
 
+
+// "2026-10-19T11:00" en UTC -> hora local de España "2026-10-19T13:00"
+const utcAMadrid = (iso, desfaseHoras = 0) => {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Madrid", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+      .formatToParts(new Date(new Date(iso + ":00Z").getTime() - desfaseHoras * 3600e3)).map((x) => [x.type, x.value]),
+  );
+  return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}`;
+};
+// nombre en el SAIH (normalizado) -> nombre en el boletín del Ministerio (normalizado)
+const ALIAS = { "puerto vallehermoso": "pto vallehermoso", "torre abraham": "torre abrahan", "cornalvo": "cornalbo", "guadiloba caceres": "caceres guadiloba" };
 // ---------------------------------------------------------------- 1) Boletín semanal
 const SERVICIO = "https://services-eu1.arcgis.com/RvnYk1PBUJ9rrAuT/arcgis/rest/services/Embalses_Mapa/FeatureServer/0/query";
 const res = await fetch(`${SERVICIO}?${new URLSearchParams({ where: "1=1", outFields: "*", outSR: "4326", f: "json" })}`, { headers: UA });
@@ -105,20 +116,81 @@ const lectores = {
     }
     return out;
   },
+
+  async tajo() {
+    const base = "https://saihtajo.chtajo.es/";
+    const H = { ...UA, Referer: base, "X-Requested-With": "XMLHttpRequest" };
+    const quita = (t) => JSON.parse(t.replace(/^\uFEFF/, "")).response;
+    const home = await (await fetch(base, { headers: UA })).text();
+    // El enlace del menú es estable; si no aparece en la portada se usa el último conocido.
+    const enlace = home.match(/href="(index\.php\?w=get-embalses[^"]+)"/)?.[1]?.replace(/&amp;/g, "&")
+      ?? "index.php?w=get-embalses&x=6JpzkjTQWNkOrV5tiYDGg9yJrm0S4LHfAbFJ0%2BLefGPnUGhtVafg8CQe0l7DRMrSJUKgHMt%2FllUCePWaLlCp%2Bg%3D%3D";
+    const lista = quita(await (await fetch(base + enlace, { headers: H })).text()).embalses;
+    const out = [];
+    const una = async (e) => {
+      const r = quita(await (await fetch(base + e.estacion.url.replace(/&amp;/g, "&"), { headers: H })).text());
+      const sen = (tipo) => r.senales.find((s) => s.tiposenal === tipo);
+      const ult = (s) => [...(s?.valores ?? [])].reverse().find((v) => v.valor != null);
+      const vol = ult(sen("VE"));
+      if (!vol) return;
+      const t = vol.tiempo.match(/(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)/);
+      const fecha = utcAMadrid(`${t[3]}-${t[2]}-${t[1]}T${t[4]}`, 1); // el SAIH Tajo da la hora en UTC+1
+      const historial = (sen("VE").valores ?? []).filter((v) => v.valor != null).map((v) => {
+        const m = v.tiempo.match(/(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)/);
+        return [utcAMadrid(`${m[3]}-${m[2]}-${m[1]}T${m[4]}`, 1), v.valor];
+      });
+      out.push({
+        nombre: e.nombre, volumen: vol.valor, nmn: parseFloat(sen("VE").maximo) || null, porcentaje: ult(sen("PO"))?.valor ?? null,
+        cota: ult(sen("NE"))?.valor ?? null, cota_aliviadero: parseFloat(sen("NE")?.maximo) || null, salida: ult(sen("CSR"))?.valor ?? null,
+        fecha, historial, url: base,
+      });
+    };
+    const cola = [...lista];
+    await Promise.all(Array.from({ length: 5 }, async () => { for (let e; (e = cola.shift()); ) { try { await una(e); } catch {} } }));
+    return out;
+  },
+
+  async guadiana() {
+    // SIRA Guadiana es una aplicación que carga los datos con JavaScript: se lee con un navegador sin ventana.
+    const { chromium } = await import("playwright-core");
+    const b = await chromium.launch({ channel: process.env.NAVEGADOR || "chrome", headless: true });
+    try {
+      const p = await b.newPage();
+      await p.goto("https://www.siraguadiana.com/E/DATOS", { waitUntil: "networkidle", timeout: 60000 });
+      await p.waitForSelector("tr td", { timeout: 30000 });
+      await p.waitForTimeout(2500);
+      const filas = await p.$$eval("tr", (trs) => trs.map((tr) => [...tr.querySelectorAll("td")].map((c) => c.innerText.replace(/\s+/g, " ").trim())));
+      const out = [];
+      for (const c of filas) {
+        if (c.length < 11 || !/^E\d-\d+/.test(c[0])) continue;
+        const f = c[10].match(/(\d{4})\.(\d\d)\.(\d\d) (\d\d:\d\d)/);
+        const volumen = num(c[3]);
+        if (!f || volumen == null) continue;
+        out.push({
+          nombre: c[1], cota: num(c[2]), volumen, porcentaje: num(c[4]), salida: num(c[5]),
+          fecha: utcAMadrid(`${f[1]}-${f[2]}-${f[3]}T${f[4]}`), url: "https://www.siraguadiana.com/E/DATOS",
+        });
+      }
+      return out;
+    } finally { await b.close(); }
+  },
 };
 
-const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir" };
+const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir", tajo: "SAIH Tajo", guadiana: "SIRA Guadiana" };
 const porNombre = new Map(embalses.map((e) => [norm(e.nombre), e]));
 
 const estado = {};
+const semillas = new Map(); // historial que ya trae la propia fuente (p. ej. Tajo: últimas 23 h)
 const sinEmparejar = [];
 for (const [clave, leer] of Object.entries(lectores)) {
   try {
     const lista = await leer();
     let ok = 0;
     for (const l of lista) {
+      const ahora = utcAMadrid(new Date().toISOString().slice(0, 16));
+      if (l.fecha > ahora) l.fecha = ahora; // algún SAIH tiene el reloj adelantado
       const n = norm(l.nombre);
-      let e = porNombre.get(n);
+      let e = porNombre.get(ALIAS[n] ?? n);
       if (!e && n.length >= 4) { // "Tous" ↔ "Tous - La Ribera"
         const c = embalses.filter((x) => { const m = norm(x.nombre); return m.startsWith(n + " ") || n.startsWith(m + " "); });
         if (c.length === 1) e = c[0];
@@ -126,10 +198,11 @@ for (const [clave, leer] of Object.entries(lectores)) {
       if (!e || l.volumen == null) { sinEmparejar.push(`${clave}: ${l.nombre}`); continue; }
       e.vivo = {
         fuente: fuentes[clave], volumen: l.volumen, nmn: l.nmn,
-        porcentaje: redondea(e.capacidad ? (l.volumen / e.capacidad) * 100 : null),
+        porcentaje: l.porcentaje != null ? redondea(l.porcentaje) : redondea(e.capacidad ? (l.volumen / e.capacidad) * 100 : null),
         cota: l.cota, cota_aliviadero: l.cota_aliviadero, entrada: l.entrada, salida: l.salida,
         fecha: l.fecha, url: l.url,
       };
+      if (l.historial?.length) semillas.set(e.id, l.historial);
       ok++;
     }
     estado[clave] = { ok, total: lista.length };
@@ -146,6 +219,8 @@ const corte = Date.now() - 7 * 24 * 3600 * 1000;
 for (const e of embalses) {
   if (!e.vivo) continue;
   const h = (hist[e.id] ||= []);
+  for (const [t, v] of semillas.get(e.id) ?? []) if (!h.some((x) => x[0] === t)) h.push([t, v]);
+  h.sort((a, b) => a[0].localeCompare(b[0]));
   const ult = h[h.length - 1];
   if (!ult || ult[0] !== e.vivo.fecha) h.push([e.vivo.fecha, e.vivo.volumen]);
   hist[e.id] = h.filter(([t]) => new Date(t).getTime() > corte);

@@ -20,6 +20,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm install --no-audit --no-fund
       - run: node scripts/actualizar.mjs
       - name: Guardar si hay cambios
         run: |
