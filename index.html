@@ -233,6 +233,28 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .windbox{height:420px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#06141c}
 .windbox iframe{width:100%;height:100%;border:0;display:block}
 @media (min-width:640px){.q4{grid-template-columns:repeat(4,1fr)}.hoy{grid-template-columns:auto 1fr 1fr;align-items:center}}
+/* ---- barra superior fija ---- */
+.topbar{position:sticky;top:0;z-index:60;background:rgba(6,20,28,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.tb-inner{max-width:1180px;margin:0 auto;padding:8px 16px;display:grid;gap:8px}
+.tb-box{display:flex;align-items:center;gap:10px;min-width:0}
+.tb-title{flex:none;font:600 13px var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--gold);white-space:nowrap}
+.tb-title small{color:var(--muted)}
+.tb-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.tb-chips::-webkit-scrollbar{display:none}
+.tb-chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(214,162,74,.45);background:rgba(214,162,74,.1);color:var(--ink);border-radius:99px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.tb-chip b{font-weight:600}
+.tb-empty{color:var(--muted);font-size:13px;white-space:nowrap}
+.tb-sol{gap:12px;overflow-x:auto;scrollbar-width:none}
+.tb-sol::-webkit-scrollbar{display:none}
+.tb-sol .ph{flex:none;display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
+.tb-sol .ph b{font:600 14px var(--head);letter-spacing:.05em;text-transform:uppercase}
+.tb-sol .ph span{color:var(--muted)}
+.tb-sol .hs{flex:none;display:flex;gap:6px}
+.tb-sol .hs span{border-radius:8px;padding:2px 8px;font-size:12px;white-space:nowrap;border:1px solid rgba(214,162,74,.45);background:rgba(214,162,74,.1)}
+.tb-sol .hs span.menor{border-color:rgba(74,155,92,.5);background:rgba(74,155,92,.12)}
+.tb-sol .hs span.ahora{box-shadow:0 0 0 2px var(--olive)}
+.tb-sol .hs b{color:var(--gold)}.tb-sol .hs .menor b{color:#8fd29a}
+@media (min-width:900px){.tb-inner{grid-template-columns:minmax(0,1fr) auto;gap:22px}}
 /* ---- barra de favoritos ---- */
 .favbar{margin-top:22px}
 .favbar h2{font:600 20px var(--head);letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:8px;color:var(--gold)}
@@ -308,6 +330,17 @@ footer p{max-width:780px;margin:6px 0}
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></symbol>
 </svg>
+
+<!-- Barra superior fija: favoritos y solunar siempre a la vista -->
+<div class="topbar" role="region" aria-label="Favoritos y solunar">
+  <div class="tb-inner">
+    <section class="tb-box tb-fav" aria-label="Mis embalses favoritos">
+      <span class="tb-title">★ Favoritos <small id="tbcount"></small></span>
+      <div class="tb-chips" id="topfavs"></div>
+    </section>
+    <section class="tb-box tb-sol" aria-label="Solunar de hoy" id="topsol"></section>
+  </div>
+</div>
 
 <header class="hero">
   <div class="wrap">
@@ -806,6 +839,9 @@ function renderHoy(){
         ${lineaDia(s)}
         <div class="meter" title="Índice de actividad"><i style="width:${s.estrellas * 20}%"></i></div></div>
       <ul class="per">${s.per.map(p => `<li class="${p.t}"><span><b class="k">${p.k}</b> ${lbl[p.k[0]]}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("")}</ul>`;
+    // versión compacta en la barra superior
+    $("#topsol").innerHTML = `<span class="ph">${lunaSvg(s.fase, 30)}<b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % · ${fmt(s.edad, 1)} d</span><span class="est">${estrellas(s.estrellas)}</span></span>
+      <span class="hs">${s.per.map(p => `<span class="${p.t}${activo === p ? " ahora" : ""}"><b>${p.k}</b> ${hhmm(Math.max(0,p.ini))}</span>`).join("")}</span>`;
   } catch { $("#hoy").hidden = true; }
 }
 function initHoy(){
@@ -911,7 +947,10 @@ function render(){
 
   // Favoritos
   const fl = all.filter(e => favs.has(e.id));
-  $("#favcount").textContent = fl.length ? `(${fl.length})` : "";
+  $("#favcount").textContent = $("#tbcount").textContent = fl.length ? `(${fl.length})` : "";
+  $("#topfavs").innerHTML = fl.length
+    ? fl.map(e => `<button class="tb-chip" data-open="${e.id}" title="Ver ficha">${esc(e.nombre)} <b style="color:${hex(lvl(e).pct)}">${fmt(lvl(e).pct,0)} %</b></button>`).join("")
+    : '<span class="tb-empty">Pulsa la ☆ de un embalse para tenerlo aquí</span>';
   $("#favs").innerHTML = fl.length ? fl.map(favCard).join("") : '<div class="empty favvacio">Pulsa la ☆ de cualquier embalse para guardarlo aquí y tenerlo siempre a mano. Se queda guardado en este navegador.</div>';
 
   // Mapa
