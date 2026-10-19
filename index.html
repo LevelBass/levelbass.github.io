@@ -185,6 +185,54 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .axis{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
 .src{color:var(--muted);font-size:13px;margin:12px 0 0}
 
+/* ---- pestañas y paneles de la ficha ---- */
+.fav-big{position:absolute;top:14px;right:56px;border:1px solid var(--line);background:rgba(6,20,28,.6);color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.fav-big.on{color:var(--gold);border-color:var(--bronze)}
+.q4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0}
+.q{background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0}
+.q small{display:flex;align-items:center;gap:6px;color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
+.q b{display:flex;align-items:center;gap:6px;font:600 26px/1.15 var(--head);margin-top:2px}
+.q b i{font:400 13px var(--body);color:var(--muted);font-style:normal}
+.q span{display:block;color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:6px -4px 14px;padding:0 4px 4px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:0;background:none;color:var(--muted);font:600 14px var(--head);letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;border-radius:10px 10px 0 0;cursor:pointer;border-bottom:3px solid transparent}
+.tabs button.on{color:var(--gold);border-bottom-color:var(--bronze)}
+.pane{display:none}.pane.on{display:block}
+.pane .stats b svg.i{font-size:.9em;color:var(--bronze)}
+.dias-wx{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.dwx{background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;display:grid;gap:2px;justify-items:center}
+.dwx b{font:600 13px var(--head);letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.dwx svg.i{font-size:26px;color:var(--ink)}
+.dwx span{color:var(--muted);font-size:12px}
+.dwx em{font:600 18px var(--head);font-style:normal}.dwx em small{color:var(--muted);font-size:14px}
+.embed{margin-top:12px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#000}
+.embed iframe{display:block;width:100%;height:360px;border:0}
+#tmap{height:380px;border-radius:14px;border:1px solid var(--line)}
+.luna-hoy{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.luna-hoy b{display:block;font:600 22px var(--head);letter-spacing:.03em;text-transform:uppercase}
+.luna-hoy span{display:block;color:var(--muted);font-size:13px}
+.est{color:var(--gold)!important;letter-spacing:.1em}
+.est span,.dias5 span span{display:inline!important}
+.dia{margin:6px 0 10px}
+.bar24{position:relative;height:22px;border-radius:8px;background:#07161e;border:1px solid var(--line);overflow:hidden}
+.bar24 i{position:absolute;top:0;bottom:0}
+.bar24 i.mayor{background:linear-gradient(180deg,var(--gold),var(--bronze));opacity:.9}
+.bar24 i.menor{background:linear-gradient(180deg,#7fc27a,#4a9b5c);opacity:.85}
+.bar24 b{position:absolute;top:-2px;bottom:-2px;width:2px;background:#fff;opacity:.55}
+.ticks{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:3px}
+.per{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.per li{display:flex;justify-content:space-between;gap:10px;background:rgba(6,20,28,.55);border:1px solid var(--line);border-left:4px solid var(--bronze);border-radius:10px;padding:8px 12px;font-size:14px}
+.per li.menor{border-left-color:#4a9b5c}
+.dias5{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center}
+.dias5>div{background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:8px 4px;display:grid;justify-items:center;gap:2px;font-size:12px}
+.dias5 b{font:600 12px var(--head);letter-spacing:.06em;text-transform:uppercase}
+/* ---- portada: hoy + viento ---- */
+.hoy{margin-top:14px;display:grid;gap:14px}
+.hoy .luna-hoy{margin:0}
+.windbox{height:420px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#06141c}
+.windbox iframe{width:100%;height:100%;border:0;display:block}
+@media (min-width:640px){.q4{grid-template-columns:repeat(4,1fr)}.hoy{grid-template-columns:auto 1fr 1fr;align-items:center}}
 footer{position:relative;margin-top:56px;border-top:1px solid var(--line);padding:28px 0 52px;color:var(--muted);font-size:13px;overflow:hidden}
 footer::before{content:"";position:absolute;inset:0;background:var(--topo);background-size:520px;opacity:.7;pointer-events:none}
 footer .wrap{position:relative}
@@ -222,6 +270,16 @@ footer p{max-width:780px;margin:6px 0}
   <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 0 9H7Z"/></symbol>
+  <symbol id="i-cloudsun" viewBox="0 0 24 24"><path d="M8 4v1m-4 3H3m2.2-2.8-.7-.7m7.3.7.7-.7"/><path d="M7 11a3 3 0 0 1 5.4-1.8"/><path d="M8 20a3.5 3.5 0 0 1-.4-7A5 5 0 0 1 17.5 13a3.5 3.5 0 0 1 0 7H8Z"/></symbol>
+  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 6a4.5 4.5 0 0 1 0 9H7Z"/><path d="m8 18-1 3m5-3-1 3m5-3-1 3"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 5a4.5 4.5 0 0 1 0 9"/><path d="m12 11-3 5h4l-2 5"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 5a4.5 4.5 0 0 1 0 9H7Z"/><path d="M8 18v.01M12 20v.01M16 18v.01M10 22v.01M14 22v.01"/></symbol>
+  <symbol id="i-fog" viewBox="0 0 24 24"><path d="M7 13a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 4a4.5 4.5 0 0 1 0 9"/><path d="M4 17h16M6 21h12"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></symbol>
 </svg>
 
 <header class="hero">
@@ -274,6 +332,8 @@ footer p{max-width:780px;margin:6px 0}
     <div class="kpis" id="kpis"></div>
   </section>
 
+  <section class="card hoy" id="hoy" aria-label="Luna y solunar de hoy"></section>
+
   <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
 
   <section class="section">
@@ -290,6 +350,12 @@ footer p{max-width:780px;margin:6px 0}
       <span><i style="background:var(--high)"></i>más del 75 %</span>
     </p>
     <div id="map"></div>
+  </section>
+
+  <section class="section" id="viento">
+    <h2>Viento en España</h2>
+    <p class="hint">Mapa de viento en tiempo real. Abre la ficha de un embalse para verlo centrado en él.</p>
+    <div class="windbox" id="windbox"></div>
   </section>
 
   <section class="section" id="lista">
@@ -330,6 +396,7 @@ footer p{max-width:780px;margin:6px 0}
 
 <script src="data/embalses.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 const fmt = (n, d = 0) => n == null ? "–" : n.toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
@@ -396,26 +463,178 @@ function spark(pts, w, h, color){
 }
 function stat(k, v, s){ return `<div class="st"><small>${k}</small><b>${v}</b>${s?`<span>${s}</span>`:""}</div>`; }
 
+/* ---------- Tiempo, viento, luna y mapas ---------- */
+const MADRID = [40.4, -3.7];
+const dirTxt = (deg) => ["N","NE","E","SE","S","SO","O","NO"][Math.round((deg % 360) / 45) % 8];
+const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2,"0")}:${String(Math.round(m % 60)).padStart(2,"0")}`;
+const minDia = (d, d0) => d ? Math.round((d - d0) / 60000) : null;
+
+// Código meteorológico (WMO) -> icono y texto
+function wmo(c){
+  if (c === 0) return {i:"sun", t:"Despejado"};
+  if (c <= 2) return {i:"cloudsun", t:"Poco nuboso"};
+  if (c === 3) return {i:"cloud", t:"Nublado"};
+  if (c === 45 || c === 48) return {i:"fog", t:"Niebla"};
+  if (c >= 51 && c <= 57) return {i:"rain", t:"Llovizna"};
+  if ((c >= 61 && c <= 67) || (c >= 80 && c <= 82)) return {i:"rain", t:"Lluvia"};
+  if ((c >= 71 && c <= 77) || c === 85 || c === 86) return {i:"snow", t:"Nieve"};
+  if (c >= 95) return {i:"storm", t:"Tormenta"};
+  return {i:"cloud", t:"Variable"};
+}
+
+const wxCache = new Map();
+async function getWx(lat, lon){
+  const k = lat.toFixed(2) + "," + lon.toFixed(2);
+  if (!wxCache.has(k)){
+    const q = new URLSearchParams({
+      latitude: lat, longitude: lon, timezone: "Europe/Madrid", forecast_days: 5, past_hours: 6, wind_speed_unit: "kmh",
+      current: "temperature_2m,weather_code,surface_pressure,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day",
+      hourly: "pressure_msl",
+      daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
+    });
+    wxCache.set(k, fetch("https://api.open-meteo.com/v1/forecast?" + q).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }));
+  }
+  return wxCache.get(k);
+}
+
+// Tendencia de la presión en las últimas 3 horas
+function presion(w){
+  const t = w.hourly.time, p = w.hourly.pressure_msl, now = w.current.time.slice(0, 13);
+  const i = t.findIndex(x => x.slice(0, 13) === now);
+  if (i < 3 || p[i] == null || p[i-3] == null) return {hpa: w.current.pressure_msl, dif: null, txt: "sin tendencia"};
+  const dif = p[i] - p[i-3];
+  return {hpa: w.current.pressure_msl, dif, txt: dif >= 1.5 ? "subiendo" : dif <= -1.5 ? "bajando" : "estable", cls: dif >= 1.5 ? "up" : dif <= -1.5 ? "down" : ""};
+}
+
+/* ---- Luna y periodos solunares (SunCalc) ---- */
+function faseLuna(p){
+  if (p < 0.03 || p > 0.97) return "Luna nueva";
+  if (p < 0.22) return "Creciente";
+  if (p < 0.28) return "Cuarto creciente";
+  if (p < 0.47) return "Gibosa creciente";
+  if (p < 0.53) return "Luna llena";
+  if (p < 0.72) return "Gibosa menguante";
+  if (p < 0.78) return "Cuarto menguante";
+  return "Menguante";
+}
+function lunaSvg(p, s = 44){
+  const r = 20, c = 24, k = Math.cos(2 * Math.PI * p), rx = Math.abs(r * k).toFixed(2), waxing = p < 0.5;
+  // parte iluminada: semicírculo + elipse del terminador
+  const sweepOuter = waxing ? 1 : 0, sweepInner = (waxing ? k > 0 : k < 0) ? 0 : 1;
+  const lit = `M${c} ${c - r}A${r} ${r} 0 0 ${sweepOuter} ${c} ${c + r}A${rx} ${r} 0 0 ${sweepInner} ${c} ${c - r}Z`;
+  return `<svg viewBox="0 0 48 48" width="${s}" height="${s}" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="#0a1d27" stroke="#2c5566"/><path d="${lit}" fill="#f0e3b8"/></svg>`;
+}
+function solunar(fecha, lat, lon){
+  const d0 = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+  let alto = -9, bajo = 9, mAlto = null, mBajo = null;
+  for (let m = 0; m < 1440; m += 4){
+    const a = SunCalc.getMoonPosition(new Date(d0.getTime() + m * 60000), lat, lon).altitude;
+    if (a > alto){ alto = a; mAlto = m; }
+    if (a < bajo){ bajo = a; mBajo = m; }
+  }
+  const mt = SunCalc.getMoonTimes(d0, lat, lon), sol = SunCalc.getTimes(d0, lat, lon);
+  const orto = minDia(sol.sunrise, d0), ocaso = minDia(sol.sunset, d0);
+  const per = [];
+  // periodos mayores: la luna en lo más alto y en lo más bajo (unas 2 h); menores: salida y puesta de luna (1 h)
+  if (mAlto > 8 && mAlto < 1432) per.push({t:"mayor", c: mAlto, ini: mAlto - 60, fin: mAlto + 60, n:"Luna arriba"});
+  if (mBajo > 8 && mBajo < 1432) per.push({t:"mayor", c: mBajo, ini: mBajo - 60, fin: mBajo + 60, n:"Luna abajo"});
+  const sal = minDia(mt.rise, d0), pue = minDia(mt.set, d0);
+  if (sal != null) per.push({t:"menor", c: sal, ini: sal - 30, fin: sal + 30, n:"Salida de la luna"});
+  if (pue != null) per.push({t:"menor", c: pue, ini: pue - 30, fin: pue + 30, n:"Puesta de la luna"});
+  per.sort((a, b) => a.c - b.c);
+  const il = SunCalc.getMoonIllumination(new Date(d0.getTime() + 12 * 3600e3));
+  // valoración orientativa: lunas nuevas y llenas + periodos que coinciden con amanecer o atardecer
+  let v = 2 + (Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.8 ? 2 : Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.5 ? 1 : 0);
+  if (per.some(x => x.t === "mayor" && [orto, ocaso].some(s => s != null && Math.abs(s - x.c) <= 90))) v += 1;
+  return {per, orto, ocaso, fase: il.phase, fraccion: il.fraction, nombre: faseLuna(il.phase), estrellas: Math.min(5, v)};
+}
+const estrellas = (n) => "★".repeat(n) + `<span style="opacity:.25">${"★".repeat(5 - n)}</span>`;
+function lineaDia(s){
+  const seg = s.per.map(p => `<i class="${p.t}" style="left:${Math.max(0, p.ini) / 14.4}%;width:${(Math.min(1440, p.fin) - Math.max(0, p.ini)) / 14.4}%" title="${p.n} ${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}"></i>`).join("");
+  const sun = [s.orto, s.ocaso].filter(x => x != null).map(m => `<b style="left:${m / 14.4}%" title="${m === s.orto ? "Amanecer" : "Atardecer"} ${hhmm(m)}"></b>`).join("");
+  return `<div class="dia"><div class="bar24">${seg}${sun}</div><div class="ticks"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div></div>`;
+}
+function lunaHtml(lat, lon){
+  const hoy = new Date(), filas = [];
+  for (let i = 0; i < 5; i++){
+    const f = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i), s = solunar(f, lat, lon);
+    filas.push({f, s});
+  }
+  const s0 = filas[0].s;
+  const lista = (s) => s.per.map(p => `<li class="${p.t}"><span>${p.t === "mayor" ? "Mayor" : "Menor"} · ${p.n}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("") || "<li>Sin periodos hoy</li>";
+  return `<div class="luna-hoy">${lunaSvg(s0.fase, 64)}<div><b>${s0.nombre}</b><span>${fmt(s0.fraccion * 100, 0)} % iluminada</span><span class="est">${estrellas(s0.estrellas)} actividad estimada hoy</span></div></div>
+    ${lineaDia(s0)}
+    <ul class="per">${lista(s0)}</ul>
+    <h4>Próximos días</h4>
+    <div class="dias5">${filas.slice(1).map(({f, s}) => `<div>${lunaSvg(s.fase, 30)}<b>${f.toLocaleDateString("es-ES", {weekday:"short", day:"numeric"})}</b><span class="est">${estrellas(s.estrellas)}</span></div>`).join("")}</div>
+    <p class="src">Los periodos solunares son una tradición de pesca (mayores: luna en su punto más alto o más bajo; menores: salida y puesta de la luna). Sirven de referencia, no están demostrados científicamente. La zona verde de la barra son los menores; la dorada, los mayores.</p>`;
+}
+
+/* ---- Tiempo ---- */
+function wxHtml(w){
+  const c = w.current, ic = wmo(c.weather_code), pr = presion(w);
+  const dias = w.daily.time.map((t, i) => {
+    const d = wmo(w.daily.weather_code[i]);
+    return `<div class="dwx"><b>${new Date(t + "T12:00").toLocaleDateString("es-ES", {weekday:"short", day:"numeric"})}</b>${ico(d.i)}<span>${d.t}</span><em>${Math.round(w.daily.temperature_2m_max[i])}° <small>${Math.round(w.daily.temperature_2m_min[i])}°</small></em><span class="r">${ico("drop")} ${w.daily.precipitation_probability_max[i] ?? 0} %</span></div>`;
+  }).join("");
+  return `<div class="stats">
+      ${stat("Ahora", `${ico(ic.i)} ${fmt(c.temperature_2m,0)} °C`, ic.t)}
+      ${stat("Máx. / mín. hoy", `${Math.round(w.daily.temperature_2m_max[0])}° / ${Math.round(w.daily.temperature_2m_min[0])}°`, "")}
+      ${stat("Prob. de lluvia", `${w.daily.precipitation_probability_max[0] ?? 0} %`, "máxima de hoy")}
+      ${stat("Presión", `${fmt(pr.hpa,0)} hPa`, pr.dif == null ? "" : `<span class="${pr.cls}">${pr.dif >= 0 ? "+" : ""}${fmt(pr.dif,1)} hPa en 3 h · ${pr.txt}</span>`)}
+    </div>
+    <div class="dias-wx">${dias}</div>
+    <p class="src">Datos de <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>. Muchos pescadores vigilan la presión: los cambios bruscos suelen afectar a la actividad de los peces. Es solo una referencia.</p>`;
+}
+function vientoHtml(w, lat, lon){
+  const c = w.current;
+  const url = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}&zoom=10&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=true&calendar=now&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1`;
+  return `<div class="stats">
+      ${stat("Viento", `${fmt(c.wind_speed_10m,0)} km/h`, `del ${dirTxt(c.wind_direction_10m)} (${Math.round(c.wind_direction_10m)}°)`)}
+      ${stat("Rachas", `${fmt(c.wind_gusts_10m,0)} km/h`, "máximas")}
+      ${stat("Hoy, máx.", `${fmt(w.daily.wind_speed_10m_max[0],0)} km/h`, "viento sostenido")}
+    </div>
+    <div class="embed"><iframe loading="lazy" title="Mapa de viento Windy" src="${url}" allowfullscreen></iframe></div>
+    <p class="src">Mapa interactivo de <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a>. El viento se indica de dónde sopla.</p>`;
+}
+
+/* ---- Mapa topográfico ---- */
+let tmap = null;
+function topoMapa(e){
+  const box = $("#tmap"); if (!box || e.lat == null) return;
+  if (tmap){ tmap.remove(); tmap = null; }
+  try {
+    const topo = L.tileLayer("https://tile.opentopomap.org/{z}/{x}/{y}.png", {maxZoom:17, attribution:"© OpenTopoMap, © OpenStreetMap"});
+    const sat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom:18, attribution:"Imágenes © Esri"});
+    tmap = L.map(box, {layers:[sat], scrollWheelZoom:false}).setView([e.lat, e.lon], 13);
+    L.control.layers({"Satélite": sat, "Topográfico": topo}, null, {collapsed:false}).addTo(tmap);
+    L.circleMarker([e.lat, e.lon], {radius:8, color:"#06141c", weight:2, fillColor:"#f0c874", fillOpacity:1}).addTo(tmap).bindTooltip(e.nombre);
+    setTimeout(() => tmap && tmap.invalidateSize(), 60);
+  } catch { box.innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
+}
+
+/* ---------- Ficha de embalse ---------- */
+let fichaId = null;
 async function openDetail(id){
   const e = all.find(x => x.id === id); if (!e) return;
-  const L = lvl(e), col = hex(L.pct);
+  fichaId = id;
+  const L0 = lvl(e), col = hex(L0.pct), tiene = e.lat != null;
   const f = e.fecha ? new Date(e.fecha + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) : "";
-  let h = `<button class="x" data-close aria-label="Cerrar">×</button>
-    <h2>${esc(e.nombre)}</h2>
-    <div class="sub">${esc(e.cuenca)}${e.uso?" · uso "+esc(e.uso.toLowerCase()):""}${e.electrico?" · hidroeléctrico":""}</div>
-    <div class="badges">${badges(e, L)}</div>
-    <div class="big"><b style="color:${col}">${fmt(L.pct,1)} %</b><div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div></div>
+  const [la, lo] = tiene ? [e.lat, e.lon] : MADRID;
+  const sol0 = solunar(new Date(), la, lo);
+
+  let res = `<div class="big"><b style="color:${col}">${fmt(L0.pct,1)} %</b><div class="tank"><i class="${lvlClass(L0.pct)}" style="width:${Math.min(L0.pct,100)}%"></i></div></div>
     <div class="stats">
-      ${stat("Volumen", fmt(L.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
+      ${stat("Volumen", fmt(L0.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
       ${stat("Capacidad", fmt(e.capacidad)+" hm³")}
-      ${stat("Libre", fmt(Math.max(e.capacidad - L.vol,0),1)+" hm³", "hasta llenarse")}
+      ${stat("Libre", fmt(Math.max(e.capacidad - L0.vol,0),1)+" hm³", "hasta llenarse")}
       ${e.extra
         ? stat("Estado", "Solo en directo", "no está en el boletín semanal")
         : stat("Vs. semana ant.", `<span class="${e.variacion_hm3>0?'up':e.variacion_hm3<0?'down':''}">${e.variacion_hm3>0?'+':''}${fmt(e.variacion_hm3,1)} hm³</span>`, f)}
     </div>`;
   if (e.vivo){
     const v = e.vivo;
-    h += `<h4><span class="live">● En directo</span> · ${esc(v.fuente)} · ${fdt(v.fecha)}</h4>
+    res += `<h4><span class="live">● En directo</span> · ${esc(v.fuente)} · ${fdt(v.fecha)}</h4>
     <div class="stats">
       ${stat("Cota", v.cota!=null?fmt(v.cota,2)+" m":"–", v.cota_aliviadero!=null?"cota máxima "+fmt(v.cota_aliviadero,2)+" m":"")}
       ${stat("Entrada", v.entrada!=null?fmt(v.entrada,2)+" m³/s":"–", "caudal recibido")}
@@ -423,14 +642,59 @@ async function openDetail(id){
       ${stat("Últimas 24 h", v.var24h!=null?`<span class="${v.var24h>0?'up':v.var24h<0?'down':''}">${v.var24h>0?'+':''}${fmt(v.var24h,2)} hm³</span>`:"–", v.var24h!=null?"":"acumulando historial")}
     </div>`;
     const pts = (v.historial||[]).map(([t,x]) => [new Date(t).getTime(), x]);
-    if (pts.length > 1) h += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#f0c874")}</div>`;
-    h += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
+    if (pts.length > 1) res += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#f0c874")}</div>`;
+    res += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
   }
-  if (!e.extra) h += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>`;
-  h += `<p class="src">${e.lat!=null?`Coordenadas ${e.lat}, ${e.lon} · <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${e.lat},${e.lon}">Abrir en Google Maps ↗</a>`:""}</p>`;
+  if (!e.extra) res += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>`;
+  res += `<p class="src">${tiene?`Coordenadas ${e.lat}, ${e.lon} · <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${e.lat},${e.lon}">Abrir en Google Maps ↗</a>`:""}</p>`;
+
+  const sinCoord = '<div class="empty">Este embalse no tiene coordenadas en los datos oficiales, así que no se puede mostrar esta sección.</div>';
+  const h = `<button class="x" data-close aria-label="Cerrar">×</button>
+    <button class="fav-big ${favs.has(id)?'on':''}" data-fav="${id}" aria-label="Favorito">${favs.has(id)?'★ Favorito':'☆ Guardar'}</button>
+    <h2>${esc(e.nombre)}</h2>
+    <div class="sub">${esc(e.cuenca)}${e.uso?" · uso "+esc(e.uso.toLowerCase()):""}${e.electrico?" · hidroeléctrico":""}</div>
+    <div class="badges">${badges(e, L0)}</div>
+    <div class="q4">
+      <div class="q"><small>${ico("wave")} Nivel</small><b style="color:${col}">${fmt(L0.pct,0)} %</b><span>${e.vivo?"en directo":"semanal"}</span></div>
+      <div class="q" id="q-viento"><small>${ico("wind")} Viento</small><b>–</b><span>cargando…</span></div>
+      <div class="q"><small>${ico("moon")} Luna</small><b>${lunaSvg(sol0.fase, 28)}</b><span>${sol0.nombre}</span></div>
+      <div class="q" id="q-tiempo"><small>${ico("cloudsun")} Tiempo</small><b>–</b><span>cargando…</span></div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="on" data-tab="res">Resumen</button><button data-tab="wx">Tiempo</button><button data-tab="wind">Viento</button><button data-tab="moon">Luna</button><button data-tab="topo">Mapa</button>
+    </div>
+    <section class="pane on" data-pane="res">${res}</section>
+    <section class="pane" data-pane="wx" id="p-wx">${tiene ? '<div class="empty">Cargando el tiempo…</div>' : sinCoord}</section>
+    <section class="pane" data-pane="wind" id="p-wind">${tiene ? '<div class="empty">Cargando el viento…</div>' : sinCoord}</section>
+    <section class="pane" data-pane="moon">${lunaHtml(la, lo)}</section>
+    <section class="pane" data-pane="topo">${tiene ? '<div id="tmap"></div><p class="src">Capas de satélite y topográfica (OpenTopoMap) para localizar reculas, puntas, vaguadas y estructuras. Usa el selector de capas arriba a la derecha.</p>' : sinCoord}</section>`;
   $("#modal .sheet").innerHTML = h;
   $("#modal").classList.add("open"); document.body.style.overflow = "hidden";
-  if (map && e.lat != null){ map.setView([e.lat,e.lon], 10); markers.get(e.id)?.openPopup(); }
+  $("#modal").scrollTop = 0;
+  if (map && tiene){ map.setView([e.lat,e.lon], 10); markers.get(e.id)?.openPopup(); }
+
+  // Pestañas
+  $("#modal .tabs").onclick = (ev) => {
+    const b = ev.target.closest("[data-tab]"); if (!b) return;
+    document.querySelectorAll("#modal .tabs button").forEach(x => x.classList.toggle("on", x === b));
+    document.querySelectorAll("#modal .pane").forEach(p => p.classList.toggle("on", p.dataset.pane === b.dataset.tab));
+    if (b.dataset.tab === "topo") topoMapa(e);
+  };
+
+  // Tiempo y viento (Open-Meteo)
+  if (tiene) getWx(e.lat, e.lon).then(w => {
+    if (fichaId !== id) return;
+    const c = w.current, ic = wmo(c.weather_code), pr = presion(w);
+    $("#q-viento").innerHTML = `<small>${ico("wind")} Viento</small><b>${fmt(c.wind_speed_10m,0)} <i>km/h</i></b><span>${dirTxt(c.wind_direction_10m)} · rachas ${fmt(c.wind_gusts_10m,0)}</span>`;
+    $("#q-tiempo").innerHTML = `<small>${ico(ic.i)} Tiempo</small><b>${fmt(c.temperature_2m,0)}°</b><span>${ic.t} · ${fmt(pr.hpa,0)} hPa</span>`;
+    $("#p-wx").innerHTML = wxHtml(w);
+    $("#p-wind").innerHTML = vientoHtml(w, e.lat, e.lon);
+  }).catch(() => {
+    if (fichaId !== id) return;
+    $("#q-viento").innerHTML = `<small>${ico("wind")} Viento</small><b>–</b><span>sin datos</span>`;
+    $("#q-tiempo").innerHTML = `<small>${ico("cloudsun")} Tiempo</small><b>–</b><span>sin datos</span>`;
+    $("#p-wx").innerHTML = $("#p-wind").innerHTML = '<div class="empty">No se pudo cargar el tiempo ahora mismo.</div>';
+  });
 
   // Histórico semanal desde el servicio del Ministerio (se consulta en el momento)
   if (e.extra) return;
@@ -454,7 +718,11 @@ async function openDetail(id){
       <div class="axis"><span>mín. ${fmt(y0)} hm³</span><span>${hace!=null?"hace un año: "+fmt(hace)+" hm³":""}</span><span>máx. ${fmt(y1)} hm³</span></div>`;
   } catch { const b = $("#hist"); if (b) b.innerHTML = '<small>Volumen semanal</small><div class="empty" style="padding:16px">No se pudo cargar el histórico.</div>'; }
 }
-function closeDetail(){ $("#modal").classList.remove("open"); document.body.style.overflow = ""; }
+function closeDetail(){
+  $("#modal").classList.remove("open"); document.body.style.overflow = ""; fichaId = null;
+  if (tmap){ tmap.remove(); tmap = null; }
+  $("#modal .sheet").innerHTML = ""; // también detiene el mapa de viento incrustado
+}
 
 /* ---------- Fotos: cinta, galería y visor ---------- */
 const N_FOTOS = 37, nn = (i) => String(i).padStart(2, "0");
@@ -478,8 +746,23 @@ function initFotos(){
   });
 }
 
+// Luna y solunar de hoy (centro de la península) + mapa de viento que se carga al llegar a él
+function initHoy(){
+  try {
+    const s = solunar(new Date(), MADRID[0], MADRID[1]);
+    $("#hoy").innerHTML = `<div class="luna-hoy">${lunaSvg(s.fase, 64)}<div><b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % iluminada</span><span class="est">${estrellas(s.estrellas)} actividad estimada</span></div></div>
+      <div><small style="color:var(--muted);font:600 11px var(--head);letter-spacing:.14em;text-transform:uppercase">Hoy · periodos solunares</small>${lineaDia(s)}</div>
+      <ul class="per">${s.per.map(p => `<li class="${p.t}"><span>${p.t === "mayor" ? "Mayor" : "Menor"}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("")}</ul>`;
+  } catch { $("#hoy").hidden = true; }
+  const url = "https://embed.windy.com/embed2.html?lat=40.2&lon=-3.7&detailLat=40.2&detailLon=-3.7&zoom=6&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=&calendar=now&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1";
+  const box = $("#windbox"), poner = () => { if (!box.firstChild) box.innerHTML = `<iframe title="Mapa de viento Windy" loading="lazy" src="${url}" allowfullscreen></iframe>`; };
+  if ("IntersectionObserver" in window) new IntersectionObserver((en, ob) => { if (en.some(x => x.isIntersecting)){ poner(); ob.disconnect(); } }, {rootMargin:"300px"}).observe(box);
+  else poner();
+}
+
 async function init(){
   initFotos();
+  initHoy();
   let d = window.EMBALSES_DATA;
   if (!d){
     try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
@@ -494,6 +777,7 @@ async function init(){
   $("#foot").innerHTML = `
     <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. Los embalses más pequeños que publican las confederaciones (Tajo, Guadiana, Guadalquivir y Júcar) se añaden solo con su lectura en directo.</p>
     <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b> y <b>Júcar</b>; el resto (Ebro, Duero, Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web se actualiza cada hora.</p>
+    <p>Tiempo y presión: <a href="https://open-meteo.com">Open-Meteo</a>. Viento: <a href="https://www.windy.com">Windy</a>. Mapas: OpenStreetMap, OpenTopoMap y Esri. Fases lunares calculadas con SunCalc; los periodos solunares son una referencia tradicional de pesca, no una predicción científica.</p>
     <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
@@ -527,7 +811,10 @@ async function init(){
     if (s){
       const id = +s.dataset.fav;
       favs.has(id) ? favs.delete(id) : favs.add(id);
-      saveFavs(); render(); return;
+      saveFavs(); render();
+      const fb = document.querySelector(".fav-big"); // botón de la ficha abierta
+      if (fb && +fb.dataset.fav === id){ fb.classList.toggle("on", favs.has(id)); fb.textContent = favs.has(id) ? "★ Favorito" : "☆ Guardar"; }
+      return;
     }
     const c = ev.target.closest(".res");
     if (c) openDetail(+c.dataset.id);
