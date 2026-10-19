@@ -147,7 +147,10 @@ const lectores = {
       });
     };
     const cola = [...lista];
-    await Promise.all(Array.from({ length: 5 }, async () => { for (let e; (e = cola.shift()); ) { try { await una(e); } catch {} } }));
+    await Promise.all(Array.from({ length: 5 }, async () => { for (let e; (e = cola.shift()); ) {
+      // Algunas peticiones fallan de forma puntual: se reintenta antes de rendirse
+      for (let intento = 0; intento < 3; intento++) { try { await una(e); break; } catch { await new Promise((r) => setTimeout(r, 700 * (intento + 1))); } }
+    } }));
     return out;
   },
 
