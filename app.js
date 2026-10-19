@@ -45,7 +45,7 @@ const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"sh
 // Embalses confinados (mejillón cebra): datos en data/confinados.js
 const CONFD = window.CONFINADOS || {e: [], fuentes: {}};
 const CONF = new Map(CONFD.e.map(x => [x.id, x]));
-let confCuenca = "";
+let confCuenca = "", confShown = 12;
 function confAviso(e){
   const c = CONF.get(e.id); if (!c) return "";
   const f = CONFD.fuentes[c.f];
@@ -59,12 +59,17 @@ function renderConf(){
     cuencas.map(cu => `<button class="chip ${confCuenca === cu ? "on" : ""}" data-cc="${esc(cu)}">${esc(cu)} (${todos.filter(x => x.c.c === cu).length})</button>`).join("");
   const lista = todos.filter(x => !confCuenca || x.c.c === confCuenca).sort((a, b) => a.e.nombre.localeCompare(b.e.nombre, "es"));
   $("#confcount").textContent = `${lista.length} embalses confinados`;
-  $("#confgrid").innerHTML = lista.map(x => card(x.e).replace('<div class="meta">', `<p class="confnote">${esc(x.c.n)}</p><div class="meta">`)).join("");
+  $("#confgrid").innerHTML = lista.slice(0, confShown).map(x => {
+    const p = lvl(x.e).pct;
+    return `<button type="button" class="crow" data-open="${x.e.id}" title="${esc(x.c.n)}" style="--c:${hex(p)}"><b>${esc(x.e.nombre)}</b><span>${esc(x.c.c)}${x.e.provincia ? " · " + esc(x.e.provincia) : ""}</span><em>${fmt(p,0)} %</em></button>`;
+  }).join("");
+  $("#confmore").hidden = lista.length <= confShown;
+  $("#confmore").textContent = `Ver los ${lista.length - confShown} restantes`;
   $("#confn").textContent = todos.length;
-  $("#confsrc").innerHTML = "Revisado el " + new Date(CONFD.actualizado + "T12:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) +
-    ". Fuentes: " + Object.values(CONFD.fuentes).map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ") +
-    ". Las listas cambian; confirma siempre en tu confederación antes de ir." +
-    ((CONFD.avisos || []).length ? "<br><b>Ten en cuenta:</b> " + CONFD.avisos.map(esc).join(" ") : "");
+  const fch = new Date(CONFD.actualizado + "T12:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  $("#confsrc").innerHTML = `Revisado el ${fch}. Las listas cambian; confirma siempre en tu confederación antes de ir.` +
+    ((CONFD.avisos || []).length ? `<details class="avisos"><summary>Ten en cuenta (${CONFD.avisos.length})</summary><ul>${CONFD.avisos.map(t => `<li>${esc(t)}</li>`).join("")}</ul></details>` : "") +
+    `<details class="avisos"><summary>Fuentes oficiales</summary><ul>${Object.values(CONFD.fuentes).map(f => `<li><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a></li>`).join("")}</ul></details>`;
 }
 function badges(e, L){
   const b = [];
@@ -647,7 +652,8 @@ async function init(){
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");
   initSlugs();
-  $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
+  $("#confmore").addEventListener("click", () => { confShown = 999; renderConf(); });
+  $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; confShown = 12; renderConf(); } });
   addEventListener("hashchange", routeFromHash);
   initSolunar();
   renderHoy();
