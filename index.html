@@ -320,7 +320,7 @@ footer p{max-width:780px;margin:6px 0}
 
 <footer><div class="wrap" id="foot"></div></footer>
 
-<div id="modal" role="dialog" aria-modal="true" data-close><div class="sheet" onclick="event.stopPropagation()"></div></div>
+<div id="modal" role="dialog" aria-modal="true"><div class="sheet"></div></div>
 <div id="lb" role="dialog" aria-modal="true"><button class="x" aria-label="Cerrar">×</button><button class="pv" aria-label="Anterior">‹</button><img alt="Captura de black bass"><button class="nx" aria-label="Siguiente">›</button></div>
 
 <script src="data/embalses.js"></script>
@@ -522,7 +522,8 @@ async function init(){
     }
     const c = ev.target.closest(".res");
     if (c) openDetail(+c.dataset.id);
-    if (ev.target.closest("[data-close]")) closeDetail();
+    // Se cierra con la X o pulsando fuera de la ficha
+    if (ev.target.closest(".sheet .x") || ev.target.id === "modal") closeDetail();
   });
   document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeDetail(); });
   render();
