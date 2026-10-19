@@ -233,7 +233,15 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .windbox{height:420px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#06141c}
 .windbox iframe{width:100%;height:100%;border:0;display:block}
 @media (min-width:640px){.q4{grid-template-columns:repeat(4,1fr)}.hoy{grid-template-columns:auto 1fr 1fr;align-items:center}}
-﻿/* ---- menú fijo de secciones ---- */
+﻿/* ---- aviso de cookies ---- */
+#cookies{position:fixed;left:12px;right:12px;bottom:12px;z-index:1500;max-width:640px;margin:0 auto;background:var(--card2);border:1px solid var(--bronze);border-radius:16px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.55);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+#cookies[hidden]{display:none}
+#cookies p{margin:0;flex:1 1 260px;font-size:13.5px;color:var(--muted)}
+#cookies b{color:var(--ink)}
+#cookies div{display:flex;gap:8px}
+#cookies button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 16px;font:inherit;font-size:14px;cursor:pointer}
+#cookies button.si{background:linear-gradient(135deg,var(--gold),var(--bronze));border-color:var(--bronze);color:#2a1c05;font-weight:600}
+/* ---- menú fijo de secciones ---- */
 html{scroll-padding-top:64px}
 .topbar{position:sticky;top:0;z-index:60;background:rgba(6,20,28,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .tb-inner{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:14px}
@@ -547,6 +555,11 @@ footer p{max-width:780px;margin:6px 0}
 
 <footer><div class="wrap" id="foot"></div></footer>
 
+<div id="cookies" role="dialog" aria-label="Cookies" hidden>
+  <p>Usamos <b>Google Analytics</b> para contar visitas y mejorar la web. Solo se activa si aceptas, y no guardamos datos personales tuyos.</p>
+  <div><button id="ck-no">Rechazar</button><button id="ck-si" class="si">Aceptar</button></div>
+</div>
+
 <div id="modal" role="dialog" aria-modal="true"><div class="sheet"></div></div>
 <div id="lb" role="dialog" aria-modal="true"><button class="x" aria-label="Cerrar">×</button><button class="pv" aria-label="Anterior">‹</button><img alt="Captura de black bass"><button class="nx" aria-label="Siguiente">›</button></div>
 
@@ -566,6 +579,25 @@ const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // Silueta de pez (marca de agua de las tarjetas)
 document.documentElement.style.setProperty("--fish", `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 90'><path fill='#fff' d='M4 46c8-18 28-30 56-30 20 0 34 6 46 14l10-14c4-5 10-4 10 3v54c0 7-6 8-10 3l-10-14c-12 8-26 14-46 14C32 76 12 64 4 46Z'/></svg>`)}")`);
+
+/* ---------- Google Analytics (solo si el visitante acepta las cookies) ---------- */
+const GA_ID = ""; // ← pega aquí tu ID de medición de Google Analytics (empieza por G-)
+function cargarGA(){
+  if (!GA_ID || window.__ga) return;
+  window.__ga = 1;
+  const s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID; document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
+  gtag("js", new Date()); gtag("config", GA_ID, {anonymize_ip: true});
+}
+function cookiesInit(){
+  if (!GA_ID) return; // sin ID no hay analítica ni aviso
+  let ck = null; try { ck = localStorage.getItem("cookies"); } catch {}
+  const caja = $("#cookies"), guardar = (v) => { try { localStorage.setItem("cookies", v); } catch {} caja.hidden = true; if (v === "si") cargarGA(); };
+  $("#ck-si").onclick = () => guardar("si"); $("#ck-no").onclick = () => guardar("no");
+  if (ck === "si") cargarGA(); else if (ck !== "no") caja.hidden = false;
+  const f = $("#foot"); f.insertAdjacentHTML("beforeend", '<p><a href="#" id="ck-reset">Preferencias de cookies</a></p>');
+  $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
+}
 
 let all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
 let favs = new Set();
@@ -1104,6 +1136,7 @@ async function init(){
     <p>Tiempo y presión: <a href="https://open-meteo.com">Open-Meteo</a>. Viento: <a href="https://www.windy.com">Windy</a>. Mapas: OpenStreetMap, OpenTopoMap y Esri. Fases lunares calculadas con SunCalc; los periodos solunares son una referencia tradicional de pesca, no una predicción científica.</p>
     <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
+  cookiesInit();
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");
