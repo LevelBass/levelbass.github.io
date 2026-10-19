@@ -263,6 +263,27 @@ for (const e of embalses) {
   e.vivo.historial = hist[e.id].map(([t, v]) => [t, v]);
 }
 
+// ---------------------------------------------------------------- Provincia de cada embalse (por coordenadas)
+// Se resuelve una sola vez con Nominatim (OpenStreetMap, máx. 1 consulta por segundo) y se guarda en data/provincias.json.
+let provs = {};
+try { provs = JSON.parse(await readFile(join(DIR, "provincias.json"), "utf8")); } catch {}
+let consultas = 0;
+const MAX_PROV = Number(process.env.PROV_MAX ?? 40);
+for (const e of embalses) {
+  if (e.lat == null) continue;
+  const clave = `${e.lat.toFixed(3)},${e.lon.toFixed(3)}`;
+  if (!provs[clave] && consultas < MAX_PROV) {
+    consultas++;
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.lat}&lon=${e.lon}&zoom=8&accept-language=es`, { headers: { "User-Agent": "LevelBass/1.0 (github.com/miguel220773/embalses-espana)" } });
+      if (r.ok) { const a = (await r.json()).address ?? {}; provs[clave] = a.province ?? a.state_district ?? a.state ?? ""; }
+    } catch {}
+    await new Promise((r) => setTimeout(r, 1100));
+  }
+  if (provs[clave]) e.provincia = provs[clave];
+}
+await writeFile(join(DIR, "provincias.json"), JSON.stringify(provs));
+
 embalses.sort((x, y) => x.nombre.localeCompare(y.nombre, "es"));
 const fechas = [...new Set(embalses.filter((e) => e.fecha).map((e) => e.fecha))].sort();
 const salida = {

@@ -233,6 +233,33 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .windbox{height:420px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#06141c}
 .windbox iframe{width:100%;height:100%;border:0;display:block}
 @media (min-width:640px){.q4{grid-template-columns:repeat(4,1fr)}.hoy{grid-template-columns:auto 1fr 1fr;align-items:center}}
+/* ---- barra de favoritos ---- */
+.favbar{margin-top:22px}
+.favbar h2{font:600 20px var(--head);letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:8px;color:var(--gold)}
+.favbar h2 small{color:var(--muted);font-size:15px}
+.favrow{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.fav{position:relative;flex:0 0 210px;scroll-snap-align:start;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--bronze);border-radius:16px;padding:12px 14px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.fav:hover,.fav:focus-visible{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.35);outline:0}
+.fav h3{font:600 17px var(--head);letter-spacing:.03em;text-transform:uppercase;margin:0 24px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fav .sub{color:var(--muted);font-size:12px}
+.fav .fr{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px}
+.fav .fr b{font:700 30px/1 var(--head)}.fav .fr b small{font-size:15px;color:var(--muted)}
+.fav .fr span{font-size:12px;font-weight:600;text-align:right;line-height:1.25}.fav .fr em{font-style:normal;font-weight:400;color:var(--muted)}
+.fav .tank{height:8px;margin-top:8px}
+.fav .ver{display:block;margin-top:8px;color:var(--gold);font-size:12px}
+.fav-x{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--muted);font-size:22px;line-height:1;cursor:pointer;padding:2px 4px}
+.fav-x:hover{color:var(--low)}
+.favvacio{flex:1;border:1px dashed var(--line);border-radius:16px;padding:18px!important}
+/* ---- widget solunar ---- */
+.moonglow{border-radius:50%;animation:glow 4s ease-in-out infinite;display:grid;place-items:center}
+@keyframes glow{50%{box-shadow:0 0 28px 6px rgba(240,227,184,.28)}}
+.est i{font-style:normal;letter-spacing:.02em;color:var(--muted);font-size:12px}
+.cap{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.14em;text-transform:uppercase}
+.cap .now{color:var(--olive)}.cap b{color:var(--gold)}
+.meter{height:6px;border-radius:99px;background:#07161e;margin-top:8px;overflow:hidden}
+.meter i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--olive),var(--gold))}
+.per .k{display:inline-block;min-width:26px;text-align:center;background:rgba(214,162,74,.18);color:var(--gold);border-radius:6px;padding:0 4px;margin-right:4px;font-size:12px}
+.per li.menor .k{background:rgba(74,155,92,.2);color:#8fd29a}
 footer{position:relative;margin-top:56px;border-top:1px solid var(--line);padding:28px 0 52px;color:var(--muted);font-size:13px;overflow:hidden}
 footer::before{content:"";position:absolute;inset:0;background:var(--topo);background-size:520px;opacity:.7;pointer-events:none}
 footer .wrap{position:relative}
@@ -242,7 +269,7 @@ footer p{max-width:780px;margin:6px 0}
 @media (min-width:640px){
   .grid{grid-template-columns:repeat(2,1fr)}
   .gallery{columns:3}
-  .controls{grid-template-columns:240px 1fr}
+  .controls{grid-template-columns:repeat(3,1fr)}
 }
 @media (min-width:900px){
   .hero{padding-top:44px}
@@ -332,14 +359,14 @@ footer p{max-width:780px;margin:6px 0}
     <div class="kpis" id="kpis"></div>
   </section>
 
+  <section class="favbar" aria-label="Mis embalses favoritos">
+    <h2>★ Mis embalses favoritos <small id="favcount"></small></h2>
+    <div id="favs" class="favrow"></div>
+  </section>
+
   <section class="card hoy" id="hoy" aria-label="Luna y solunar de hoy"></section>
 
   <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
-
-  <section class="section">
-    <h2>Mis embalses</h2>
-    <div id="favs" class="grid"></div>
-  </section>
 
   <section class="section">
     <h2>Mapa</h2>
@@ -361,7 +388,8 @@ footer p{max-width:780px;margin:6px 0}
   <section class="section" id="lista">
     <h2>Todos los embalses</h2>
     <div class="controls">
-      <select id="cuenca" aria-label="Cuenca"></select>
+      <select id="cuenca" aria-label="Cuenca hidrográfica"></select>
+      <select id="prov" aria-label="Provincia"></select>
       <select id="sort" aria-label="Ordenar">
         <option value="nombre">Ordenar: nombre</option>
         <option value="porcentaje-d">Más llenos primero</option>
@@ -423,15 +451,30 @@ const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"sh
 // Etiquetas orientativas según tamaño, nivel y tendencia (no son datos medidos)
 function badges(e, L){
   const b = [];
-  if (e.capacidad >= 300) b.push(`<span class="badge">${ico("boat")}Ideal para barco</span>`);
+  // acceso según el tamaño del embalse
+  if (e.capacidad >= 300) b.push(`<span class="badge">${ico("boat")}Acceso con barco</span>`);
   else if (e.capacidad >= 40) b.push(`<span class="badge">${ico("lure")}Barco o pato</span>`);
-  else b.push(`<span class="badge">${ico("kayak")}Pato o kayak</span>`);
-  if (L.pct >= 85) b.push(`<span class="badge g">${ico("leaf")}Orillas inundadas</span>`);
-  else if (L.pct < 35) b.push(`<span class="badge r">${ico("wave")}Orillas expuestas</span>`);
-  else if (trendOf(e) === "sube") b.push(`<span class="badge b">${ico("up")}Subiendo</span>`);
+  else b.push(`<span class="badge">${ico("kayak")}Acceso con pato</span>`);
+  // estado del nivel: cobertura inundada / cota óptima / estructura expuesta
+  if (L.pct >= 85) b.push(`<span class="badge g">${ico("leaf")}Cobertura inundada</span>`);
+  else if (L.pct < 35) b.push(`<span class="badge r">${ico("wave")}Estructura expuesta</span>`);
   else if (trendOf(e) === "baja") b.push(`<span class="badge">${ico("down")}Bajando</span>`);
-  else b.push(`<span class="badge g">${ico("fish")}Nivel estable</span>`);
+  else b.push(`<span class="badge g">${ico("fish")}Cota óptima</span>`);
   return b.join("");
+}
+
+// Tarjeta compacta de la barra de favoritos
+function favCard(e){
+  const L = lvl(e), t = trendOf(e), v = varDe(e), dec = e.extra ? 2 : 1;
+  const txt = t === "sube" ? `▲ +${fmt(v,dec)}` : t === "baja" ? `▼ ${fmt(v,dec)}` : "= estable";
+  return `<article class="fav" data-open="${e.id}" tabindex="0">
+    <button class="fav-x" data-fav="${e.id}" aria-label="Quitar de favoritos" title="Quitar de favoritos">×</button>
+    <h3>${esc(e.nombre)}</h3>
+    <div class="sub">${esc(e.provincia || e.cuenca)}</div>
+    <div class="fr"><b style="color:${hex(L.pct)}">${fmt(L.pct,0)}<small> %</small></b><span class="${t==='sube'?'up':t==='baja'?'down':''}">${txt} hm³<br><em>${e.extra ? "24 h" : "semana"}</em></span></div>
+    <div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div>
+    <span class="ver">Ver ficha →</span>
+  </article>`;
 }
 
 function card(e){
@@ -440,7 +483,7 @@ function card(e){
   return `<article class="res" data-id="${e.id}">
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
-    <div class="sub">${esc(e.cuenca)} ${e.vivo?'<span class="live">● En directo</span>':''}</div>
+    <div class="sub">${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)} ${e.vivo?'<span class="live">● En directo</span>':''}</div>
     <div class="badges">${badges(e, L)}</div>
     <div class="row">
       <div class="pc">${fmt(L.pct,0)}<small> %</small></div>
@@ -542,11 +585,13 @@ function solunar(fecha, lat, lon){
   if (sal != null) per.push({t:"menor", c: sal, ini: sal - 30, fin: sal + 30, n:"Salida de la luna"});
   if (pue != null) per.push({t:"menor", c: pue, ini: pue - 30, fin: pue + 30, n:"Puesta de la luna"});
   per.sort((a, b) => a.c - b.c);
+  let nM = 0, nm = 0;
+  for (const p of per) p.k = p.t === "mayor" ? "M" + (++nM) : "m" + (++nm); // M1, M2 (mayores) y m1, m2 (menores)
   const il = SunCalc.getMoonIllumination(new Date(d0.getTime() + 12 * 3600e3));
   // valoración orientativa: lunas nuevas y llenas + periodos que coinciden con amanecer o atardecer
   let v = 2 + (Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.8 ? 2 : Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.5 ? 1 : 0);
   if (per.some(x => x.t === "mayor" && [orto, ocaso].some(s => s != null && Math.abs(s - x.c) <= 90))) v += 1;
-  return {per, orto, ocaso, fase: il.phase, fraccion: il.fraction, nombre: faseLuna(il.phase), estrellas: Math.min(5, v)};
+  return {per, orto, ocaso, fase: il.phase, fraccion: il.fraction, edad: il.phase * 29.530588, nombre: faseLuna(il.phase), estrellas: Math.min(5, v)};
 }
 const estrellas = (n) => "★".repeat(n) + `<span style="opacity:.25">${"★".repeat(5 - n)}</span>`;
 function lineaDia(s){
@@ -747,13 +792,25 @@ function initFotos(){
 }
 
 // Luna y solunar de hoy (centro de la península) + mapa de viento que se carga al llegar a él
-function initHoy(){
+function renderHoy(){
   try {
-    const s = solunar(new Date(), MADRID[0], MADRID[1]);
-    $("#hoy").innerHTML = `<div class="luna-hoy">${lunaSvg(s.fase, 64)}<div><b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % iluminada</span><span class="est">${estrellas(s.estrellas)} actividad estimada</span></div></div>
-      <div><small style="color:var(--muted);font:600 11px var(--head);letter-spacing:.14em;text-transform:uppercase">Hoy · periodos solunares</small>${lineaDia(s)}</div>
-      <ul class="per">${s.per.map(p => `<li class="${p.t}"><span>${p.t === "mayor" ? "Mayor" : "Menor"}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("")}</ul>`;
+    const ahora = new Date(), s = solunar(ahora, MADRID[0], MADRID[1]), min = ahora.getHours() * 60 + ahora.getMinutes();
+    const activo = s.per.find(p => min >= p.ini && min <= p.fin);
+    const sig = s.per.find(p => p.ini > min);
+    const lbl = {M:"Mayor", m:"Menor"};
+    $("#hoy").innerHTML = `
+      <div class="luna-hoy"><div class="moonglow">${lunaSvg(s.fase, 72)}</div>
+        <div><b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % iluminada · ${fmt(s.edad, 1)} días de edad</span>
+        <span class="est">${estrellas(s.estrellas)} <i>Índice de actividad ${s.estrellas}/5</i></span></div></div>
+      <div class="solcol"><small class="cap">Periodos solunares de hoy · ${activo ? `<b class="now">ahora: ${activo.t === "mayor" ? "periodo mayor" : "periodo menor"}</b>` : sig ? `siguiente: <b>${sig.k} a las ${hhmm(sig.ini)}</b>` : "sin más periodos hoy"}</small>
+        ${lineaDia(s)}
+        <div class="meter" title="Índice de actividad"><i style="width:${s.estrellas * 20}%"></i></div></div>
+      <ul class="per">${s.per.map(p => `<li class="${p.t}"><span><b class="k">${p.k}</b> ${lbl[p.k[0]]}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("")}</ul>`;
   } catch { $("#hoy").hidden = true; }
+}
+function initHoy(){
+  renderHoy(); setInterval(renderHoy, 5 * 60 * 1000); // se refresca solo
+
   const url = "https://embed.windy.com/embed2.html?lat=40.2&lon=-3.7&detailLat=40.2&detailLon=-3.7&zoom=6&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=&calendar=now&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1";
   const box = $("#windbox"), poner = () => { if (!box.firstChild) box.innerHTML = `<iframe title="Mapa de viento Windy" loading="lazy" src="${url}" allowfullscreen></iframe>`; };
   if ("IntersectionObserver" in window) new IntersectionObserver((en, ob) => { if (en.some(x => x.isIntersecting)){ poner(); ob.disconnect(); } }, {rootMargin:"300px"}).observe(box);
@@ -782,6 +839,9 @@ async function init(){
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
+  const provs = [...new Set(all.map(e => e.provincia).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
+  $("#prov").innerHTML = '<option value="">Todas las provincias</option>' + provs.map(p => `<option>${esc(p)}</option>`).join("");
+  $("#prov").hidden = !provs.length;
   const grandes = ["Tajo","Guadiana","Guadalquivir","Ebro","Duero","Júcar","Segura"].filter(c => cuencas.includes(c));
   $("#quick").innerHTML = grandes.map(c => `<button type="button" data-c="${esc(c)}">${esc(c)}</button>`).join("");
   $("#quick").addEventListener("click", ev => {
@@ -795,7 +855,7 @@ async function init(){
     layer = L.layerGroup().addTo(map);
   } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
 
-  for (const id of ["#q","#cuenca","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
+  for (const id of ["#q","#cuenca","#prov","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
   const irLista = () => $("#lista").scrollIntoView({behavior:"smooth"});
   $("#go").addEventListener("click", irLista);
   $("#q").addEventListener("keydown", ev => { if (ev.key === "Enter") irLista(); });
@@ -816,18 +876,21 @@ async function init(){
       if (fb && +fb.dataset.fav === id){ fb.classList.toggle("on", favs.has(id)); fb.textContent = favs.has(id) ? "★ Favorito" : "☆ Guardar"; }
       return;
     }
-    const c = ev.target.closest(".res");
-    if (c) openDetail(+c.dataset.id);
+    const c = ev.target.closest(".res, [data-open]");
+    if (c) openDetail(+(c.dataset.id || c.dataset.open));
     // Se cierra con la X o pulsando fuera de la ficha
     if (ev.target.closest(".sheet .x") || ev.target.id === "modal") closeDetail();
   });
-  document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeDetail(); });
+  document.addEventListener("keydown", ev => {
+    if (ev.key === "Escape") closeDetail();
+    if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
+  });
   render();
 }
 
 function render(){
-  const q = norm($("#q").value.trim()), c = $("#cuenca").value;
-  const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(e.cuenca).includes(q)) && (!c || e.cuenca === c));
+  const q = norm($("#q").value.trim()), c = $("#cuenca").value, pv = $("#prov").value;
+  const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(e.cuenca).includes(q) || norm(e.provincia || "").includes(q)) && (!c || e.cuenca === c) && (!pv || e.provincia === pv));
   const list = base.filter(e => !tfilter || trendOf(e) === tfilter);
 
   // Indicador general sobre la selección (cuenca/búsqueda). Se usa la lectura en directo si existe.
@@ -837,7 +900,7 @@ function render(){
   const p = cap ? vol/cap*100 : 0, dv = vol - prev;
   const sube = base.filter(e => trendOf(e)==="sube").length, baja = base.filter(e => trendOf(e)==="baja").length;
   $("#gpct").textContent = fmt(p,1) + " %";
-  $("#glbl").textContent = c ? c : (q ? "Selección de la búsqueda" : "Llenado total en España");
+  $("#glbl").textContent = pv || c || (q ? "Selección de la búsqueda" : "Llenado total en España");
   $("#ring").style.strokeDashoffset = 515.2 * (1 - Math.min(p,100)/100);
   $("#ring").style.stroke = hex(p);
   $("#kpis").innerHTML = `
@@ -848,7 +911,8 @@ function render(){
 
   // Favoritos
   const fl = all.filter(e => favs.has(e.id));
-  $("#favs").innerHTML = fl.length ? fl.map(card).join("") : '<div class="empty" style="grid-column:1/-1;border:1px dashed var(--line);border-radius:16px">Pulsa la ☆ de cualquier embalse para guardarlo aquí. Se queda guardado en este navegador.</div>';
+  $("#favcount").textContent = fl.length ? `(${fl.length})` : "";
+  $("#favs").innerHTML = fl.length ? fl.map(favCard).join("") : '<div class="empty favvacio">Pulsa la ☆ de cualquier embalse para guardarlo aquí y tenerlo siempre a mano. Se queda guardado en este navegador.</div>';
 
   // Mapa
   if (map){ layer.clearLayers(); markers.clear(); }
