@@ -98,6 +98,27 @@ h1 em{font-style:normal;color:var(--lime)}
 .more:hover{border-color:var(--lime)}
 .empty{color:var(--muted);text-align:center;padding:30px}
 
+.live{color:var(--lime);font-weight:600;font-size:12px;white-space:nowrap}
+#modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(4,10,8,.72);backdrop-filter:blur(4px);overflow:auto;padding:24px 14px}
+#modal.open{display:block}
+.sheet{position:relative;max-width:680px;margin:0 auto;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:24px}
+.sheet h2{font:700 30px/1.05 var(--head);text-transform:uppercase;margin:0 40px 4px 0}
+.sheet h4{font:600 13px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+.sheet .sub{color:var(--muted)}
+.sheet .x{position:absolute;top:12px;right:14px;border:0;background:none;color:var(--muted);font-size:32px;line-height:1;cursor:pointer}
+.sheet .big{display:flex;align-items:center;gap:16px;margin:16px 0}
+.sheet .big b{font:700 46px/1 var(--head);min-width:130px}
+.sheet .big .tank{flex:1;margin:0;height:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.st{background:rgba(10,25,20,.55);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.st small{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
+.st b{display:block;font:600 21px var(--head);margin-top:2px}
+.st span{color:var(--muted);font-size:12px}
+.st b span{font-size:inherit;color:inherit}
+.chart{margin-top:18px;background:rgba(10,25,20,.55);border:1px solid var(--line);border-radius:12px;padding:12px}
+.chart small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.axis{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
+.src{color:var(--muted);font-size:13px;margin:12px 0 0}
 footer{margin-top:50px;border-top:1px solid var(--line);padding:26px 0 46px;color:var(--muted);font-size:13px}
 footer p{max-width:780px;margin:6px 0}
 
@@ -213,6 +234,9 @@ footer p{max-width:780px;margin:6px 0}
   <footer id="foot"></footer>
 </main>
 
+<div id="modal" role="dialog" aria-modal="true" data-close><div class="sheet" onclick="event.stopPropagation()"></div></div>
+
+<script src="data/embalses.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
@@ -226,42 +250,119 @@ let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
 const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch {} };
 
+// Nivel actual: si hay lectura en directo se usa esa; si no, el boletín semanal
+const lvl = (e) => e.vivo ? {vol:e.vivo.volumen, pct:e.vivo.porcentaje} : {vol:e.volumen, pct:e.porcentaje};
+const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+
 function card(e){
-  const t = trendOf(e), v = e.variacion_hm3;
+  const t = trendOf(e), v = e.variacion_hm3, L = lvl(e);
   const txt = t === "sube" ? `▲ +${fmt(v,1)} hm³` : t === "baja" ? `▼ ${fmt(v,1)} hm³` : "= Estable";
   return `<article class="res" data-id="${e.id}">
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
-    <div class="sub">${esc(e.cuenca)}</div>
+    <div class="sub">${esc(e.cuenca)} ${e.vivo?'<span class="live">● En directo</span>':''}</div>
     <div class="row">
-      <div class="pc">${fmt(e.porcentaje,0)}<small> %</small></div>
-      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span style="font-weight:400;color:var(--muted)">esta semana</span></div>
+      <div class="pc">${fmt(L.pct,0)}<small> %</small></div>
+      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span style="font-weight:400;color:var(--muted)">vs. semana ant.</span></div>
     </div>
-    <div class="tank"><i style="width:${e.porcentaje}%;background-color:${hex(e.porcentaje)}"></i></div>
-    <div class="meta"><span>${fmt(e.volumen)} hm³</span><span>de ${fmt(e.capacidad)} hm³</span></div>
+    <div class="tank"><i style="width:${Math.min(L.pct,100)}%;background-color:${hex(L.pct)}"></i></div>
+    <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?'a las '+fdt(e.vivo.fecha):'de '+fmt(e.capacidad)+' hm³'}</span></div>
   </article>`;
 }
 
+/* ---------- Ficha de embalse ---------- */
+const SERV = "https://services-eu1.arcgis.com/RvnYk1PBUJ9rrAuT/arcgis/rest/services/Embalses_Total/FeatureServer/0/query";
+function spark(pts, w, h, color){
+  if (pts.length < 2) return "";
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), pad = (y1 - y0) * .15 || 1;
+  const X = x => (x - x0) / ((x1 - x0) || 1) * (w - 6) + 3, Y = y => h - 4 - (y - (y0 - pad)) / ((y1 + pad) - (y0 - pad)) * (h - 8);
+  const d = pts.map((p,i) => (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1)).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"><path d="${d} L${X(x1)} ${h} L${X(x0)} ${h}Z" fill="${color}" opacity=".15"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
+}
+function stat(k, v, s){ return `<div class="st"><small>${k}</small><b>${v}</b>${s?`<span>${s}</span>`:""}</div>`; }
+
+async function openDetail(id){
+  const e = all.find(x => x.id === id); if (!e) return;
+  const L = lvl(e), col = hex(L.pct);
+  const f = new Date(e.fecha + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  let h = `<button class="x" data-close aria-label="Cerrar">×</button>
+    <h2>${esc(e.nombre)}</h2>
+    <div class="sub">${esc(e.cuenca)} · uso ${esc((e.uso||"–").toLowerCase())}${e.electrico?" · hidroeléctrico":""}</div>
+    <div class="big"><b style="color:${col}">${fmt(L.pct,1)} %</b><div class="tank"><i style="width:${Math.min(L.pct,100)}%;background-color:${col}"></i></div></div>
+    <div class="stats">
+      ${stat("Volumen", fmt(L.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
+      ${stat("Capacidad", fmt(e.capacidad)+" hm³")}
+      ${stat("Libre", fmt(Math.max(e.capacidad - L.vol,0),1)+" hm³", "hasta llenarse")}
+      ${stat("Vs. semana ant.", `<span class="${e.variacion_hm3>0?'up':e.variacion_hm3<0?'down':''}">${e.variacion_hm3>0?'+':''}${fmt(e.variacion_hm3,1)} hm³</span>`, f)}
+    </div>`;
+  if (e.vivo){
+    const v = e.vivo;
+    h += `<h4><span class="live">● En directo</span> · ${esc(v.fuente)} · ${fdt(v.fecha)}</h4>
+    <div class="stats">
+      ${stat("Cota", v.cota!=null?fmt(v.cota,2)+" m":"–", v.cota_aliviadero!=null?"aliviadero "+fmt(v.cota_aliviadero,2)+" m":"")}
+      ${stat("Entrada", v.entrada!=null?fmt(v.entrada,2)+" m³/s":"–", "caudal recibido")}
+      ${stat("Salida", v.salida!=null?fmt(v.salida,2)+" m³/s":"–", "caudal desembalsado")}
+      ${stat("Últimas 24 h", v.var24h!=null?`<span class="${v.var24h>0?'up':v.var24h<0?'down':''}">${v.var24h>0?'+':''}${fmt(v.var24h,2)} hm³</span>`:"–", v.var24h!=null?"":"acumulando historial")}
+    </div>`;
+    const pts = (v.historial||[]).map(([t,x]) => [new Date(t).getTime(), x]);
+    if (pts.length > 1) h += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#c3e04a")}</div>`;
+    h += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
+  }
+  h += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>
+    <p class="src">${e.lat!=null?`Coordenadas ${e.lat}, ${e.lon} · <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${e.lat},${e.lon}">Abrir en Google Maps ↗</a>`:""}</p>`;
+  $("#modal .sheet").innerHTML = h;
+  $("#modal").classList.add("open"); document.body.style.overflow = "hidden";
+  if (map && e.lat != null){ map.setView([e.lat,e.lon], 10); markers.get(e.id)?.openPopup(); }
+
+  // Histórico semanal desde el servicio del Ministerio (se consulta en el momento)
+  try {
+    const desde = Date.now() - 2 * 366 * 864e5;
+    const q = new URLSearchParams({where:`EMBALSE_ID=${e.id} AND fecha>=timestamp '${new Date(desde).toISOString().slice(0,10)} 00:00:00'`, outFields:"fecha,agua_actual", orderByFields:"fecha ASC", f:"json"});
+    const j = await (await fetch(`${SERV}?${q}`)).json();
+    const rows = (j.features||[]).map(x => [x.attributes.fecha, x.attributes.agua_actual]).filter(r => r[1] != null);
+    const box = $("#hist"); if (!box || !$("#modal").classList.contains("open")) return;
+    const ahora = rows.length ? rows[rows.length-1][0] : Date.now();
+    const cur = rows.filter(r => r[0] > ahora - 366*864e5);
+    const prev = rows.filter(r => r[0] <= ahora - 366*864e5).map(r => [r[0] + 366*864e5, r[1]]);
+    const all2 = [...cur, ...prev], y0 = Math.min(...all2.map(r=>r[1])), y1 = Math.max(...all2.map(r=>r[1]));
+    const w = 600, hh = 150, x0 = ahora - 366*864e5, X = x => (x-x0)/(ahora-x0)*(w-8)+4, Y = y => hh-6-(y-y0)/((y1-y0)||1)*(hh-14);
+    const path = a => a.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");
+    const hace = prev.length ? prev[prev.length-1][1] : null;
+    box.innerHTML = `<small>Volumen semanal (hm³): <span style="color:#c3e04a">■</span> último año · <span style="color:#8fb0a2">■</span> año anterior</small>
+      <svg viewBox="0 0 ${w} ${hh}" width="100%" height="${hh}" preserveAspectRatio="none">
+        <path d="${path(prev)}" fill="none" stroke="#8fb0a2" stroke-width="1.8" opacity=".8"/>
+        <path d="${path(cur)}" fill="none" stroke="#c3e04a" stroke-width="2.4" stroke-linejoin="round"/></svg>
+      <div class="axis"><span>mín. ${fmt(y0)} hm³</span><span>${hace!=null?"hace un año: "+fmt(hace)+" hm³":""}</span><span>máx. ${fmt(y1)} hm³</span></div>`;
+  } catch { const b = $("#hist"); if (b) b.innerHTML = '<small>Volumen semanal</small><div class="empty" style="padding:16px">No se pudo cargar el histórico.</div>'; }
+}
+function closeDetail(){ $("#modal").classList.remove("open"); document.body.style.overflow = ""; }
+
 async function init(){
-  let d;
-  try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
-  catch { $("#stamp").innerHTML = '<span class="pill">No se pudieron cargar los datos</span>'; return; }
+  let d = window.EMBALSES_DATA;
+  if (!d){
+    try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
+    catch { $("#stamp").innerHTML = '<span class="pill">No se pudieron cargar los datos. Recarga la página con Ctrl+F5.</span>'; return; }
+  }
   all = d.embalses;
+  const nLive = all.filter(e => e.vivo).length;
 
   const f = new Date(d.fecha_boletin + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
   const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
-  $("#stamp").innerHTML = `<span class="pill">Boletín del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span>`;
+  $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span><span class="pill"><b>${nLive}</b> embalses en directo</span>`;
   $("#foot").innerHTML = `
     <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión.</p>
-    <p>El Ministerio publica los datos una vez por semana (martes). Esta web comprueba si hay datos nuevos cada pocas horas, pero el nivel solo cambia cuando sale un boletín nuevo.</p>
+    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo la cuenca del <b>Júcar</b> (con volumen, cota y caudales de entrada y salida); el resto muestra el dato semanal. La web se actualiza cada hora.</p>
     <p>Esta web muestra el volumen almacenado, no la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
 
-  map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, className:"tiles-dark", attribution:"© OpenStreetMap"}).addTo(map);
-  layer = L.layerGroup().addTo(map);
+  try {
+    map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, className:"tiles-dark", attribution:"© OpenStreetMap"}).addTo(map);
+    layer = L.layerGroup().addTo(map);
+  } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
 
   for (const id of ["#q","#cuenca","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
   $("#chips").addEventListener("click", ev => {
@@ -279,11 +380,10 @@ async function init(){
       saveFavs(); render(); return;
     }
     const c = ev.target.closest(".res");
-    if (c){
-      const m = markers.get(+c.dataset.id);
-      if (m){ map.setView(m.getLatLng(), 10); m.openPopup(); $("#map").scrollIntoView({behavior:"smooth", block:"center"}); }
-    }
+    if (c) openDetail(+c.dataset.id);
+    if (ev.target.closest("[data-close]")) closeDetail();
   });
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeDetail(); });
   render();
 }
 
@@ -292,8 +392,8 @@ function render(){
   const base = all.filter(e => (!q || e.nombre.toLowerCase().includes(q)) && (!c || e.cuenca === c));
   const list = base.filter(e => !tfilter || trendOf(e) === tfilter);
 
-  // Indicador general sobre la selección (cuenca/búsqueda)
-  const vol = base.reduce((s,e) => s + (e.volumen||0), 0), cap = base.reduce((s,e) => s + (e.capacidad||0), 0);
+  // Indicador general sobre la selección (cuenca/búsqueda). Se usa la lectura en directo si existe.
+  const vol = base.reduce((s,e) => s + (lvl(e).vol||0), 0), cap = base.reduce((s,e) => s + (e.capacidad||0), 0);
   const prev = base.reduce((s,e) => s + (e.volumen||0) - (e.variacion_hm3||0), 0);
   const p = cap ? vol/cap*100 : 0, dv = vol - prev;
   const sube = base.filter(e => trendOf(e)==="sube").length, baja = base.filter(e => trendOf(e)==="baja").length;
@@ -312,18 +412,18 @@ function render(){
   $("#favs").innerHTML = fl.length ? fl.map(card).join("") : '<div class="empty" style="grid-column:1/-1;border:1px dashed var(--line);border-radius:16px">Pulsa la ☆ de cualquier embalse para guardarlo aquí. Se queda guardado en este navegador.</div>';
 
   // Mapa
-  layer.clearLayers(); markers.clear();
-  for (const e of list){
+  if (map){ layer.clearLayers(); markers.clear(); }
+  for (const e of (map ? list : [])){
     if (e.lat == null) continue;
     const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
     const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#0a1713", weight:1.5, fillColor:hex(e.porcentaje), fillOpacity:.9})
-      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(e.porcentaje,1)} % · ${fmt(e.volumen)} / ${fmt(e.capacidad)} hm³`);
+      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(lvl(e).pct,1)} % · ${fmt(lvl(e).vol, 1)} / ${fmt(e.capacidad)} hm³${e.vivo?' · <b style="color:#c3e04a">en directo</b>':''}<br><a href="#" onclick="openDetail(${e.id});return false">Ver ficha</a>`);
     m.addTo(layer); markers.set(e.id, m);
   }
-  if (list.length && list.length < all.length){
+  if (map && list.length && list.length < all.length){
     const pts = list.filter(e => e.lat != null).map(e => [e.lat,e.lon]);
     if (pts.length) map.fitBounds(pts, {padding:[30,30], maxZoom:10});
-  } else if (list.length === all.length) map.setView([39.9,-3.5], 6);
+  } else if (map && list.length === all.length) map.setView([39.9,-3.5], 6);
 
   // Lista
   const [k, dir] = $("#sort").value.split("-");

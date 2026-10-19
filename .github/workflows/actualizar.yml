@@ -2,11 +2,15 @@ name: Actualizar embalses
 
 on:
   schedule:
-    - cron: "0 */3 * * *" # cada 3 horas
+    - cron: "7 * * * *" # cada hora
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: actualizar
+  cancel-in-progress: false
 
 jobs:
   actualizar:
@@ -21,5 +25,5 @@ jobs:
         run: |
           git config user.name "embalses-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/embalses.json
-          git diff --staged --quiet || (git commit -m "Actualizar datos de embalses" && git push)
+          git add data/
+          git diff --staged --quiet || (git commit -m "Actualizar datos de embalses" && git pull --rebase -q && git push)
