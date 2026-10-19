@@ -7,6 +7,8 @@ const varDe = (e) => e.extra ? e.vivo?.var24h : e.variacion_hm3; // embalses sol
 const trendOf = (e) => { const v = varDe(e); return v > 0.05 ? "sube" : v < -0.05 ? "baja" : "igual"; };
 const ico = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+// El Ministerio escribe "Fernandina, La": también se busca en orden natural ("La Fernandina")
+const natural = (n) => n.replace(/^(.+?),\s*(El|La|Los|Las)$/i, "$2 $1");
 
 // Silueta de pez (marca de agua de las tarjetas)
 document.documentElement.style.setProperty("--fish", `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 90'><path fill='#fff' d='M4 46c8-18 28-30 56-30 20 0 34 6 46 14l10-14c4-5 10-4 10 3v54c0 7-6 8-10 3l-10-14c-12 8-26 14-46 14C32 76 12 64 4 46Z'/></svg>`)}")`);
@@ -675,7 +677,7 @@ async function init(){
 
 function render(){
   const q = norm($("#q").value.trim()), c = $("#cuenca").value, pv = $("#prov").value;
-  const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(e.cuenca).includes(q) || norm(e.provincia || "").includes(q)) && (!c || e.cuenca === c) && (!pv || e.provincia === pv));
+  const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(natural(e.nombre)).includes(q) || norm(e.cuenca).includes(q) || norm(e.provincia || "").includes(q)) && (!c || e.cuenca === c) && (!pv || e.provincia === pv));
   const list = base.filter(e => !tfilter || trendOf(e) === tfilter);
 
   // Indicador general sobre la selección (cuenca/búsqueda). Se usa la lectura en directo si existe.
