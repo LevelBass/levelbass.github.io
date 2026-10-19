@@ -581,7 +581,7 @@ const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 document.documentElement.style.setProperty("--fish", `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 90'><path fill='#fff' d='M4 46c8-18 28-30 56-30 20 0 34 6 46 14l10-14c4-5 10-4 10 3v54c0 7-6 8-10 3l-10-14c-12 8-26 14-46 14C32 76 12 64 4 46Z'/></svg>`)}")`);
 
 /* ---------- Google Analytics (solo si el visitante acepta las cookies) ---------- */
-const GA_ID = ""; // ← pega aquí tu ID de medición de Google Analytics (empieza por G-)
+const GA_ID = "G-K85QE1YT1G"; // ID de medición de Google Analytics
 function cargarGA(){
   if (!GA_ID || window.__ga) return;
   window.__ga = 1;
