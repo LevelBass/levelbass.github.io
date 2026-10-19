@@ -3,162 +3,320 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Embalses de España</title>
-<meta name="description" content="Nivel de agua de todos los embalses de España, por cuenca, con mapa y datos del Boletín Hidrológico oficial.">
+<title>Nivel de Embalses</title>
+<meta name="description" content="Nivel de agua de los embalses de España, al día, pensado para pescadores de black bass.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 :root{
-  --bg:#f5f7fa; --card:#fff; --ink:#14212b; --muted:#5d6b78; --line:#e1e7ed; --accent:#0b6fa4;
-  --low:#d64545; --mid:#e8a33d; --ok:#3a9d6e; --high:#1f6fd1;
-}
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#0f161c; --card:#17212a; --ink:#e8eef3; --muted:#93a3b1; --line:#26333f; --accent:#4cb3e6; }
+  color-scheme:dark;
+  --bg:#0a1713; --bg2:#0e211b; --card:#122a22; --card2:#17352b; --line:#24463a;
+  --ink:#eaf3ee; --muted:#8fb0a2; --lime:#c3e04a; --amber:#f2a93b; --teal:#35b5a8;
+  --low:#e5594f; --mid:#f2a93b; --ok:#5cc08a; --high:#3b8fe0;
+  --head:"Oswald",Impact,sans-serif; --body:"Inter",system-ui,sans-serif;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
-header{padding:28px 0 8px}
-h1{margin:0;font-size:28px;letter-spacing:-.01em}
-.sub{color:var(--muted);margin:4px 0 0}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.kpi b{display:block;font-size:26px;letter-spacing:-.01em}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
+a{color:var(--lime)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;overflow:hidden;padding:54px 0 90px;
+  background:
+   radial-gradient(900px 380px at 80% -10%,rgba(195,224,74,.16),transparent 60%),
+   radial-gradient(700px 400px at 0% 0%,rgba(53,181,168,.14),transparent 60%),
+   linear-gradient(180deg,#0d2a22 0%,var(--bg) 100%)}
+.hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font:600 12px var(--head);letter-spacing:.18em;text-transform:uppercase;color:var(--lime)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(195,224,74,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(195,224,74,0)}100%{box-shadow:0 0 0 0 rgba(195,224,74,0)}}
+h1{font:700 clamp(40px,7vw,76px)/.98 var(--head);text-transform:uppercase;letter-spacing:.01em;margin:12px 0 14px}
+h1 em{font-style:normal;color:var(--lime)}
+.lead{color:var(--muted);max-width:520px;font-size:16px;margin:0 0 18px}
+.stamp{display:inline-flex;gap:10px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:rgba(18,42,34,.7);backdrop-filter:blur(6px);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--muted)}
+.pill b{color:var(--ink);font-weight:600}
+.bass{width:100%;max-width:470px;justify-self:end;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));animation:swim 7s ease-in-out infinite}
+@keyframes swim{50%{transform:translate(-8px,-10px) rotate(-1.5deg)}}
+.waves{position:absolute;left:0;right:0;bottom:-1px;height:70px;z-index:1}
+.waves path{animation:drift 14s linear infinite}
+@keyframes drift{to{transform:translateX(-50%)}}
+
+/* ---------- Gauge + KPIs ---------- */
+.dash{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:-34px;position:relative;z-index:3}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.gauge{display:grid;place-items:center;text-align:center}
+.gauge svg{width:210px;height:210px}
+.gauge .big{font:700 46px var(--head);margin-top:-122px;line-height:1}
+.gauge .lbl{color:var(--muted);font-size:13px;margin-top:4px}
+.gauge .sp{height:70px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.kpi small{display:block;color:var(--muted);font:600 12px var(--head);letter-spacing:.14em;text-transform:uppercase}
+.kpi b{display:block;font:600 34px var(--head);margin-top:2px}
 .kpi span{color:var(--muted);font-size:13px}
-.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
-.bar i{display:block;height:100%;border-radius:99px}
-.controls{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 12px}
-.controls input,.controls select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0}
-.controls input{flex:1 1 220px}
-#map{height:440px;border-radius:12px;border:1px solid var(--line);margin-bottom:16px;z-index:0}
-.tablebox{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:auto}
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px 14px;text-align:right;white-space:nowrap}
-th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line)}
-th.on::after{content:" ▾"}th.on.asc::after{content:" ▴"}
-tr+tr td{border-top:1px solid var(--line)}
-tbody tr{cursor:pointer}tbody tr:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
-.pct{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
-.pct .bar{width:70px;margin:0}
 .up{color:var(--ok)}.down{color:var(--low)}
-footer{color:var(--muted);font-size:13px;padding:18px 0 40px}
-footer a{color:var(--accent)}
-.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 10px}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+
+/* ---------- Filtros ---------- */
+.section{margin-top:34px}
+.section h2{font:600 22px var(--head);letter-spacing:.06em;text-transform:uppercase;margin:0 0 12px;display:flex;align-items:center;gap:10px}
+.section h2::before{content:"";width:22px;height:4px;border-radius:4px;background:var(--lime)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.controls input,.controls select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none}
+.controls input:focus,.controls select:focus{border-color:var(--lime)}
+.controls input{flex:1 1 240px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:99px;padding:7px 14px;cursor:pointer;font:inherit;font-size:13px}
+.chip.on{background:var(--lime);border-color:var(--lime);color:#14200a;font-weight:600}
+.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+
+/* ---------- Mapa ---------- */
+#map{height:460px;border-radius:18px;border:1px solid var(--line);z-index:0}
+.tiles-dark{filter:invert(1) hue-rotate(160deg) saturate(.55) brightness(.8) contrast(.9)}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card2);color:var(--ink);border-radius:12px}
+.leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
+
+/* ---------- Tarjetas de embalse ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.res{position:relative;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .15s}
+.res:hover{transform:translateY(-3px);border-color:var(--lime)}
+.res h3{font:600 19px var(--head);letter-spacing:.03em;margin:0 30px 2px 0;text-transform:uppercase}
+.res .sub{color:var(--muted);font-size:12.5px}
+.res .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:14px}
+.res .pc{font:700 36px/1 var(--head)}
+.res .pc small{font-size:18px;color:var(--muted)}
+.res .trend{font-size:13px;font-weight:600;text-align:right}
+.tank{height:10px;border-radius:99px;background:#0a1914;margin-top:12px;overflow:hidden}
+.tank i{display:block;height:100%;border-radius:99px;background-image:linear-gradient(90deg,rgba(255,255,255,.18),transparent)}
+.res .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;margin-top:8px}
+.star{position:absolute;top:10px;right:10px;border:0;background:none;font-size:22px;color:#4d6f62;cursor:pointer;line-height:1;padding:4px}
+.star.on{color:var(--amber)}
+.more{display:block;margin:18px auto 0;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:11px 26px;font:inherit;cursor:pointer}
+.more:hover{border-color:var(--lime)}
+.empty{color:var(--muted);text-align:center;padding:30px}
+
+footer{margin-top:50px;border-top:1px solid var(--line);padding:26px 0 46px;color:var(--muted);font-size:13px}
+footer p{max-width:780px;margin:6px 0}
+
+@media (max-width:820px){
+  .hero .wrap{grid-template-columns:1fr}
+  .bass{max-width:320px;justify-self:center;order:-1}
+  .dash{grid-template-columns:1fr}
+  .hero{padding-top:34px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>Embalses de España</h1>
-    <p class="sub" id="sub">Cargando…</p>
-  </header>
 
-  <section class="kpis" id="kpis"></section>
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><i></i>Datos oficiales del Ministerio</span>
+      <h1>Nivel de <em>embalses</em><br>de España</h1>
+      <p class="lead">Cuánta agua tiene cada embalse antes de que salgas a pescar. Si el nivel sube, baja o se mantiene, con tus aguas favoritas siempre a mano.</p>
+      <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
+    </div>
 
-  <div class="controls">
-    <input id="q" type="search" placeholder="Buscar embalse…" aria-label="Buscar embalse">
-    <select id="cuenca" aria-label="Cuenca"></select>
-    <select id="uso" aria-label="Uso">
-      <option value="">Todos los usos</option>
-    </select>
+    <!-- Black bass -->
+    <svg class="bass" viewBox="0 0 520 260" role="img" aria-label="Ilustración de un black bass">
+      <defs>
+        <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4f7a1f"/><stop offset=".55" stop-color="#8fb43a"/><stop offset="1" stop-color="#e7edc6"/>
+        </linearGradient>
+        <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d6118"/><stop offset="1" stop-color="#7ea32f"/></linearGradient>
+      </defs>
+      <!-- cola -->
+      <path d="M392 130 C430 98 462 66 500 58 C488 100 488 160 500 202 C462 194 430 162 392 130Z" fill="url(#gf)"/>
+      <!-- aleta dorsal -->
+      <path d="M170 82 L180 44 L200 60 L214 36 L236 58 L258 40 L270 66 L300 52 L310 86 C260 72 210 72 170 82Z" fill="url(#gf)"/>
+      <!-- aleta anal y pélvica -->
+      <path d="M300 176 C330 196 352 204 372 196 C356 182 346 170 338 160Z" fill="url(#gf)"/>
+      <path d="M196 182 C206 204 222 216 244 220 C238 204 236 194 238 180Z" fill="url(#gf)"/>
+      <!-- cuerpo -->
+      <path d="M40 132 C46 100 76 78 130 72 C210 62 300 74 392 130 C300 190 210 200 130 190 C78 184 48 166 40 132Z" fill="url(#gb)"/>
+      <!-- boca abierta -->
+      <path d="M40 132 C58 128 84 130 112 138 C84 142 58 142 40 132Z" fill="#14200a" opacity=".85"/>
+      <!-- franja lateral -->
+      <path d="M96 132 C170 120 270 124 380 130" stroke="#2c4a10" stroke-width="12" stroke-linecap="round" opacity=".55" fill="none"/>
+      <!-- branquia -->
+      <path d="M132 84 C150 112 150 152 132 182" stroke="#2c4a10" stroke-width="3" fill="none" opacity=".6"/>
+      <!-- ojo -->
+      <circle cx="102" cy="112" r="13" fill="#f4e7a4"/><circle cx="104" cy="112" r="7" fill="#101a08"/><circle cx="107" cy="109" r="2.2" fill="#fff"/>
+    </svg>
   </div>
-  <p class="legend">
-    <span><i style="background:var(--low)"></i>&lt; 25 %</span>
-    <span><i style="background:var(--mid)"></i>25–50 %</span>
-    <span><i style="background:var(--ok)"></i>50–75 %</span>
-    <span><i style="background:var(--high)"></i>&gt; 75 %</span>
-  </p>
-  <div id="map"></div>
 
-  <div class="tablebox" style="max-height:640px">
-    <table>
-      <thead><tr>
-        <th data-k="nombre">Embalse</th>
-        <th data-k="cuenca">Cuenca</th>
-        <th data-k="porcentaje">Llenado</th>
-        <th data-k="volumen">Volumen (hm³)</th>
-        <th data-k="capacidad">Capacidad (hm³)</th>
-        <th data-k="variacion_hm3">Vs. semana ant.</th>
-      </tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-  </div>
+  <svg class="waves" viewBox="0 0 2400 70" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#0a1713" d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40 T1500 40 T1800 40 T2100 40 T2400 40 V70 H0Z"/>
+  </svg>
+</header>
+
+<main class="wrap">
+  <section class="dash">
+    <div class="card gauge">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="82" fill="none" stroke="#0a1914" stroke-width="16"/>
+        <circle id="ring" cx="100" cy="100" r="82" fill="none" stroke="var(--lime)" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="515.2" stroke-dashoffset="515.2" transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s ease,stroke .4s"/>
+      </svg>
+      <div class="big" id="gpct">–</div>
+      <div class="lbl" id="glbl">Llenado total</div>
+      <div class="sp"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="section">
+    <h2>Mis embalses</h2>
+    <div id="favs" class="grid"></div>
+  </section>
+
+  <section class="section">
+    <h2>Mapa</h2>
+    <p class="legend">
+      <span><i style="background:var(--low)"></i>menos del 25 %</span>
+      <span><i style="background:var(--mid)"></i>25–50 %</span>
+      <span><i style="background:var(--ok)"></i>50–75 %</span>
+      <span><i style="background:var(--high)"></i>más del 75 %</span>
+    </p>
+    <div id="map"></div>
+  </section>
+
+  <section class="section" id="lista">
+    <h2>Todos los embalses</h2>
+    <div class="controls">
+      <input id="q" type="search" placeholder="Buscar embalse…" aria-label="Buscar embalse">
+      <select id="cuenca" aria-label="Cuenca"></select>
+      <select id="sort" aria-label="Ordenar">
+        <option value="nombre">Ordenar: nombre</option>
+        <option value="porcentaje-d">Más llenos primero</option>
+        <option value="porcentaje-a">Más vacíos primero</option>
+        <option value="capacidad-d">Más grandes primero</option>
+        <option value="variacion-d">Más suben esta semana</option>
+        <option value="variacion-a">Más bajan esta semana</option>
+      </select>
+    </div>
+    <div class="chips" id="chips">
+      <button class="chip on" data-t="">Todos</button>
+      <button class="chip" data-t="sube">▲ Subiendo</button>
+      <button class="chip" data-t="baja">▼ Bajando</button>
+      <button class="chip" data-t="igual">= Estable</button>
+    </div>
+    <div id="count" class="legend"></div>
+    <div id="grid" class="grid"></div>
+    <button class="more" id="more" hidden>Ver más embalses</button>
+  </section>
 
   <footer id="foot"></footer>
-</div>
+</main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 const fmt = (n, d = 0) => n == null ? "–" : n.toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
-const color = (p) => p < 25 ? "var(--low)" : p < 50 ? "var(--mid)" : p < 75 ? "var(--ok)" : "var(--high)";
-const hex = (p) => p < 25 ? "#d64545" : p < 50 ? "#e8a33d" : p < 75 ? "#3a9d6e" : "#1f6fd1";
+const hex = (p) => p < 25 ? "#e5594f" : p < 50 ? "#f2a93b" : p < 75 ? "#5cc08a" : "#3b8fe0";
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const trendOf = (e) => e.variacion_hm3 > 0.05 ? "sube" : e.variacion_hm3 < -0.05 ? "baja" : "igual";
 
-let all = [], sort = {k:"nombre", asc:true}, map, layer, markers = new Map();
+let all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
+let favs = new Set();
+try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
+const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch {} };
+
+function card(e){
+  const t = trendOf(e), v = e.variacion_hm3;
+  const txt = t === "sube" ? `▲ +${fmt(v,1)} hm³` : t === "baja" ? `▼ ${fmt(v,1)} hm³` : "= Estable";
+  return `<article class="res" data-id="${e.id}">
+    <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
+    <h3>${esc(e.nombre)}</h3>
+    <div class="sub">${esc(e.cuenca)}</div>
+    <div class="row">
+      <div class="pc">${fmt(e.porcentaje,0)}<small> %</small></div>
+      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span style="font-weight:400;color:var(--muted)">esta semana</span></div>
+    </div>
+    <div class="tank"><i style="width:${e.porcentaje}%;background-color:${hex(e.porcentaje)}"></i></div>
+    <div class="meta"><span>${fmt(e.volumen)} hm³</span><span>de ${fmt(e.capacidad)} hm³</span></div>
+  </article>`;
+}
 
 async function init(){
   let d;
-  try {
-    d = await (await fetch("data/embalses.json?" + Date.now())).json();
-  } catch {
-    $("#sub").textContent = "No se pudieron cargar los datos.";
-    return;
-  }
+  try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
+  catch { $("#stamp").innerHTML = '<span class="pill">No se pudieron cargar los datos</span>'; return; }
   all = d.embalses;
+
   const f = new Date(d.fecha_boletin + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
   const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
-  $("#sub").textContent = `Boletín del ${f} · comprobado ${act}`;
-  $("#foot").innerHTML = `Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO, Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. El ministerio publica una vez por semana (martes); la web comprueba si hay datos nuevos varias veces al día.`;
+  $("#stamp").innerHTML = `<span class="pill">Boletín del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span>`;
+  $("#foot").innerHTML = `
+    <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión.</p>
+    <p>El Ministerio publica los datos una vez por semana (martes). Esta web comprueba si hay datos nuevos cada pocas horas, pero el nivel solo cambia cuando sale un boletín nuevo.</p>
+    <p>Esta web muestra el volumen almacenado, no la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
-  const usos = [...new Set(all.map(e => e.uso).filter(Boolean))].sort();
-  $("#uso").innerHTML += usos.map(u => `<option>${esc(u)}</option>`).join("");
 
   map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, attribution:"© OpenStreetMap"}).addTo(map);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, className:"tiles-dark", attribution:"© OpenStreetMap"}).addTo(map);
   layer = L.layerGroup().addTo(map);
 
-  for (const id of ["#q","#cuenca","#uso"]) $(id).addEventListener("input", render);
-  document.querySelectorAll("th").forEach(th => th.addEventListener("click", () => {
-    const k = th.dataset.k;
-    sort = {k, asc: sort.k === k ? !sort.asc : (k === "nombre" || k === "cuenca")};
+  for (const id of ["#q","#cuenca","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
+  $("#chips").addEventListener("click", ev => {
+    const b = ev.target.closest(".chip"); if (!b) return;
+    tfilter = b.dataset.t; shown = 24;
+    document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
     render();
-  }));
-  $("#rows").addEventListener("click", ev => {
-    const id = ev.target.closest("tr")?.dataset.id;
-    const m = markers.get(+id);
-    if (m){ map.setView(m.getLatLng(), 10); m.openPopup(); $("#map").scrollIntoView({behavior:"smooth", block:"center"}); }
+  });
+  $("#more").addEventListener("click", () => { shown += 24; render(); });
+  document.addEventListener("click", ev => {
+    const s = ev.target.closest("[data-fav]");
+    if (s){
+      const id = +s.dataset.fav;
+      favs.has(id) ? favs.delete(id) : favs.add(id);
+      saveFavs(); render(); return;
+    }
+    const c = ev.target.closest(".res");
+    if (c){
+      const m = markers.get(+c.dataset.id);
+      if (m){ map.setView(m.getLatLng(), 10); m.openPopup(); $("#map").scrollIntoView({behavior:"smooth", block:"center"}); }
+    }
   });
   render();
 }
 
-function filtered(){
-  const q = $("#q").value.trim().toLowerCase(), c = $("#cuenca").value, u = $("#uso").value;
-  return all.filter(e => (!q || e.nombre.toLowerCase().includes(q)) && (!c || e.cuenca === c) && (!u || e.uso === u));
-}
-
 function render(){
-  const list = filtered();
+  const q = $("#q").value.trim().toLowerCase(), c = $("#cuenca").value;
+  const base = all.filter(e => (!q || e.nombre.toLowerCase().includes(q)) && (!c || e.cuenca === c));
+  const list = base.filter(e => !tfilter || trendOf(e) === tfilter);
 
-  // KPIs sobre la selección actual
-  const vol = list.reduce((s,e) => s + (e.volumen||0), 0), cap = list.reduce((s,e) => s + (e.capacidad||0), 0);
-  const prev = list.reduce((s,e) => s + (e.volumen||0) - (e.variacion_hm3||0), 0);
+  // Indicador general sobre la selección (cuenca/búsqueda)
+  const vol = base.reduce((s,e) => s + (e.volumen||0), 0), cap = base.reduce((s,e) => s + (e.capacidad||0), 0);
+  const prev = base.reduce((s,e) => s + (e.volumen||0) - (e.variacion_hm3||0), 0);
   const p = cap ? vol/cap*100 : 0, dv = vol - prev;
+  const sube = base.filter(e => trendOf(e)==="sube").length, baja = base.filter(e => trendOf(e)==="baja").length;
+  $("#gpct").textContent = fmt(p,1) + " %";
+  $("#glbl").textContent = c ? c : "Llenado total en España";
+  $("#ring").style.strokeDashoffset = 515.2 * (1 - Math.min(p,100)/100);
+  $("#ring").style.stroke = hex(p);
   $("#kpis").innerHTML = `
-    <div class="kpi"><b>${fmt(p,1)} %</b><span>Llenado total</span><div class="bar"><i style="width:${p}%;background:${hex(p)}"></i></div></div>
-    <div class="kpi"><b>${fmt(vol)} hm³</b><span>de ${fmt(cap)} hm³ de capacidad</span></div>
-    <div class="kpi"><b class="${dv>=0?'up':'down'}">${dv>=0?'+':''}${fmt(dv,0)} hm³</b><span>vs. semana anterior</span></div>
-    <div class="kpi"><b>${fmt(list.length)}</b><span>embalses mostrados</span></div>`;
+    <div class="card kpi"><small>Agua almacenada</small><b>${fmt(vol)} hm³</b><span>de ${fmt(cap)} hm³ de capacidad</span></div>
+    <div class="card kpi"><small>Vs. semana anterior</small><b class="${dv>=0?'up':'down'}">${dv>=0?'+':''}${fmt(dv,0)} hm³</b><span>${dv>=0?'ganan agua':'pierden agua'} en conjunto</span></div>
+    <div class="card kpi"><small>Subiendo</small><b class="up">▲ ${fmt(sube)}</b><span>embalses con más agua que hace una semana</span></div>
+    <div class="card kpi"><small>Bajando</small><b class="down">▼ ${fmt(baja)}</b><span>embalses con menos agua que hace una semana</span></div>`;
+
+  // Favoritos
+  const fl = all.filter(e => favs.has(e.id));
+  $("#favs").innerHTML = fl.length ? fl.map(card).join("") : '<div class="empty" style="grid-column:1/-1;border:1px dashed var(--line);border-radius:16px">Pulsa la ☆ de cualquier embalse para guardarlo aquí. Se queda guardado en este navegador.</div>';
 
   // Mapa
   layer.clearLayers(); markers.clear();
   for (const e of list){
     if (e.lat == null) continue;
     const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
-    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#fff", weight:1, fillColor:hex(e.porcentaje), fillOpacity:.85})
+    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#0a1713", weight:1.5, fillColor:hex(e.porcentaje), fillOpacity:.9})
       .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(e.porcentaje,1)} % · ${fmt(e.volumen)} / ${fmt(e.capacidad)} hm³`);
     m.addTo(layer); markers.set(e.id, m);
   }
@@ -167,25 +325,17 @@ function render(){
     if (pts.length) map.fitBounds(pts, {padding:[30,30], maxZoom:10});
   } else if (list.length === all.length) map.setView([39.9,-3.5], 6);
 
-  // Tabla
-  const {k, asc} = sort;
+  // Lista
+  const [k, dir] = $("#sort").value.split("-");
+  const key = {nombre:"nombre", porcentaje:"porcentaje", capacidad:"capacidad", variacion:"variacion_hm3"}[k];
   list.sort((a,b) => {
-    const x = a[k], y = b[k];
+    const x = a[key], y = b[key];
     const r = typeof x === "string" ? x.localeCompare(y,"es") : (x ?? -Infinity) - (y ?? -Infinity);
-    return asc ? r : -r;
+    return dir === "d" ? -r : r;
   });
-  document.querySelectorAll("th").forEach(th => {
-    th.classList.toggle("on", th.dataset.k === k);
-    th.classList.toggle("asc", th.dataset.k === k && asc);
-  });
-  $("#rows").innerHTML = list.map(e => {
-    const v = e.variacion_hm3;
-    return `<tr data-id="${e.id}">
-      <td>${esc(e.nombre)}</td><td>${esc(e.cuenca)}</td>
-      <td><span class="pct">${fmt(e.porcentaje,1)} %<span class="bar"><i style="width:${e.porcentaje}%;background:${color(e.porcentaje)}"></i></span></span></td>
-      <td>${fmt(e.volumen)}</td><td>${fmt(e.capacidad)}</td>
-      <td class="${v>0?'up':v<0?'down':''}">${v>0?'+':''}${fmt(v,1)}</td></tr>`;
-  }).join("") || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Sin resultados</td></tr>';
+  $("#count").textContent = `${fmt(list.length)} embalses`;
+  $("#grid").innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty" style="grid-column:1/-1">Sin resultados</div>';
+  $("#more").hidden = list.length <= shown;
 }
 
 init();
