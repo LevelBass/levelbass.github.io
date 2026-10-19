@@ -67,9 +67,47 @@ const lectores = {
     }
     return out;
   },
+
+  async guadalquivir() {
+    // La web del SAIH es ASP.NET: hay que pedir cada zona con un "postback" del desplegable.
+    const url = "https://www.chguadalquivir.es/saih/EmbalNiv.aspx";
+    const dec = (s) => s.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(n)).replace(/&amp;/g, "&");
+    const r0 = await fetch(url, { headers: UA });
+    const cookie = (r0.headers.getSetCookie?.() ?? []).map((c) => c.split(";")[0]).join("; ");
+    const html0 = await r0.text();
+    const out = [], vistos = new Set();
+    const leer = (html) => {
+      const m = html.match(/Actualizados:\s*(\d\d)\/(\d\d)\/(\d{4}) (\d\d:\d\d)/);
+      const fecha = m ? `${m[3]}-${m[2]}-${m[1]}T${m[4]}` : new Date().toISOString().slice(0, 16);
+      const tabla = html.match(/<table[^>]*GridNivelesEmbalses[^>]*>(.*?)<\/table>/s)?.[1] ?? "";
+      for (const [, fila] of tabla.matchAll(/<tr class="filasGridView">(.*?)<\/tr>/gs)) {
+        const c = [...fila.matchAll(/<td[^>]*>(.*?)<\/td>/gs)].map((x) => dec(x[1].replace(/<[^>]+>/g, "")).trim());
+        if (c.length < 8) continue; // nombre, NMN, nivel, icono, capacidad, volumen, icono, %
+        const codigo = c[0].match(/^([A-Z]\d+)/)?.[1];
+        if (codigo && vistos.has(codigo)) continue;
+        if (codigo) vistos.add(codigo);
+        const nombre = c[0].replace(/^[A-Z]\d+\s+/, "").replace(/\s*\([A-Z]{1,3}\)\s*$/, "").trim();
+        out.push({ nombre, cota_aliviadero: num(c[1]), cota: num(c[2]), nmn: num(c[4]), volumen: num(c[5]), fecha, url });
+      }
+    };
+    leer(html0);
+    for (const zona of ["CO", "GR", "JA", "SE", "RG"]) {
+      const campos = {};
+      for (const [, tag] of html0.matchAll(/<input([^>]*)>/g)) {
+        const nombre = tag.match(/name="([^"]+)"/)?.[1];
+        if (nombre && /^__|^TreeS|^TreeT|^TreeE|^TreeM/.test(nombre)) campos[nombre] = dec(tag.match(/value="([^"]*)"/)?.[1] ?? "");
+      }
+      campos.__EVENTTARGET = "ctl00$ContentPlaceHolder1$DDBzona";
+      campos.__EVENTARGUMENT = "";
+      campos["ctl00$ContentPlaceHolder1$DDBzona"] = zona;
+      const r = await fetch(url, { method: "POST", headers: { ...UA, "Content-Type": "application/x-www-form-urlencoded", Cookie: cookie, Referer: url }, body: new URLSearchParams(campos) });
+      leer(await r.text());
+    }
+    return out;
+  },
 };
 
-const fuentes = { jucar: "SAIH Júcar" };
+const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir" };
 const porNombre = new Map(embalses.map((e) => [norm(e.nombre), e]));
 
 const estado = {};

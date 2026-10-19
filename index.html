@@ -300,7 +300,7 @@ async function openDetail(id){
     const v = e.vivo;
     h += `<h4><span class="live">● En directo</span> · ${esc(v.fuente)} · ${fdt(v.fecha)}</h4>
     <div class="stats">
-      ${stat("Cota", v.cota!=null?fmt(v.cota,2)+" m":"–", v.cota_aliviadero!=null?"aliviadero "+fmt(v.cota_aliviadero,2)+" m":"")}
+      ${stat("Cota", v.cota!=null?fmt(v.cota,2)+" m":"–", v.cota_aliviadero!=null?"cota máxima "+fmt(v.cota_aliviadero,2)+" m":"")}
       ${stat("Entrada", v.entrada!=null?fmt(v.entrada,2)+" m³/s":"–", "caudal recibido")}
       ${stat("Salida", v.salida!=null?fmt(v.salida,2)+" m³/s":"–", "caudal desembalsado")}
       ${stat("Últimas 24 h", v.var24h!=null?`<span class="${v.var24h>0?'up':v.var24h<0?'down':''}">${v.var24h>0?'+':''}${fmt(v.var24h,2)} hm³</span>`:"–", v.var24h!=null?"":"acumulando historial")}
@@ -352,7 +352,7 @@ async function init(){
   $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span><span class="pill"><b>${nLive}</b> embalses en directo</span>`;
   $("#foot").innerHTML = `
     <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión.</p>
-    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo la cuenca del <b>Júcar</b> (con volumen, cota y caudales de entrada y salida); el resto muestra el dato semanal. La web se actualiza cada hora.</p>
+    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b> (todos sus embalses) y del <b>Júcar</b>; el resto de cuencas muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web se actualiza cada hora.</p>
     <p>Esta web muestra el volumen almacenado, no la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
