@@ -1109,7 +1109,13 @@ function initHoy(){
   const spy = () => {
     let k = -1; secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 120) k = i; });
     links.forEach((a, i) => a.classList.toggle("on", i === k));
-    links[k]?.scrollIntoView({inline:"center", block:"nearest"});
+    // Centra el enlace activo dentro de la propia barra. No se usa scrollIntoView: con la barra "sticky"
+    // el navegador intentaba llevar la página arriba del todo y la subía sola al hacer scroll.
+    const caja = $("#tblinks"), a = links[k];
+    if (a && caja.scrollWidth > caja.clientWidth){
+      const objetivo = a.offsetLeft - (caja.clientWidth - a.offsetWidth) / 2;
+      if (Math.abs(caja.scrollLeft - objetivo) > 4) caja.scrollLeft = objetivo;
+    }
   };
   addEventListener("scroll", spy, {passive:true}); spy();
   setInterval(() => { if (all.length) renderHoy(); }, 60 * 1000); // el solunar se refresca solo
