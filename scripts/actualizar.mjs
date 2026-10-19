@@ -275,7 +275,7 @@ for (const e of embalses) {
   if (!provs[clave] && consultas < MAX_PROV) {
     consultas++;
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.lat}&lon=${e.lon}&zoom=8&accept-language=es`, { headers: { "User-Agent": "LevelBass/1.0 (github.com/miguel220773/embalses-espana)" } });
+      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.lat}&lon=${e.lon}&zoom=8&accept-language=es`, { headers: { "User-Agent": "LevelBass/1.0 (levelbass.github.io)" } });
       if (r.ok) { const a = (await r.json()).address ?? {}; provs[clave] = a.province ?? a.state_district ?? a.state ?? ""; }
     } catch {}
     await new Promise((r) => setTimeout(r, 1100));
