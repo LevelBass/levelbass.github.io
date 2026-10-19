@@ -143,6 +143,7 @@ const lectores = {
         nombre: e.nombre, volumen: vol.valor, nmn: parseFloat(sen("VE").maximo) || null, porcentaje: ult(sen("PO"))?.valor ?? null,
         cota: ult(sen("NE"))?.valor ?? null, cota_aliviadero: parseFloat(sen("NE")?.maximo) || null, salida: ult(sen("CSR"))?.valor ?? null,
         fecha, historial, url: base,
+        utm: e.estacion?.utm?.x ? { x: parseFloat(e.estacion.utm.x), y: parseFloat(e.estacion.utm.y), huso: e.estacion.utm.huso } : null,
       });
     };
     const cola = [...lista];
@@ -179,6 +180,21 @@ const lectores = {
 const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir", tajo: "SAIH Tajo", guadiana: "SIRA Guadiana" };
 const porNombre = new Map(embalses.map((e) => [norm(e.nombre), e]));
 
+const CUENCA_DE = { jucar: "Júcar", guadalquivir: "Guadalquivir", tajo: "Tajo", guadiana: "Guadiana" };
+const hash = (s) => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
+// Coordenadas UTM (ETRS89/WGS84) -> latitud y longitud
+const utmALatLon = (x, y, huso) => {
+  const a = 6378137, f = 1 / 298.257223563, k0 = 0.9996, e2 = f * (2 - f), ep2 = e2 / (1 - e2);
+  const m = y / k0, mu = m / (a * (1 - e2 / 4 - 3 * e2 ** 2 / 64 - 5 * e2 ** 3 / 256));
+  const e1 = (1 - Math.sqrt(1 - e2)) / (1 + Math.sqrt(1 - e2));
+  const fp = mu + (3 * e1 / 2 - 27 * e1 ** 3 / 32) * Math.sin(2 * mu) + (21 * e1 ** 2 / 16 - 55 * e1 ** 4 / 32) * Math.sin(4 * mu) + (151 * e1 ** 3 / 96) * Math.sin(6 * mu);
+  const c1 = ep2 * Math.cos(fp) ** 2, t1 = Math.tan(fp) ** 2, n1 = a / Math.sqrt(1 - e2 * Math.sin(fp) ** 2);
+  const r1 = a * (1 - e2) / (1 - e2 * Math.sin(fp) ** 2) ** 1.5, d = (x - 500000) / (n1 * k0);
+  const lat = fp - (n1 * Math.tan(fp) / r1) * (d ** 2 / 2 - (5 + 3 * t1 + 10 * c1 - 4 * c1 ** 2 - 9 * ep2) * d ** 4 / 24);
+  const lon = (d - (1 + 2 * t1 + c1) * d ** 3 / 6 + (5 - 2 * c1 + 28 * t1 - 3 * c1 ** 2 + 8 * ep2 + 24 * t1 ** 2) * d ** 5 / 120) / Math.cos(fp);
+  return [(lat * 180) / Math.PI, (huso * 6 - 183) + (lon * 180) / Math.PI];
+};
+
 const estado = {};
 const semillas = new Map(); // historial que ya trae la propia fuente (p. ej. Tajo: últimas 23 h)
 const sinEmparejar = [];
@@ -195,10 +211,24 @@ for (const [clave, leer] of Object.entries(lectores)) {
         const c = embalses.filter((x) => { const m = norm(x.nombre); return m.startsWith(n + " ") || n.startsWith(m + " "); });
         if (c.length === 1) e = c[0];
       }
-      if (!e || l.volumen == null) { sinEmparejar.push(`${clave}: ${l.nombre}`); continue; }
+      if (!e && l.volumen != null && !/azud|deriv|contraemb/i.test(l.nombre)) {
+        // Embalse que el SAIH publica pero que no está en el boletín semanal (menos de 5 hm³): se añade solo con dato en directo
+        // La capacidad se deduce del volumen y el % de la fuente (el máximo que publican algunos SAIH no siempre cuadra)
+        const cap = l.porcentaje > 1 ? (l.volumen / l.porcentaje) * 100 : l.nmn > 0 && l.nmn < 100000 ? l.nmn : null;
+        const nombre = l.nombre.toLowerCase().replace(/(^|[\s(-])\p{L}/gu, (m) => m.toUpperCase()).replace(/\b(De|Del|La|Las|El|Los|Y)\b/g, (m) => m.toLowerCase()).replace(/^embalse de /i, "");
+        const ll = l.utm ? utmALatLon(l.utm.x, l.utm.y, l.utm.huso) : null;
+        e = {
+          id: 100000 + (hash(`${clave}:${norm(l.nombre)}`) % 800000), nombre: nombre.charAt(0).toUpperCase() + nombre.slice(1),
+          cuenca: CUENCA_DE[clave], uso: null, electrico: false, capacidad: cap != null ? redondea(cap, 2) : null,
+          volumen: null, porcentaje: null, variacion_hm3: null, variacion_pct: null, fecha: null,
+          lat: ll ? redondea(ll[0], 5) : null, lon: ll ? redondea(ll[1], 5) : null, extra: true,
+        };
+        embalses.push(e);
+      } else if (!e || l.volumen == null) { sinEmparejar.push(`${clave}: ${l.nombre}`); continue; }
       e.vivo = {
         fuente: fuentes[clave], volumen: l.volumen, nmn: l.nmn,
         porcentaje: l.porcentaje != null ? redondea(l.porcentaje) : redondea(e.capacidad ? (l.volumen / e.capacidad) * 100 : null),
+        // (si e es nuevo y la fuente no da %, el cálculo anterior ya usa la capacidad deducida)
         cota: l.cota, cota_aliviadero: l.cota_aliviadero, entrada: l.entrada, salida: l.salida,
         fecha: l.fecha, url: l.url,
       };
@@ -230,7 +260,8 @@ for (const e of embalses) {
   e.vivo.historial = hist[e.id].map(([t, v]) => [t, v]);
 }
 
-const fechas = [...new Set(embalses.map((e) => e.fecha))].sort();
+embalses.sort((x, y) => x.nombre.localeCompare(y.nombre, "es"));
+const fechas = [...new Set(embalses.filter((e) => e.fecha).map((e) => e.fecha))].sort();
 const salida = {
   fuente: "MITECO · Boletín Hidrológico semanal + SAIH en directo",
   actualizado: new Date().toISOString(),

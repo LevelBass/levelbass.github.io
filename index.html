@@ -331,7 +331,8 @@ const fmt = (n, d = 0) => n == null ? "–" : n.toLocaleString("es-ES", {minimum
 const hex = (p) => p < 25 ? "#e0564c" : p < 50 ? "#e8a23c" : p < 75 ? "#6fbf86" : "#3b9be0";
 const lvlClass = (p) => p < 25 ? "l-lo" : p < 50 ? "l-md" : p < 75 ? "l-ok" : "l-hi";
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const trendOf = (e) => e.variacion_hm3 > 0.05 ? "sube" : e.variacion_hm3 < -0.05 ? "baja" : "igual";
+const varDe = (e) => e.extra ? e.vivo?.var24h : e.variacion_hm3; // embalses solo en directo: variación en 24 h
+const trendOf = (e) => { const v = varDe(e); return v > 0.05 ? "sube" : v < -0.05 ? "baja" : "igual"; };
 const ico = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
@@ -362,8 +363,8 @@ function badges(e, L){
 }
 
 function card(e){
-  const t = trendOf(e), v = e.variacion_hm3, L = lvl(e);
-  const txt = t === "sube" ? `▲ +${fmt(v,1)} hm³` : t === "baja" ? `▼ ${fmt(v,1)} hm³` : "= Estable";
+  const t = trendOf(e), v = varDe(e), L = lvl(e), dec = e.extra ? 2 : 1;
+  const txt = t === "sube" ? `▲ +${fmt(v,dec)} hm³` : t === "baja" ? `▼ ${fmt(v,dec)} hm³` : "= Estable";
   return `<article class="res" data-id="${e.id}">
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
@@ -371,10 +372,10 @@ function card(e){
     <div class="badges">${badges(e, L)}</div>
     <div class="row">
       <div class="pc">${fmt(L.pct,0)}<small> %</small></div>
-      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span>vs. semana ant.</span></div>
+      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span>${e.extra ? "últimas 24 h" : "vs. semana ant."}</span></div>
     </div>
     <div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div>
-    <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?'a las '+fdt(e.vivo.fecha):'de '+fmt(e.capacidad)+' hm³'}</span></div>
+    <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?'a las '+fdt(e.vivo.fecha):'de '+fmt(e.capacidad, e.capacidad < 20 ? 1 : 0)+' hm³'}</span></div>
   </article>`;
 }
 
@@ -393,17 +394,19 @@ function stat(k, v, s){ return `<div class="st"><small>${k}</small><b>${v}</b>${
 async function openDetail(id){
   const e = all.find(x => x.id === id); if (!e) return;
   const L = lvl(e), col = hex(L.pct);
-  const f = new Date(e.fecha + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  const f = e.fecha ? new Date(e.fecha + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) : "";
   let h = `<button class="x" data-close aria-label="Cerrar">×</button>
     <h2>${esc(e.nombre)}</h2>
-    <div class="sub">${esc(e.cuenca)} · uso ${esc((e.uso||"–").toLowerCase())}${e.electrico?" · hidroeléctrico":""}</div>
+    <div class="sub">${esc(e.cuenca)}${e.uso?" · uso "+esc(e.uso.toLowerCase()):""}${e.electrico?" · hidroeléctrico":""}</div>
     <div class="badges">${badges(e, L)}</div>
     <div class="big"><b style="color:${col}">${fmt(L.pct,1)} %</b><div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div></div>
     <div class="stats">
       ${stat("Volumen", fmt(L.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
       ${stat("Capacidad", fmt(e.capacidad)+" hm³")}
       ${stat("Libre", fmt(Math.max(e.capacidad - L.vol,0),1)+" hm³", "hasta llenarse")}
-      ${stat("Vs. semana ant.", `<span class="${e.variacion_hm3>0?'up':e.variacion_hm3<0?'down':''}">${e.variacion_hm3>0?'+':''}${fmt(e.variacion_hm3,1)} hm³</span>`, f)}
+      ${e.extra
+        ? stat("Estado", "Solo en directo", "no está en el boletín semanal")
+        : stat("Vs. semana ant.", `<span class="${e.variacion_hm3>0?'up':e.variacion_hm3<0?'down':''}">${e.variacion_hm3>0?'+':''}${fmt(e.variacion_hm3,1)} hm³</span>`, f)}
     </div>`;
   if (e.vivo){
     const v = e.vivo;
@@ -418,13 +421,14 @@ async function openDetail(id){
     if (pts.length > 1) h += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#f0c874")}</div>`;
     h += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
   }
-  h += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>
-    <p class="src">${e.lat!=null?`Coordenadas ${e.lat}, ${e.lon} · <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${e.lat},${e.lon}">Abrir en Google Maps ↗</a>`:""}</p>`;
+  if (!e.extra) h += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>`;
+  h += `<p class="src">${e.lat!=null?`Coordenadas ${e.lat}, ${e.lon} · <a target="_blank" rel="noopener" href="https://www.google.com/maps?q=${e.lat},${e.lon}">Abrir en Google Maps ↗</a>`:""}</p>`;
   $("#modal .sheet").innerHTML = h;
   $("#modal").classList.add("open"); document.body.style.overflow = "hidden";
   if (map && e.lat != null){ map.setView([e.lat,e.lon], 10); markers.get(e.id)?.openPopup(); }
 
   // Histórico semanal desde el servicio del Ministerio (se consulta en el momento)
+  if (e.extra) return;
   try {
     const desde = Date.now() - 2 * 366 * 864e5;
     const q = new URLSearchParams({where:`EMBALSE_ID=${e.id} AND fecha>=timestamp '${new Date(desde).toISOString().slice(0,10)} 00:00:00'`, outFields:"fecha,agua_actual", orderByFields:"fecha ASC", f:"json"});
@@ -483,7 +487,7 @@ async function init(){
   const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
   $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span><span class="pill"><b>${nLive}</b> embalses en directo</span>`;
   $("#foot").innerHTML = `
-    <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión.</p>
+    <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. Los embalses más pequeños que publican las confederaciones (Tajo, Guadiana, Guadalquivir y Júcar) se añaden solo con su lectura en directo.</p>
     <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b> y <b>Júcar</b>; el resto (Ebro, Duero, Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web se actualiza cada hora.</p>
     <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
@@ -536,7 +540,8 @@ function render(){
 
   // Indicador general sobre la selección (cuenca/búsqueda). Se usa la lectura en directo si existe.
   const vol = base.reduce((s,e) => s + (lvl(e).vol||0), 0), cap = base.reduce((s,e) => s + (e.capacidad||0), 0);
-  const prev = base.reduce((s,e) => s + (e.volumen||0) - (e.variacion_hm3||0), 0);
+  // Hace una semana: en los embalses solo en directo no hay dato semanal, así que no cuentan en la variación
+  const prev = base.reduce((s,e) => s + (e.extra ? lvl(e).vol : (e.volumen||0) - (e.variacion_hm3||0)), 0);
   const p = cap ? vol/cap*100 : 0, dv = vol - prev;
   const sube = base.filter(e => trendOf(e)==="sube").length, baja = base.filter(e => trendOf(e)==="baja").length;
   $("#gpct").textContent = fmt(p,1) + " %";
