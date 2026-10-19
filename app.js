@@ -42,8 +42,32 @@ const lvl = (e) => e.vivo ? {vol:e.vivo.volumen, pct:e.vivo.porcentaje} : {vol:e
 const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
 
 // Etiquetas orientativas según tamaño, nivel y tendencia (no son datos medidos)
+// Embalses confinados (mejillón cebra): datos en data/confinados.js
+const CONFD = window.CONFINADOS || {e: [], fuentes: {}};
+const CONF = new Map(CONFD.e.map(x => [x.id, x]));
+let confCuenca = "";
+function confAviso(e){
+  const c = CONF.get(e.id); if (!c) return "";
+  const f = CONFD.fuentes[c.f];
+  return `<div class="confbox"><b>${ico("anchor")} Embalse confinado · ${esc(c.c)}</b><p>Con barca solo puedes navegar aquí: la embarcación queda confinada por el mejillón cebra y no puede usarse en otros embalses sin limpieza y autorización. ${esc(c.n)}</p>${f ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)} ↗</a>` : ""}</div>`;
+}
+function renderConf(){
+  if (!$("#confgrid") || !all.length) return;
+  const todos = CONFD.e.map(c => ({c, e: all.find(x => x.id === c.id)})).filter(x => x.e);
+  const cuencas = [...new Set(todos.map(x => x.c.c))].sort((a, b) => a.localeCompare(b, "es"));
+  $("#confchips").innerHTML = `<button class="chip ${confCuenca ? "" : "on"}" data-cc="">Todas (${todos.length})</button>` +
+    cuencas.map(cu => `<button class="chip ${confCuenca === cu ? "on" : ""}" data-cc="${esc(cu)}">${esc(cu)} (${todos.filter(x => x.c.c === cu).length})</button>`).join("");
+  const lista = todos.filter(x => !confCuenca || x.c.c === confCuenca).sort((a, b) => a.e.nombre.localeCompare(b.e.nombre, "es"));
+  $("#confcount").textContent = `${lista.length} embalses confinados`;
+  $("#confgrid").innerHTML = lista.map(x => card(x.e).replace('<div class="meta">', `<p class="confnote">${esc(x.c.n)}</p><div class="meta">`)).join("");
+  $("#confn").textContent = todos.length;
+  $("#confsrc").innerHTML = "Revisado el " + new Date(CONFD.actualizado + "T12:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) +
+    ". Fuentes: " + Object.values(CONFD.fuentes).map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ") +
+    ". Las listas cambian; confirma siempre en tu confederación (y en Tajo, Duero, Segura o Guadiana si pescas allí, que aquí aún no están).";
+}
 function badges(e, L){
   const b = [];
+  if (CONF.has(e.id)) b.push(`<span class="badge r">${ico("anchor")}Confinado</span>`);
   // acceso según el tamaño del embalse
   if (e.capacidad >= 300) b.push(`<span class="badge">${ico("boat")}Acceso con barco</span>`);
   else if (e.capacidad >= 40) b.push(`<span class="badge">${ico("lure")}Barco o pato</span>`);
@@ -299,7 +323,7 @@ async function openDetail(id, deHash){
   const [la, lo] = tiene ? [e.lat, e.lon] : MADRID;
   const sol0 = solunar(new Date(), la, lo);
 
-  let res = `<div class="big"><b style="color:${col}">${fmt(L0.pct,1)} %</b><div class="tank"><i class="${lvlClass(L0.pct)}" style="width:${Math.min(L0.pct,100)}%"></i></div></div>
+  let res = confAviso(e) + `<div class="big"><b style="color:${col}">${fmt(L0.pct,1)} %</b><div class="tank"><i class="${lvlClass(L0.pct)}" style="width:${Math.min(L0.pct,100)}%"></i></div></div>
     <div class="stats">
       ${stat("Volumen", fmt(L0.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
       ${stat("Capacidad", fmt(e.capacidad)+" hm³")}
@@ -622,6 +646,7 @@ async function init(){
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");
   initSlugs();
+  $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
   addEventListener("hashchange", routeFromHash);
   initSolunar();
   renderHoy();
@@ -726,6 +751,7 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses`;
   $("#grid").innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty" style="grid-column:1/-1">Sin resultados</div>';
   $("#more").hidden = list.length <= shown;
+  renderConf();
 }
 
 init();

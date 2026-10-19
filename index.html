@@ -33,7 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -58,6 +58,7 @@
   <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z"/></symbol>
+  <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M7 11h10M4 14c0 4 3.6 7 8 7s8-3 8-7"/></symbol>
   <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
   <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></symbol>
 </svg>
@@ -71,6 +72,7 @@
       <a href="#solunar"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
       <a href="#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
       <a href="#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
+      <a href="#confinados"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>
       <a href="#lista"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
       <a href="#capturas"><svg class="i"><use href="#i-fish"/></svg>Capturas</a>
     </div>
@@ -92,6 +94,7 @@
         <button type="button" id="go">Buscar</button>
       </form>
       <div class="quick" id="quick" aria-label="Cuencas frecuentes"></div>
+      <a class="heroconf" href="#confinados"><svg class="i"><use href="#i-anchor"/></svg><span><b>Embalses confinados</b><small>Si pescas en barca, mira dónde puedes navegar</small></span><em id="confn"></em></a>
       <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
     </div>
 
@@ -172,6 +175,15 @@
     <div class="windbox" id="windbox"></div>
   </section>
 
+  <section class="section" id="confinados" aria-label="Embalses confinados">
+    <h2>Embalses confinados</h2>
+    <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
+    <div class="chips" id="confchips"></div>
+    <div id="confcount" class="legend"></div>
+    <div id="confgrid" class="grid"></div>
+    <p class="src" id="confsrc"></p>
+  </section>
+
   <section class="section" id="lista">
     <h2>Todos los embalses</h2>
     <div class="controls">
@@ -215,8 +227,9 @@
 <div id="lb" role="dialog" aria-modal="true"><button class="x" aria-label="Cerrar">×</button><button class="pv" aria-label="Anterior">‹</button><img alt="Captura de black bass"><button class="nx" aria-label="Siguiente">›</button></div>
 
 <script src="data/embalses.js"></script>
+<script src="data/confinados.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="app.js" defer></script>
+<script src="app.js?v=3" defer></script>
 </body>
 </html>
