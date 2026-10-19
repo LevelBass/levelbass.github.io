@@ -5,8 +5,9 @@ window.CONFINADOS = {
   fuentes: {
     ebro: {nombre: "CHE · Navegación en embalses (Tipo A, mar. 2026)", url: "https://www.chebro.es/navegacion-en-embalses"},
     jucar: {nombre: "CHJ · Prohibiciones y limitaciones a la navegación", url: "https://www.chj.es/es-es/ciudadano/masinformaciontramites/Documents/Procedimientos%20relativos%20a%20los%20usos%20comunes%20especiales%20del%20DPH%20sometidos%20a%20Declaracion%20Responsable/Listado%20especifico%20prohibiciones1.pdf"},
-    guadalquivir: {nombre: "CHG · Resoluciones de confinamiento", url: "https://www.chguadalquivir.es/en/-/la-chg-confina-las-embarcaciones-situadas-en-los-embalses-de-colomera-y-cubillas-en-granada-ante-la-presencia-de-mejillon-cebra"},
-    guadalquivir26: {nombre: "El Correo · Torre del Águila (sept. 2026)", url: "https://www.elcorreoweb.es/sevilla/2026/09/02/alerta-mejillon-cebra-guadalquivir-presencia-confinamiento-navegacion-133883706.html"}
+    guadalquivir: {nombre: "CHG · Información de relevancia jurídica (resoluciones de confinamiento)", url: "https://www.chguadalquivir.es/informacion-de-relevancia-juridica"},
+    guadalquivir_torre: {nombre: "CHG · Resolución de Torre del Águila", url: "https://www.chguadalquivir.es/-/la-confederacion-hidrografica-del-guadalquivir-confina-la-navegacion-en-el-embalse-de-torre-del-aguila-para-evitar-la-expansion-del-mejillon-cebra"},
+    guadalquivir_giribaile: {nombre: "CHG · Resolución de Giribaile", url: "https://www.chguadalquivir.es/-/la-confederacion-hidrografica-del-guadalquivir-confina-la-navegacion-en-el-embalse-de-giribaile-jaen-para-frenar-la-expansion-del-mejillon-cebra"}
   },
   e: [
     // Ebro (Tipo A: embalses afectados; solo se puede navegar en un embalse por declaración)
@@ -42,13 +43,14 @@ window.CONFINADOS = {
     {id: 23,  c: "Júcar", f: "jucar", n: "Motor de explosión limitado. Prohibido a menos de 250 m de la presa."},
     {id: 49,  c: "Júcar", f: "jucar", n: "Abastecimiento: motor ecológico o eléctrico. Prohibido a menos de 200 m de la presa."},
     {id: 31,  c: "Júcar", f: "jucar", n: "Mejillón cebra. Solo motor eléctrico, sin competiciones (salvo remo)."},
-    // Guadalquivir
-    {id: 52,  c: "Guadalquivir", f: "guadalquivir", n: "Confinado desde 2009."},
-    {id: 171, c: "Guadalquivir", f: "guadalquivir", n: "Confinado desde 2012."},
-    {id: 376, c: "Guadalquivir", f: "guadalquivir", n: "Confinado desde 2015."},
-    {id: 104, c: "Guadalquivir", f: "guadalquivir", n: "Confinado desde 2016."},
-    {id: 115, c: "Guadalquivir", f: "guadalquivir", n: "Confinado desde 2016."},
-    {id: 148, c: "Guadalquivir", f: "guadalquivir", n: "Confinado según la prensa local; confírmalo en la CHG antes de ir."},
-    {id: 312, c: "Guadalquivir", f: "guadalquivir26", n: "Confinado desde septiembre de 2026. Hace falta autorización específica."}
+    // Guadalquivir (lista de las resoluciones de la CHG, sept. 2026)
+    {id: 52,  c: "Guadalquivir", f: "guadalquivir", n: "Bermejales: mejillón cebra detectado en 2009."},
+    {id: 171, c: "Guadalquivir", f: "guadalquivir", n: "Iznájar: mejillón cebra detectado en 2012."},
+    {id: 376, c: "Guadalquivir", f: "guadalquivir", n: "La Breña II: mejillón cebra detectado en 2015."},
+    {id: 104, c: "Guadalquivir", f: "guadalquivir", n: "Colomera: mejillón cebra detectado en 2016."},
+    {id: 115, c: "Guadalquivir", f: "guadalquivir", n: "Cubillas: mejillón cebra detectado en 2018."},
+    {id: 135, c: "Guadalquivir", f: "guadalquivir", n: "La Fernandina: mejillón cebra detectado en 2023."},
+    {id: 312, c: "Guadalquivir", f: "guadalquivir_torre", n: "Confinado desde el 2 de septiembre de 2026. Autorización exclusiva de la CHG."},
+    {id: 148, c: "Guadalquivir", f: "guadalquivir_giribaile", n: "Confinado desde el 24 de septiembre de 2026. Autorización exclusiva de la CHG."}
   ]
 };
