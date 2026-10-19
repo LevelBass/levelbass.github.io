@@ -63,7 +63,8 @@ function renderConf(){
   $("#confn").textContent = todos.length;
   $("#confsrc").innerHTML = "Revisado el " + new Date(CONFD.actualizado + "T12:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) +
     ". Fuentes: " + Object.values(CONFD.fuentes).map(f => `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)}</a>`).join(" · ") +
-    ". Las listas cambian; confirma siempre en tu confederación (y en Tajo, Duero, Segura o Guadiana si pescas allí, que aquí aún no están).";
+    ". Las listas cambian; confirma siempre en tu confederación antes de ir." +
+    ((CONFD.avisos || []).length ? "<br><b>Ten en cuenta:</b> " + CONFD.avisos.map(esc).join(" ") : "");
 }
 function badges(e, L){
   const b = [];

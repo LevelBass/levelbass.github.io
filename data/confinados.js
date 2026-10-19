@@ -2,10 +2,18 @@
 // id = id del embalse en embalses.json · c = cuenca · n = nota · f = fuente
 window.CONFINADOS = {
   actualizado: "2026-10-19",
+  avisos: [
+    "Ebro: la navegación está suspendida en Santa Ana y Canelles desde el 1 de noviembre de 2025 hasta que haya estación de limpieza (confírmalo en la CHE).",
+    "Segura: Camarillas (navegación prohibida desde 2022), Cenajo (acceso único y limpieza obligatoria) y Talave tienen mejillón cebra; confirma las condiciones actuales en la CHS.",
+    "Júcar: también hay confinamiento en El Molinar, Embarcaderos, Tibi, Vallat y Ribesalbes, que no están en el boletín del Ministerio y por eso no aparecen aquí.",
+    "Sin embalses confinados localizados en Guadiana ni Duero (solo protocolo de limpieza). Cataluña, Galicia, Cantábrico y Andalucía mediterránea aún no están revisados."
+  ],
   fuentes: {
     ebro: {nombre: "CHE · Navegación en embalses (Tipo A, mar. 2026)", url: "https://www.chebro.es/navegacion-en-embalses"},
     jucar: {nombre: "CHJ · Prohibiciones y limitaciones a la navegación", url: "https://www.chj.es/es-es/ciudadano/masinformaciontramites/Documents/Procedimientos%20relativos%20a%20los%20usos%20comunes%20especiales%20del%20DPH%20sometidos%20a%20Declaracion%20Responsable/Listado%20especifico%20prohibiciones1.pdf"},
     guadalquivir: {nombre: "CHG · Información de relevancia jurídica (resoluciones de confinamiento)", url: "https://www.chguadalquivir.es/informacion-de-relevancia-juridica"},
+    tajo1: {nombre: "BOE · Confinamiento en Entrepeñas (CHT, jun. 2025)", url: "https://www.boe.es/diario_boe/txt.php?id=BOE-B-2025-28157"},
+    tajo2: {nombre: "BOE · Confinamiento en Bolarque, Buendía y Zorita (CHT, nov. 2025)", url: "https://www.boe.es/diario_boe/txt.php?id=BOE-B-2025-42481"},
     guadalquivir_torre: {nombre: "CHG · Resolución de Torre del Águila", url: "https://www.chguadalquivir.es/-/la-confederacion-hidrografica-del-guadalquivir-confina-la-navegacion-en-el-embalse-de-torre-del-aguila-para-evitar-la-expansion-del-mejillon-cebra"},
     guadalquivir_giribaile: {nombre: "CHG · Resolución de Giribaile", url: "https://www.chguadalquivir.es/-/la-confederacion-hidrografica-del-guadalquivir-confina-la-navegacion-en-el-embalse-de-giribaile-jaen-para-frenar-la-expansion-del-mejillon-cebra"}
   },
@@ -24,7 +32,7 @@ window.CONFINADOS = {
     {id: 363, c: "Ebro", f: "ebro", n: "Motor hasta 150 CV. Prohibido a menos de 500 m de la presa."},
     {id: 255, c: "Ebro", f: "ebro", n: "Navegación conjunta posible con Mequinenza y Flix."},
     {id: 386, c: "Ebro", f: "ebro", n: "San Lorenzo de Mongay. Remo y vela."},
-    {id: 283, c: "Ebro", f: "ebro", n: "Motor hasta 50 CV. Prohibido a menos de 200 m de la presa."},
+    {id: 283, c: "Ebro", f: "ebro", n: "Navegación suspendida desde el 1 nov. 2025 hasta que haya estación de limpieza. Motor hasta 50 CV."},
     {id: 297, c: "Ebro", f: "ebro", n: "Motor hasta 20 CV. Zona no navegable junto a la central de Garoña."},
     {id: 299, c: "Ebro", f: "ebro", n: "Motor hasta 50 CV. Prohibido a menos de 200 m de la presa."},
     {id: 318, c: "Ebro", f: "ebro", n: "Tremp o San Antonio."},
@@ -43,6 +51,11 @@ window.CONFINADOS = {
     {id: 23,  c: "Júcar", f: "jucar", n: "Motor de explosión limitado. Prohibido a menos de 250 m de la presa."},
     {id: 49,  c: "Júcar", f: "jucar", n: "Abastecimiento: motor ecológico o eléctrico. Prohibido a menos de 200 m de la presa."},
     {id: 31,  c: "Júcar", f: "jucar", n: "Mejillón cebra. Solo motor eléctrico, sin competiciones (salvo remo)."},
+    // Tajo (resoluciones de la CHT: confinamiento de embarcaciones)
+    {id: 128, c: "Tajo", f: "tajo1", n: "Entrepeñas (y dique de Pareja): confinado desde el 16 de junio de 2025. Hay que limpiar y desinfectar la barca al entrar y salir."},
+    {id: 54,  c: "Tajo", f: "tajo2", n: "Confinado desde el 7 de noviembre de 2025."},
+    {id: 63,  c: "Tajo", f: "tajo2", n: "Confinado desde el 7 de noviembre de 2025."},
+    {id: 358874, c: "Tajo", f: "tajo2", n: "Confinado desde el 7 de noviembre de 2025."},
     // Guadalquivir (lista de las resoluciones de la CHG, sept. 2026)
     {id: 52,  c: "Guadalquivir", f: "guadalquivir", n: "Bermejales: mejillón cebra detectado en 2009."},
     {id: 171, c: "Guadalquivir", f: "guadalquivir", n: "Iznájar: mejillón cebra detectado en 2012."},
