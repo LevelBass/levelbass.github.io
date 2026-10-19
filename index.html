@@ -248,8 +248,73 @@ html{scroll-padding-top:64px}
 .tb-links small{color:var(--muted)}
 .tb-links svg.i{font-size:1.05em}
 /* ---- tabla solunar ---- */
-.zona{margin-bottom:12px}
-.zona select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;width:100%;max-width:420px;outline:none}
+.solctl{display:grid;gap:10px;margin-bottom:12px}
+.solctl select,.datenav input{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none;color-scheme:dark}
+.datenav{display:flex;gap:6px;align-items:stretch}
+.datenav input{flex:1}
+.datenav button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:0 16px;font:inherit;font-size:20px;cursor:pointer}
+.datenav .hoybtn{font-size:14px;font-weight:600;color:var(--gold);border-color:var(--bronze)}
+.datenav button:disabled{opacity:.4;cursor:default}
+.hoy.card{display:block}
+.soltop{display:grid;gap:14px;align-items:center}
+.solinfo h3{font:700 30px/1.05 var(--head);text-transform:uppercase;margin:2px 0 8px}
+.chips2{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.chips2 span{border:1px solid var(--line);background:rgba(6,20,28,.55);border-radius:99px;padding:3px 11px;font-size:13px;color:var(--muted)}
+.rate{display:flex;align-items:baseline;gap:10px}
+.rate .big{font-size:26px;letter-spacing:.08em}
+.rate b{font:700 24px var(--head)}
+.rate em{font-style:normal;font:600 14px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rate em.v4,.rate em.v5{color:var(--gold)}
+.solnow{display:grid;gap:8px}
+.estado{background:rgba(6,20,28,.55);border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:12px;padding:10px 14px}
+.estado.on{border-left-color:var(--olive);box-shadow:0 0 0 1px rgba(155,180,60,.35)}
+.estado.best{border-left-color:var(--bronze)}
+.estado small{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
+.estado b{display:block;font:600 20px var(--head);letter-spacing:.03em}
+.estado span{color:var(--muted);font-size:13px}
+.why{margin:12px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.why li{font-size:12.5px;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:3px 11px}
+.sunmoon{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:14px 0 4px}
+.sunmoon div{background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.sunmoon small{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
+.sunmoon b{font:600 22px var(--head)}
+.dia.pro{margin:12px 0 10px}
+.dia.pro .bar24{height:34px}
+.bar24 i em{position:absolute;inset:0;display:grid;place-items:center;font:700 12px var(--head);color:#1b1304;font-style:normal;letter-spacing:.04em}
+.bar24 i.menor em{color:#07210f}
+.bar24 b.am{background:#ffd27a;opacity:.9}.bar24 b.at{background:#ff9a5c;opacity:.9}
+.bar24 u.ahora{position:absolute;top:-3px;bottom:-3px;width:3px;background:#fff;border-radius:2px;box-shadow:0 0 8px #fff}
+.leyenda{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12px;color:var(--muted)}
+.leyenda i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.leyenda i.mayor{background:var(--bronze)}.leyenda i.menor{background:#4a9b5c}.leyenda i.sol{background:#ffd27a}.leyenda i.now{background:#fff}
+.proxl{margin:12px 0 0;color:var(--muted);font-size:13.5px}
+.proxl svg{vertical-align:-4px;margin-right:2px}
+.proxl b{color:var(--ink)}
+.solgrid{display:grid;gap:14px;margin-top:14px}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calhead b{font:600 17px var(--head);letter-spacing:.06em;text-transform:uppercase}
+.calhead button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;width:36px;height:32px;font-size:20px;cursor:pointer}
+.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calgrid .dow{text-align:center;color:var(--muted);font:600 11px var(--head);letter-spacing:.1em;padding:2px 0}
+.calgrid .vacio{display:block}
+.calgrid .dd{display:grid;justify-items:center;gap:1px;border:1px solid var(--line);background:rgba(6,20,28,.55);color:var(--ink);border-radius:10px;padding:4px 0;font:inherit;cursor:pointer;min-width:0}
+.calgrid .dd b{font:600 12px var(--head);color:var(--muted)}
+.calgrid .dd span{font-size:8px;color:var(--gold);letter-spacing:0;height:10px;line-height:10px}
+.calgrid .dd.best{border-color:var(--bronze);background:rgba(214,162,74,.1)}
+.calgrid .dd.esh b{color:var(--olive)}
+.calgrid .dd.sel{outline:2px solid var(--teal);outline-offset:-1px}
+.calgrid .dd:hover{border-color:var(--gold)}
+.bestrow{display:grid;gap:8px;margin-top:8px}
+.bestrow button{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:rgba(6,20,28,.55);color:var(--ink);border-radius:12px;padding:8px 12px;font:inherit;cursor:pointer}
+.bestrow button:hover{border-color:var(--bronze)}
+.bestrow b{display:block;font:600 15px var(--head);letter-spacing:.04em;text-transform:uppercase}
+.bestrow em{font-style:normal;color:var(--gold);font-size:13px}
+.subh{font:600 16px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.soltabla tbody tr{cursor:pointer}.soltabla tbody tr:hover td{background:rgba(255,255,255,.03)}
+.soltabla tr.top td:last-child{color:var(--gold)}
+.soltabla .vv{display:block;color:var(--muted);font-size:11px;letter-spacing:.04em}
+@media (min-width:640px){.solctl{grid-template-columns:minmax(0,1fr) auto;align-items:stretch}.sunmoon{grid-template-columns:repeat(4,1fr)}}
+@media (min-width:900px){.soltop{grid-template-columns:auto minmax(0,1fr) 280px}.solgrid{grid-template-columns:1.25fr 1fr}}
 .soltabla-wrap{margin-top:14px;overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,var(--card2),var(--card))}
 .soltabla{width:100%;border-collapse:collapse;min-width:640px}
 .soltabla th{font:600 12px var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;padding:12px 8px;border-bottom:1px solid var(--line)}
@@ -409,11 +474,24 @@ footer p{max-width:780px;margin:6px 0}
 
   <section class="section" id="solunar" aria-label="Tabla solunar">
     <h2>Tabla solunar</h2>
-    <p class="hint">Fase de la luna y periodos de mayor y menor actividad para pescar. Elige el embalse o zona.</p>
-    <div class="zona"><label class="sr" for="solzona">Zona</label><select id="solzona"></select></div>
-    <div class="card hoy" id="hoy" aria-label="Luna y solunar de hoy"></div>
+    <p class="hint">Fase de la luna, periodos de mayor y menor actividad y el mejor momento para pescar. Elige el embalse y el día.</p>
+    <div class="solctl">
+      <label class="sr" for="solzona">Embalse o zona</label><select id="solzona"></select>
+      <div class="datenav">
+        <button id="solprev" aria-label="Día anterior">‹</button>
+        <label class="sr" for="soldate">Día</label><input type="date" id="soldate">
+        <button id="solnext" aria-label="Día siguiente">›</button>
+        <button id="solhoy" class="hoybtn">Hoy</button>
+      </div>
+    </div>
+    <div class="card hoy" id="hoy" aria-label="Luna y solunar del día elegido"></div>
+    <div class="solgrid">
+      <div class="card" id="solcal" aria-label="Calendario solunar"></div>
+      <div class="card" id="solbest" aria-label="Mejores días"></div>
+    </div>
+    <h3 class="subh">Próximos 7 días</h3>
     <div class="soltabla-wrap"><table class="soltabla" id="soltabla"></table></div>
-    <p class="src">M1 y M2 son los periodos mayores (luna en lo más alto y en lo más bajo, unas 2 h). m1 y m2 son los menores (salida y puesta de la luna, 1 h). Es una referencia tradicional de pesca, no una predicción científica.</p>
+    <p class="src"><b>M1 y M2</b> son los periodos mayores (la luna en lo más alto y en lo más bajo, unas 2 h). <b>m1 y m2</b> son los menores (salida y puesta de la luna, 1 h). Las estrellas son una estimación según la fase y si un periodo mayor cae al amanecer o al atardecer. Es una referencia tradicional de pesca, no una predicción científica.</p>
   </section>
 
   <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
@@ -625,7 +703,7 @@ function solunar(fecha, lat, lon){
     if (a > alto){ alto = a; mAlto = m; }
     if (a < bajo){ bajo = a; mBajo = m; }
   }
-  const mt = SunCalc.getMoonTimes(d0, lat, lon), sol = SunCalc.getTimes(d0, lat, lon);
+  const mt = SunCalc.getMoonTimes(d0, lat, lon), sol = SunCalc.getTimes(new Date(d0.getTime() + 12 * 3600e3), lat, lon); // el sol se calcula al mediodía para no coger el día anterior
   const orto = minDia(sol.sunrise, d0), ocaso = minDia(sol.sunset, d0);
   const per = [];
   // periodos mayores: la luna en lo más alto y en lo más bajo (unas 2 h); menores: salida y puesta de luna (1 h)
@@ -639,9 +717,13 @@ function solunar(fecha, lat, lon){
   for (const p of per) p.k = p.t === "mayor" ? "M" + (++nM) : "m" + (++nm); // M1, M2 (mayores) y m1, m2 (menores)
   const il = SunCalc.getMoonIllumination(new Date(d0.getTime() + 12 * 3600e3));
   // valoración orientativa: lunas nuevas y llenas + periodos que coinciden con amanecer o atardecer
-  let v = 2 + (Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.8 ? 2 : Math.abs(Math.cos(2 * Math.PI * il.phase)) > 0.5 ? 1 : 0);
-  if (per.some(x => x.t === "mayor" && [orto, ocaso].some(s => s != null && Math.abs(s - x.c) <= 90))) v += 1;
-  return {per, orto, ocaso, fase: il.phase, fraccion: il.fraction, edad: il.phase * 29.530588, nombre: faseLuna(il.phase), estrellas: Math.min(5, v)};
+  const cs = Math.abs(Math.cos(2 * Math.PI * il.phase)), razones = [];
+  let v = 2;
+  if (cs > 0.8){ v += 2; razones.push("Luna cerca de nueva o llena: la mejor fase (+2)"); }
+  else if (cs > 0.5){ v += 1; razones.push("Luna algo alejada de los cuartos (+1)"); }
+  if (per.some(x => x.t === "mayor" && [orto, ocaso].some(s => s != null && Math.abs(s - x.c) <= 90))){ v += 1; razones.push("Un periodo mayor coincide con el amanecer o el atardecer (+1)"); }
+  if (!razones.length) razones.push("Sin factores a favor: día normal");
+  return {per, orto, ocaso, sal, pue, razones, fase: il.phase, fraccion: il.fraction, edad: il.phase * 29.530588, nombre: faseLuna(il.phase), estrellas: Math.min(5, v)};
 }
 const estrellas = (n) => "★".repeat(n) + `<span style="opacity:.25">${"★".repeat(5 - n)}</span>`;
 function lineaDia(s){
@@ -841,41 +923,150 @@ function initFotos(){
   });
 }
 
-// Luna y solunar de hoy (centro de la península) + mapa de viento que se carga al llegar a él
-// Zona elegida en la tabla solunar: "centro" (Madrid) o el id de un embalse con coordenadas
+// ================= TABLA SOLUNAR =================
+// Zona elegida: "centro" (Madrid) o el id de un embalse con coordenadas
 function zonaSolunar(){
   const v = $("#solzona")?.value;
   const e = v && v !== "centro" ? all.find(x => x.id === +v) : null;
   return e ? {lat: e.lat, lon: e.lon, nombre: e.nombre} : {lat: MADRID[0], lon: MADRID[1], nombre: "centro de España"};
 }
-function tablaSolunar(z){
-  const hoy = new Date(), filas = [];
-  for (let i = 0; i < 7; i++){
-    const f = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i), s = solunar(f, z.lat, z.lon);
-    const t = (k) => { const p = s.per.find(x => x.k === k); return p ? hhmm(Math.max(0, p.ini)) + "–" + hhmm(Math.min(1440, p.fin)) : "–"; };
-    filas.push(`<tr class="${i === 0 ? "hoy" : ""}"><td><div class="ph">${lunaSvg(s.fase, 34)}<div><b>${f.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"short"})}</b><span>${s.nombre} · ${fmt(s.fraccion * 100, 0)} %</span></div></div></td>
-      <td class="M">${t("M1")}</td><td class="M">${t("M2")}</td><td class="m">${t("m1")}</td><td class="m">${t("m2")}</td><td class="est">${estrellas(s.estrellas)}</td></tr>`);
+const dia0 = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const mismoDia = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const VEREDICTO = ["", "Floja", "Normal", "Buena", "Muy buena", "Excelente"];
+const larga = (d) => d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+const lapso = (m) => m >= 60 ? `${Math.floor(m / 60)} h ${String(m % 60).padStart(2, "0")} min` : `${m} min`;
+
+let solFecha = dia0(new Date()), calMes = new Date(solFecha.getFullYear(), solFecha.getMonth(), 1);
+
+// Próximas lunas nuevas y llenas (aprox. al día)
+function proximasLunas(desde){
+  const out = {nueva: null, llena: null};
+  let prev = SunCalc.getMoonIllumination(new Date(desde.getFullYear(), desde.getMonth(), desde.getDate(), 12)).phase;
+  for (let i = 1; i <= 40 && (!out.nueva || !out.llena); i++){
+    const d = new Date(desde.getFullYear(), desde.getMonth(), desde.getDate() + i, 12), p = SunCalc.getMoonIllumination(d).phase;
+    if (p < prev && !out.nueva) out.nueva = d;
+    if (prev < 0.5 && p >= 0.5 && !out.llena) out.llena = d;
+    prev = p;
   }
-  $("#soltabla").innerHTML = `<thead><tr><th>Día</th><th>M1 · mayor</th><th>M2 · mayor</th><th>m1 · menor</th><th>m2 · menor</th><th>Actividad</th></tr></thead><tbody>${filas.join("")}</tbody>`;
+  return out;
 }
+
+function lineaDiaPro(s, ahoraMin){
+  const seg = s.per.map(p => {
+    const ini = Math.max(0, p.ini), fin = Math.min(1440, p.fin);
+    return `<i class="${p.t}" style="left:${ini / 14.4}%;width:${(fin - ini) / 14.4}%" title="${p.n} ${hhmm(ini)}–${hhmm(fin)}"><em>${p.k}</em></i>`;
+  }).join("");
+  const sol = [[s.orto, "Amanecer", "sun"], [s.ocaso, "Atardecer", "sun"]].filter(x => x[0] != null)
+    .map(([m, n]) => `<b class="${n === "Amanecer" ? "am" : "at"}" style="left:${m / 14.4}%" title="${n} ${hhmm(m)}"></b>`).join("");
+  const now = ahoraMin != null ? `<u class="ahora" style="left:${ahoraMin / 14.4}%" title="Ahora ${hhmm(ahoraMin)}"></u>` : "";
+  return `<div class="dia pro"><div class="bar24">${seg}${sol}${now}</div><div class="ticks"><span>0h</span><span>6h</span><span>12h</span><span>18h</span><span>24h</span></div>
+    <div class="leyenda"><span><i class="mayor"></i>Mayor (M)</span><span><i class="menor"></i>Menor (m)</span><span><i class="sol"></i>Amanecer / atardecer</span>${ahoraMin != null ? '<span><i class="now"></i>Ahora</span>' : ""}</div></div>`;
+}
+
 function renderHoy(){
   try {
-    const z = zonaSolunar();
-    const ahora = new Date(), s = solunar(ahora, z.lat, z.lon), min = ahora.getHours() * 60 + ahora.getMinutes();
-    const activo = s.per.find(p => min >= p.ini && min <= p.fin);
-    const sig = s.per.find(p => p.ini > min);
-    const lbl = {M:"Mayor", m:"Menor"};
+    const z = zonaSolunar(), ahora = new Date(), esHoy = mismoDia(solFecha, ahora);
+    const s = solunar(solFecha, z.lat, z.lon), min = ahora.getHours() * 60 + ahora.getMinutes();
+    const activo = esHoy ? s.per.find(p => min >= p.ini && min <= p.fin) : null;
+    const sig = esHoy ? s.per.find(p => p.ini > min) : null;
+    const mejor = [...s.per].sort((a, b) => (a.t === "mayor" ? 0 : 1) - (b.t === "mayor" ? 0 : 1) || a.c - b.c)
+      .find(p => p.t === "mayor" && [s.orto, s.ocaso].some(x => x != null && Math.abs(x - p.c) <= 90)) || s.per.find(p => p.t === "mayor");
+    const lun = proximasLunas(solFecha);
+    const enDias = (d) => { const n = Math.round((dia0(d) - dia0(solFecha)) / 864e5); return n === 1 ? "mañana" : `en ${n} días`; };
+    const fechaCorta = (d) => d.toLocaleDateString("es-ES", {weekday:"short", day:"numeric", month:"short"});
+
     $("#hoy").innerHTML = `
-      <div class="luna-hoy"><div class="moonglow">${lunaSvg(s.fase, 72)}</div>
-        <div><b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % iluminada · ${fmt(s.edad, 1)} días de edad</span>
-        <span class="est">${estrellas(s.estrellas)} <i>Índice de actividad ${s.estrellas}/5</i></span></div></div>
-      <div class="solcol"><small class="cap">Periodos solunares de hoy · ${activo ? `<b class="now">ahora: ${activo.t === "mayor" ? "periodo mayor" : "periodo menor"}</b>` : sig ? `siguiente: <b>${sig.k} a las ${hhmm(sig.ini)}</b>` : "sin más periodos hoy"}</small>
-        ${lineaDia(s)}
-        <div class="meter" title="Índice de actividad"><i style="width:${s.estrellas * 20}%"></i></div></div>
-      <ul class="per">${s.per.map(p => `<li class="${p.t}"><span><b class="k">${p.k}</b> ${lbl[p.k[0]]}</span><b>${hhmm(Math.max(0,p.ini))}–${hhmm(Math.min(1440,p.fin))}</b></li>`).join("")}</ul>`;
+      <div class="soltop">
+        <div class="moonglow">${lunaSvg(s.fase, 96)}</div>
+        <div class="solinfo">
+          <small class="cap">${larga(solFecha)}${esHoy ? " · hoy" : ""} · ${esc(z.nombre)}</small>
+          <h3>${s.nombre}</h3>
+          <div class="chips2"><span>${fmt(s.fraccion * 100, 0)} % iluminada</span><span>${fmt(s.edad, 1)} días de edad</span></div>
+          <div class="rate"><span class="est big">${estrellas(s.estrellas)}</span><b>${s.estrellas}/5</b><em class="v${s.estrellas}">${VEREDICTO[s.estrellas]}</em></div>
+          <div class="meter" title="Índice de actividad"><i style="width:${s.estrellas * 20}%"></i></div>
+        </div>
+        <div class="solnow">
+          ${esHoy ? (activo
+            ? `<div class="estado on"><small>Ahora</small><b>Periodo ${activo.t === "mayor" ? "mayor" : "menor"} (${activo.k})</b><span>termina en ${lapso(Math.max(1, Math.round(activo.fin - min)))}</span></div>`
+            : sig ? `<div class="estado"><small>Próximo periodo</small><b>${sig.k} · ${hhmm(sig.ini)}</b><span>empieza en ${lapso(Math.round(sig.ini - min))}</span></div>`
+              : `<div class="estado"><small>Hoy</small><b>Sin más periodos</b><span>mira mañana</span></div>`) : ""}
+          ${mejor ? `<div class="estado best"><small>Mejor ventana del día</small><b>${mejor.k} · ${hhmm(Math.max(0, mejor.ini))}–${hhmm(Math.min(1440, mejor.fin))}</b><span>${mejor.n}${[s.orto, s.ocaso].some(x => x != null && Math.abs(x - mejor.c) <= 90) ? " · junto al amanecer o atardecer" : ""}</span></div>` : ""}
+        </div>
+      </div>
+      <ul class="why">${s.razones.map(r => `<li>${r}</li>`).join("")}</ul>
+      <div class="sunmoon">
+        <div><small>Amanecer</small><b>${s.orto != null ? hhmm(s.orto) : "–"}</b></div>
+        <div><small>Atardecer</small><b>${s.ocaso != null ? hhmm(s.ocaso) : "–"}</b></div>
+        <div><small>Sale la luna</small><b>${s.sal != null ? hhmm(s.sal) : "–"}</b></div>
+        <div><small>Se pone la luna</small><b>${s.pue != null ? hhmm(s.pue) : "–"}</b></div>
+      </div>
+      ${lineaDiaPro(s, esHoy ? min : null)}
+      <ul class="per">${s.per.map(p => `<li class="${p.t}"><span><b class="k">${p.k}</b> ${p.t === "mayor" ? "Mayor" : "Menor"} · ${p.n}</span><b>${hhmm(Math.max(0, p.ini))}–${hhmm(Math.min(1440, p.fin))}</b></li>`).join("")}</ul>
+      <p class="proxl">${lun.llena ? `${lunaSvg(0.5, 18)} Próxima luna llena: <b>${fechaCorta(lun.llena)}</b> (${enDias(lun.llena)})` : ""}${lun.nueva ? ` &nbsp;·&nbsp; ${lunaSvg(0, 18)} Próxima luna nueva: <b>${fechaCorta(lun.nueva)}</b> (${enDias(lun.nueva)})` : ""}</p>`;
+
+    $("#soldate").value = isoLocal(solFecha);
+    $("#solhoy").disabled = esHoy;
+    calendarioSolunar(z);
+    mejoresDias(z);
     tablaSolunar(z);
-  } catch { $("#solunar").hidden = true; }
+  } catch (err) { console.error(err); $("#solunar").hidden = true; }
 }
+
+// Calendario del mes: luna y estrellas de cada día; se pulsa un día para verlo
+function calendarioSolunar(z){
+  const y = calMes.getFullYear(), m = calMes.getMonth(), hoy = dia0(new Date());
+  const primero = new Date(y, m, 1), huecos = (primero.getDay() + 6) % 7, nDias = new Date(y, m + 1, 0).getDate();
+  const celdas = Array.from({length: huecos}, () => '<span class="vacio"></span>');
+  for (let d = 1; d <= nDias; d++){
+    const f = new Date(y, m, d), s = solunar(f, z.lat, z.lon);
+    const cl = ["dd", s.estrellas >= 4 ? "best" : "", mismoDia(f, hoy) ? "esh" : "", mismoDia(f, solFecha) ? "sel" : ""].join(" ");
+    celdas.push(`<button class="${cl}" data-dia="${isoLocal(f)}" title="${larga(f)} · ${s.nombre} · actividad ${s.estrellas}/5"><b>${d}</b>${lunaSvg(s.fase, 24)}<span>${"★".repeat(s.estrellas)}</span></button>`);
+  }
+  $("#solcal").innerHTML = `<div class="calhead"><button data-mes="-1" aria-label="Mes anterior">‹</button><b>${calMes.toLocaleDateString("es-ES", {month:"long", year:"numeric"})}</b><button data-mes="1" aria-label="Mes siguiente">›</button></div>
+    <div class="calgrid"><span class="dow">L</span><span class="dow">M</span><span class="dow">X</span><span class="dow">J</span><span class="dow">V</span><span class="dow">S</span><span class="dow">D</span>${celdas.join("")}</div>
+    <p class="src">Los días con borde dorado tienen una actividad estimada de 4 o 5 estrellas.</p>`;
+}
+
+// Los mejores días de los próximos 30
+function mejoresDias(z){
+  const hoy = dia0(new Date()), lista = [];
+  for (let i = 0; i < 30; i++){ const f = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + i); lista.push({f, s: solunar(f, z.lat, z.lon), i}); }
+  const top = lista.sort((a, b) => b.s.estrellas - a.s.estrellas || a.i - b.i).slice(0, 4).sort((a, b) => a.i - b.i);
+  $("#solbest").innerHTML = `<small class="cap">Mejores días de los próximos 30</small><div class="bestrow">${top.map(({f, s}) =>
+    `<button data-dia="${isoLocal(f)}">${lunaSvg(s.fase, 30)}<span><b>${f.toLocaleDateString("es-ES", {weekday:"short", day:"numeric", month:"short"})}</b><em>${"★".repeat(s.estrellas)} ${VEREDICTO[s.estrellas]}</em></span></button>`).join("")}</div>`;
+}
+
+// Tabla de los 7 días a partir del día elegido
+function tablaSolunar(z){
+  const filas = [];
+  for (let i = 0; i < 7; i++){
+    const f = new Date(solFecha.getFullYear(), solFecha.getMonth(), solFecha.getDate() + i), s = solunar(f, z.lat, z.lon);
+    const t = (k) => { const p = s.per.find(x => x.k === k); return p ? hhmm(Math.max(0, p.ini)) + "–" + hhmm(Math.min(1440, p.fin)) : "–"; };
+    filas.push(`<tr class="${i === 0 ? "hoy" : ""}${s.estrellas >= 4 ? " top" : ""}" data-dia="${isoLocal(f)}"><td><div class="ph">${lunaSvg(s.fase, 34)}<div><b>${f.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"short"})}</b><span>${s.nombre} · ${fmt(s.fraccion * 100, 0)} %</span></div></div></td>
+      <td class="M">${t("M1")}</td><td class="M">${t("M2")}</td><td class="m">${t("m1")}</td><td class="m">${t("m2")}</td>
+      <td>${s.orto != null ? hhmm(s.orto) : "–"} · ${s.ocaso != null ? hhmm(s.ocaso) : "–"}</td>
+      <td class="est">${estrellas(s.estrellas)}<span class="vv">${VEREDICTO[s.estrellas]}</span></td></tr>`);
+  }
+  $("#soltabla").innerHTML = `<thead><tr><th>Día</th><th>M1 · mayor</th><th>M2 · mayor</th><th>m1 · menor</th><th>m2 · menor</th><th>Sol (sale · se pone)</th><th>Actividad</th></tr></thead><tbody>${filas.join("")}</tbody>`;
+}
+
+// Controles: zona, día anterior/siguiente, selector de fecha, mes del calendario y clic en un día
+function initSolunar(){
+  $("#solzona").addEventListener("input", renderHoy);
+  const ir = (f) => { solFecha = dia0(f); calMes = new Date(solFecha.getFullYear(), solFecha.getMonth(), 1); renderHoy(); };
+  $("#solprev").onclick = () => ir(new Date(solFecha.getFullYear(), solFecha.getMonth(), solFecha.getDate() - 1));
+  $("#solnext").onclick = () => ir(new Date(solFecha.getFullYear(), solFecha.getMonth(), solFecha.getDate() + 1));
+  $("#solhoy").onclick = () => ir(new Date());
+  $("#soldate").addEventListener("input", (ev) => { if (ev.target.value) ir(new Date(ev.target.value + "T12:00")); });
+  $("#solunar").addEventListener("click", (ev) => {
+    const mes = ev.target.closest("[data-mes]");
+    if (mes){ calMes = new Date(calMes.getFullYear(), calMes.getMonth() + +mes.dataset.mes, 1); renderHoy(); return; }
+    const d = ev.target.closest("[data-dia]");
+    if (d){ solFecha = new Date(d.dataset.dia + "T12:00"); solFecha = dia0(solFecha); calMes = new Date(solFecha.getFullYear(), solFecha.getMonth(), 1); renderHoy(); $("#hoy").scrollIntoView({behavior:"smooth", block:"nearest"}); }
+  });
+}
+
 function initHoy(){
   // Menú: resalta la sección en la que estás
   const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => document.querySelector(a.getAttribute("href")));
@@ -885,7 +1076,7 @@ function initHoy(){
     links[k]?.scrollIntoView({inline:"center", block:"nearest"});
   };
   addEventListener("scroll", spy, {passive:true}); spy();
-  setInterval(() => { if (all.length) renderHoy(); }, 5 * 60 * 1000); // el solunar se refresca solo
+  setInterval(() => { if (all.length) renderHoy(); }, 60 * 1000); // el solunar se refresca solo
 
   const url = "https://embed.windy.com/embed2.html?lat=40.2&lon=-3.7&detailLat=40.2&detailLon=-3.7&zoom=6&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=&calendar=now&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1";
   const box = $("#windbox"), poner = () => { if (!box.firstChild) box.innerHTML = `<iframe title="Mapa de viento Windy" loading="lazy" src="${url}" allowfullscreen></iframe>`; };
@@ -916,7 +1107,7 @@ async function init(){
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");
-  $("#solzona").addEventListener("input", renderHoy);
+  initSolunar();
   renderHoy();
   const provs = [...new Set(all.map(e => e.provincia).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
   $("#prov").innerHTML = '<option value="">Todas las provincias</option>' + provs.map(p => `<option>${esc(p)}</option>`).join("");
