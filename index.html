@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embalses de España</title>
+<meta name="description" content="Nivel de agua de todos los embalses de España, por cuenca, con mapa y datos del Boletín Hidrológico oficial.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --bg:#f5f7fa; --card:#fff; --ink:#14212b; --muted:#5d6b78; --line:#e1e7ed; --accent:#0b6fa4;
+  --low:#d64545; --mid:#e8a33d; --ok:#3a9d6e; --high:#1f6fd1;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f161c; --card:#17212a; --ink:#e8eef3; --muted:#93a3b1; --line:#26333f; --accent:#4cb3e6; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+header{padding:28px 0 8px}
+h1{margin:0;font-size:28px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:4px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.01em}
+.kpi span{color:var(--muted);font-size:13px}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;border-radius:99px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 12px}
+.controls input,.controls select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;min-width:0}
+.controls input{flex:1 1 220px}
+#map{height:440px;border-radius:12px;border:1px solid var(--line);margin-bottom:16px;z-index:0}
+.tablebox{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:auto}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 14px;text-align:right;white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none;position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line)}
+th.on::after{content:" ▾"}th.on.asc::after{content:" ▴"}
+tr+tr td{border-top:1px solid var(--line)}
+tbody tr{cursor:pointer}tbody tr:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.pct{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.pct .bar{width:70px;margin:0}
+.up{color:var(--ok)}.down{color:var(--low)}
+footer{color:var(--muted);font-size:13px;padding:18px 0 40px}
+footer a{color:var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Embalses de España</h1>
+    <p class="sub" id="sub">Cargando…</p>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="controls">
+    <input id="q" type="search" placeholder="Buscar embalse…" aria-label="Buscar embalse">
+    <select id="cuenca" aria-label="Cuenca"></select>
+    <select id="uso" aria-label="Uso">
+      <option value="">Todos los usos</option>
+    </select>
+  </div>
+  <p class="legend">
+    <span><i style="background:var(--low)"></i>&lt; 25 %</span>
+    <span><i style="background:var(--mid)"></i>25–50 %</span>
+    <span><i style="background:var(--ok)"></i>50–75 %</span>
+    <span><i style="background:var(--high)"></i>&gt; 75 %</span>
+  </p>
+  <div id="map"></div>
+
+  <div class="tablebox" style="max-height:640px">
+    <table>
+      <thead><tr>
+        <th data-k="nombre">Embalse</th>
+        <th data-k="cuenca">Cuenca</th>
+        <th data-k="porcentaje">Llenado</th>
+        <th data-k="volumen">Volumen (hm³)</th>
+        <th data-k="capacidad">Capacidad (hm³)</th>
+        <th data-k="variacion_hm3">Vs. semana ant.</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $ = (s) => document.querySelector(s);
+const fmt = (n, d = 0) => n == null ? "–" : n.toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
+const color = (p) => p < 25 ? "var(--low)" : p < 50 ? "var(--mid)" : p < 75 ? "var(--ok)" : "var(--high)";
+const hex = (p) => p < 25 ? "#d64545" : p < 50 ? "#e8a33d" : p < 75 ? "#3a9d6e" : "#1f6fd1";
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let all = [], sort = {k:"nombre", asc:true}, map, layer, markers = new Map();
+
+async function init(){
+  let d;
+  try {
+    d = await (await fetch("data/embalses.json?" + Date.now())).json();
+  } catch {
+    $("#sub").textContent = "No se pudieron cargar los datos.";
+    return;
+  }
+  all = d.embalses;
+  const f = new Date(d.fecha_boletin + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
+  $("#sub").textContent = `Boletín del ${f} · comprobado ${act}`;
+  $("#foot").innerHTML = `Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO, Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. El ministerio publica una vez por semana (martes); la web comprueba si hay datos nuevos varias veces al día.`;
+
+  const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
+  $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
+  const usos = [...new Set(all.map(e => e.uso).filter(Boolean))].sort();
+  $("#uso").innerHTML += usos.map(u => `<option>${esc(u)}</option>`).join("");
+
+  map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, attribution:"© OpenStreetMap"}).addTo(map);
+  layer = L.layerGroup().addTo(map);
+
+  for (const id of ["#q","#cuenca","#uso"]) $(id).addEventListener("input", render);
+  document.querySelectorAll("th").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    sort = {k, asc: sort.k === k ? !sort.asc : (k === "nombre" || k === "cuenca")};
+    render();
+  }));
+  $("#rows").addEventListener("click", ev => {
+    const id = ev.target.closest("tr")?.dataset.id;
+    const m = markers.get(+id);
+    if (m){ map.setView(m.getLatLng(), 10); m.openPopup(); $("#map").scrollIntoView({behavior:"smooth", block:"center"}); }
+  });
+  render();
+}
+
+function filtered(){
+  const q = $("#q").value.trim().toLowerCase(), c = $("#cuenca").value, u = $("#uso").value;
+  return all.filter(e => (!q || e.nombre.toLowerCase().includes(q)) && (!c || e.cuenca === c) && (!u || e.uso === u));
+}
+
+function render(){
+  const list = filtered();
+
+  // KPIs sobre la selección actual
+  const vol = list.reduce((s,e) => s + (e.volumen||0), 0), cap = list.reduce((s,e) => s + (e.capacidad||0), 0);
+  const prev = list.reduce((s,e) => s + (e.volumen||0) - (e.variacion_hm3||0), 0);
+  const p = cap ? vol/cap*100 : 0, dv = vol - prev;
+  $("#kpis").innerHTML = `
+    <div class="kpi"><b>${fmt(p,1)} %</b><span>Llenado total</span><div class="bar"><i style="width:${p}%;background:${hex(p)}"></i></div></div>
+    <div class="kpi"><b>${fmt(vol)} hm³</b><span>de ${fmt(cap)} hm³ de capacidad</span></div>
+    <div class="kpi"><b class="${dv>=0?'up':'down'}">${dv>=0?'+':''}${fmt(dv,0)} hm³</b><span>vs. semana anterior</span></div>
+    <div class="kpi"><b>${fmt(list.length)}</b><span>embalses mostrados</span></div>`;
+
+  // Mapa
+  layer.clearLayers(); markers.clear();
+  for (const e of list){
+    if (e.lat == null) continue;
+    const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
+    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#fff", weight:1, fillColor:hex(e.porcentaje), fillOpacity:.85})
+      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(e.porcentaje,1)} % · ${fmt(e.volumen)} / ${fmt(e.capacidad)} hm³`);
+    m.addTo(layer); markers.set(e.id, m);
+  }
+  if (list.length && list.length < all.length){
+    const pts = list.filter(e => e.lat != null).map(e => [e.lat,e.lon]);
+    if (pts.length) map.fitBounds(pts, {padding:[30,30], maxZoom:10});
+  } else if (list.length === all.length) map.setView([39.9,-3.5], 6);
+
+  // Tabla
+  const {k, asc} = sort;
+  list.sort((a,b) => {
+    const x = a[k], y = b[k];
+    const r = typeof x === "string" ? x.localeCompare(y,"es") : (x ?? -Infinity) - (y ?? -Infinity);
+    return asc ? r : -r;
+  });
+  document.querySelectorAll("th").forEach(th => {
+    th.classList.toggle("on", th.dataset.k === k);
+    th.classList.toggle("asc", th.dataset.k === k && asc);
+  });
+  $("#rows").innerHTML = list.map(e => {
+    const v = e.variacion_hm3;
+    return `<tr data-id="${e.id}">
+      <td>${esc(e.nombre)}</td><td>${esc(e.cuenca)}</td>
+      <td><span class="pct">${fmt(e.porcentaje,1)} %<span class="bar"><i style="width:${e.porcentaje}%;background:${color(e.porcentaje)}"></i></span></span></td>
+      <td>${fmt(e.volumen)}</td><td>${fmt(e.capacidad)}</td>
+      <td class="${v>0?'up':v<0?'down':''}">${v>0?'+':''}${fmt(v,1)}</td></tr>`;
+  }).join("") || '<tr><td colspan="6" style="text-align:center;color:var(--muted)">Sin resultados</td></tr>';
+}
+
+init();
+</script>
+</body>
+</html>
