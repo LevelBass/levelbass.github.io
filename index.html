@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nivel de Embalses</title>
-<meta name="description" content="Nivel de agua de los embalses de España, al día, pensado para pescadores de black bass.">
+<meta name="description" content="Nivel de agua de los embalses de España al día, pensado para pescadores de black bass.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -12,94 +12,155 @@
 <style>
 :root{
   color-scheme:dark;
-  --bg:#0a1713; --bg2:#0e211b; --card:#122a22; --card2:#17352b; --line:#24463a;
-  --ink:#eaf3ee; --muted:#8fb0a2; --lime:#c3e04a; --amber:#f2a93b; --teal:#35b5a8;
-  --low:#e5594f; --mid:#f2a93b; --ok:#5cc08a; --high:#3b8fe0;
+  /* Azul hídrico profundo + verde oliva / agua + bronce de las escamas */
+  --bg:#06141c; --bg2:#0a1f2b; --card:#0d2531; --card2:#12303e; --line:#1f4252;
+  --ink:#eaf2f4; --muted:#8fb1bd;
+  --water:#2b86c5; --teal:#3fb6a8; --olive:#9bb43c; --bronze:#d6a24a; --gold:#f0c874;
+  --low:#e0564c; --mid:#e8a23c; --ok:#6fbf86; --high:#3b9be0;
   --head:"Oswald",Impact,sans-serif; --body:"Inter",system-ui,sans-serif;
+  --topo:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600' viewBox='0 0 600 600' fill='none' stroke='%23ffffff' stroke-opacity='.07' stroke-width='1.2'%3E%3Cpath d='M-20 300c80-120 180-150 300-110s200 130 340 40'/%3E%3Cpath d='M-20 340c80-110 180-140 300-100s200 120 340 30'/%3E%3Cpath d='M-20 380c80-100 180-130 300-90s200 110 340 20'/%3E%3Cpath d='M-20 260c80-130 180-160 300-120s200 140 340 50'/%3E%3Cpath d='M-20 220c80-140 180-170 300-130s200 150 340 60'/%3E%3Cpath d='M-20 440c90-80 170-100 290-70s210 80 350 0'/%3E%3Cpath d='M-20 500c90-60 170-80 290-50s210 70 350-10'/%3E%3Cpath d='M-20 170c80-150 190-180 310-140s200 160 330 70'/%3E%3C/svg%3E");
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);-webkit-font-smoothing:antialiased}
-.wrap{max-width:1180px;margin:0 auto;padding:0 18px}
-a{color:var(--lime)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+a{color:var(--gold)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+svg.i{width:1em;height:1em;vertical-align:-.14em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-/* ---------- Hero ---------- */
-.hero{position:relative;overflow:hidden;padding:54px 0 90px;
+/* ================= HERO ================= */
+.hero{position:relative;overflow:hidden;padding:34px 0 96px;
   background:
-   radial-gradient(900px 380px at 80% -10%,rgba(195,224,74,.16),transparent 60%),
-   radial-gradient(700px 400px at 0% 0%,rgba(53,181,168,.14),transparent 60%),
-   linear-gradient(180deg,#0d2a22 0%,var(--bg) 100%)}
-.hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
-.eyebrow{display:inline-flex;gap:8px;align-items:center;font:600 12px var(--head);letter-spacing:.18em;text-transform:uppercase;color:var(--lime)}
-.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(195,224,74,.6);animation:pulse 2.4s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(195,224,74,0)}100%{box-shadow:0 0 0 0 rgba(195,224,74,0)}}
-h1{font:700 clamp(40px,7vw,76px)/.98 var(--head);text-transform:uppercase;letter-spacing:.01em;margin:12px 0 14px}
-h1 em{font-style:normal;color:var(--lime)}
+    radial-gradient(700px 360px at 90% -10%,rgba(214,162,74,.20),transparent 60%),
+    radial-gradient(700px 420px at -5% 10%,rgba(63,182,168,.16),transparent 60%),
+    var(--topo),
+    linear-gradient(180deg,#0b2a3a 0%,var(--bg) 100%);
+  background-size:auto,auto,520px,auto}
+.hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr);gap:26px}
+.hero .wrap>*{min-width:0}
+.brand{display:flex;align-items:center;gap:10px;font:600 14px var(--head);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--olive);box-shadow:0 0 0 0 rgba(155,180,60,.6);animation:pulse 2.4s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 10px rgba(155,180,60,0)}100%{box-shadow:0 0 0 0 rgba(155,180,60,0)}}
+h1{font:700 clamp(40px,9vw,80px)/.96 var(--head);text-transform:uppercase;letter-spacing:.01em;margin:10px 0 14px}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronze));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{color:var(--muted);max-width:520px;font-size:16px;margin:0 0 18px}
-.stamp{display:inline-flex;gap:10px;flex-wrap:wrap}
-.pill{border:1px solid var(--line);background:rgba(18,42,34,.7);backdrop-filter:blur(6px);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--muted)}
+.search{display:flex;align-items:center;gap:10px;background:rgba(13,37,49,.85);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:16px;padding:6px 6px 6px 16px;max-width:560px;box-shadow:0 12px 34px rgba(0,0,0,.35);transition:border-color .2s}
+.search:focus-within{border-color:var(--bronze)}
+.search svg{font-size:20px;color:var(--bronze);flex:none}
+.search input{flex:1;min-width:0;border:0;outline:0;background:none;color:var(--ink);font:inherit;font-size:16px;padding:12px 0}
+.search button{border:0;border-radius:11px;background:linear-gradient(135deg,var(--gold),var(--bronze));color:#2a1c05;font:600 14px var(--head);letter-spacing:.08em;text-transform:uppercase;padding:12px 18px;cursor:pointer}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.quick button{border:1px solid var(--line);background:rgba(13,37,49,.6);color:var(--muted);border-radius:99px;padding:6px 13px;font:inherit;font-size:13px;cursor:pointer}
+.quick button:hover{border-color:var(--bronze);color:var(--ink)}
+.stamp{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:rgba(13,37,49,.7);border-radius:99px;padding:5px 13px;font-size:13px;color:var(--muted)}
 .pill b{color:var(--ink);font-weight:600}
-.bass{width:100%;max-width:470px;justify-self:end;filter:drop-shadow(0 18px 30px rgba(0,0,0,.45));animation:swim 7s ease-in-out infinite}
-@keyframes swim{50%{transform:translate(-8px,-10px) rotate(-1.5deg)}}
-.waves{position:absolute;left:0;right:0;bottom:-1px;height:70px;z-index:1}
-.waves path{animation:drift 14s linear infinite}
+
+/* collage de fotos */
+.collage{position:relative;height:340px;max-width:430px;width:100%;justify-self:center}
+.polaroid{position:absolute;background:#f3ead7;padding:8px 8px 26px;border-radius:6px;box-shadow:0 18px 36px rgba(0,0,0,.5);transition:transform .3s}
+.polaroid img{display:block;width:100%;height:100%;object-fit:cover;border-radius:3px}
+.polaroid:hover{transform:rotate(0) scale(1.04)!important;z-index:5}
+.p1{left:2%;top:26px;width:42%;height:230px;transform:rotate(-7deg)}
+.p2{right:2%;top:0;width:46%;height:250px;transform:rotate(5deg);z-index:2}
+.p3{left:22%;bottom:0;width:52%;height:170px;transform:rotate(-2deg);z-index:3}
+.collage .lure{position:absolute;right:-6px;bottom:20px;width:120px;color:var(--bronze);opacity:.9;z-index:4;transform:rotate(-18deg)}
+.waves{position:absolute;left:0;right:0;bottom:-1px;height:64px;z-index:1}
+.waves path{animation:drift 16s linear infinite}
 @keyframes drift{to{transform:translateX(-50%)}}
 
-/* ---------- Gauge + KPIs ---------- */
-.dash{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:-34px;position:relative;z-index:3}
-.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-.gauge{display:grid;place-items:center;text-align:center}
-.gauge svg{width:210px;height:210px}
-.gauge .big{font:700 46px var(--head);margin-top:-122px;line-height:1}
+/* ================= PANEL ================= */
+.dash{display:grid;gap:14px;margin-top:-40px;position:relative;z-index:3}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:18px 20px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.gauge{position:relative;display:grid;place-items:center;text-align:center;overflow:hidden}
+.gauge svg.ring{width:200px;height:200px}
+.gauge .big{font:700 44px var(--head);margin-top:-118px;line-height:1}
 .gauge .lbl{color:var(--muted);font-size:13px;margin-top:4px}
-.gauge .sp{height:70px}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.kpi small{display:block;color:var(--muted);font:600 12px var(--head);letter-spacing:.14em;text-transform:uppercase}
-.kpi b{display:block;font:600 34px var(--head);margin-top:2px}
-.kpi span{color:var(--muted);font-size:13px}
+.gauge .sp{height:66px}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.kpi small{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.14em;text-transform:uppercase}
+.kpi b{display:block;font:600 30px var(--head);margin-top:2px}
+.kpi span{color:var(--muted);font-size:12.5px;line-height:1.35;display:block}
 .up{color:var(--ok)}.down{color:var(--low)}
 
-/* ---------- Filtros ---------- */
-.section{margin-top:34px}
+/* ================= CINTA DE FOTOS ================= */
+.ribbon{margin:34px 0 0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ribbon .track{display:flex;gap:12px;width:max-content;animation:slide 60s linear infinite}
+.ribbon:hover .track{animation-play-state:paused}
+.ribbon img{height:150px;width:auto;border-radius:12px;display:block;border:1px solid var(--line)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* ================= SECCIONES ================= */
+.section{margin-top:38px}
 .section h2{font:600 22px var(--head);letter-spacing:.06em;text-transform:uppercase;margin:0 0 12px;display:flex;align-items:center;gap:10px}
-.section h2::before{content:"";width:22px;height:4px;border-radius:4px;background:var(--lime)}
-.controls{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
-.controls input,.controls select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none}
-.controls input:focus,.controls select:focus{border-color:var(--lime)}
-.controls input{flex:1 1 240px}
+.section h2::before{content:"";width:26px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--bronze))}
+.section .hint{color:var(--muted);margin:-6px 0 14px;font-size:14px}
+.controls{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+.controls select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none}
+.controls select:focus{border-color:var(--bronze)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .chip{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:99px;padding:7px 14px;cursor:pointer;font:inherit;font-size:13px}
-.chip.on{background:var(--lime);border-color:var(--lime);color:#14200a;font-weight:600}
-.legend{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 10px}
+.chip.on{background:linear-gradient(135deg,var(--gold),var(--bronze));border-color:var(--bronze);color:#2a1c05;font-weight:600}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;color:var(--muted);font-size:13px;margin:0 0 10px}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
 
-/* ---------- Mapa ---------- */
-#map{height:460px;border-radius:18px;border:1px solid var(--line);z-index:0}
-.tiles-dark{filter:invert(1) hue-rotate(160deg) saturate(.55) brightness(.8) contrast(.9)}
+/* mapa */
+#map{height:420px;border-radius:18px;border:1px solid var(--line);z-index:0}
+.tiles-dark{filter:invert(1) hue-rotate(185deg) saturate(.6) brightness(.78) contrast(.92)}
 .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:var(--card2);color:var(--ink);border-radius:12px}
 .leaflet-container a.leaflet-popup-close-button{color:var(--muted)}
 
-/* ---------- Tarjetas de embalse ---------- */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.res{position:relative;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;overflow:hidden;transition:transform .15s,border-color .15s}
-.res:hover{transform:translateY(-3px);border-color:var(--lime)}
+/* ================= TARJETAS ================= */
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+.res{position:relative;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:18px;padding:16px 16px 14px;cursor:pointer;overflow:hidden;isolation:isolate;transition:transform .15s,border-color .15s,box-shadow .15s}
+.res::before{content:"";position:absolute;right:-26px;top:-4px;width:150px;height:90px;z-index:-1;opacity:.07;background:var(--fish) no-repeat center/contain;transform:rotate(-8deg)}
+.res:hover{transform:translateY(-3px);border-color:var(--bronze);box-shadow:0 14px 30px rgba(0,0,0,.35)}
 .res h3{font:600 19px var(--head);letter-spacing:.03em;margin:0 30px 2px 0;text-transform:uppercase}
 .res .sub{color:var(--muted);font-size:12.5px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.badge{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(214,162,74,.35);background:rgba(214,162,74,.1);color:var(--gold);border-radius:99px;padding:3px 9px 3px 7px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.badge.g{border-color:rgba(155,180,60,.4);background:rgba(155,180,60,.12);color:#c6de6a}
+.badge.b{border-color:rgba(59,155,224,.4);background:rgba(59,155,224,.12);color:#8cc4ee}
+.badge.r{border-color:rgba(224,86,76,.4);background:rgba(224,86,76,.12);color:#f19a93}
 .res .row{display:flex;align-items:flex-end;justify-content:space-between;margin-top:14px}
-.res .pc{font:700 36px/1 var(--head)}
+.res .pc{font:700 38px/1 var(--head)}
 .res .pc small{font-size:18px;color:var(--muted)}
-.res .trend{font-size:13px;font-weight:600;text-align:right}
-.tank{height:10px;border-radius:99px;background:#0a1914;margin-top:12px;overflow:hidden}
-.tank i{display:block;height:100%;border-radius:99px;background-image:linear-gradient(90deg,rgba(255,255,255,.18),transparent)}
+.res .trend{font-size:13px;font-weight:600;text-align:right;line-height:1.3}
+.res .trend span{font-weight:400;color:var(--muted)}
+.live{color:var(--olive);font-weight:600;font-size:12px;white-space:nowrap}
+
+/* barra de agua con olas */
+.tank{position:relative;height:12px;border-radius:99px;background:#07161e;margin-top:12px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+.tank i{position:relative;display:block;height:100%;border-radius:99px;transition:width .9s cubic-bezier(.2,.8,.2,1);overflow:hidden}
+.tank i::after{content:"";position:absolute;inset:0;background:
+  radial-gradient(circle at 6px 100%,rgba(255,255,255,.28) 0 5px,transparent 6px) 0 0/14px 100% repeat-x;
+  animation:ola 2.6s linear infinite;opacity:.8}
+@keyframes ola{to{background-position:-14px 0}}
+.l-hi{background:linear-gradient(90deg,#2b86c5,#3fb6a8)}
+.l-ok{background:linear-gradient(90deg,#3fb6a8,#9bb43c)}
+.l-md{background:linear-gradient(90deg,#9bb43c,#e8a23c)}
+.l-lo{background:linear-gradient(90deg,#e8a23c,#e0564c)}
 .res .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;margin-top:8px}
-.star{position:absolute;top:10px;right:10px;border:0;background:none;font-size:22px;color:#4d6f62;cursor:pointer;line-height:1;padding:4px}
-.star.on{color:var(--amber)}
+.star{position:absolute;top:10px;right:10px;border:0;background:none;font-size:22px;color:#4a6f7d;cursor:pointer;line-height:1;padding:4px}
+.star.on{color:var(--gold)}
 .more{display:block;margin:18px auto 0;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:11px 26px;font:inherit;cursor:pointer}
-.more:hover{border-color:var(--lime)}
+.more:hover{border-color:var(--bronze)}
 .empty{color:var(--muted);text-align:center;padding:30px}
 
-.live{color:var(--lime);font-weight:600;font-size:12px;white-space:nowrap}
-#modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(4,10,8,.72);backdrop-filter:blur(4px);overflow:auto;padding:24px 14px}
+/* ================= GALERÍA ================= */
+.gallery{columns:2;column-gap:10px}
+.gallery button{display:block;width:100%;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);cursor:zoom-in;break-inside:avoid;position:relative}
+.gallery img{display:block;width:100%;height:auto;transition:transform .4s}
+.gallery button:hover img{transform:scale(1.05)}
+.gallery button::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(6,20,28,.55));pointer-events:none}
+#lb{position:fixed;inset:0;z-index:1200;display:none;background:rgba(3,9,13,.92);align-items:center;justify-content:center;padding:16px}
+#lb.open{display:flex}
+#lb img{max-width:100%;max-height:92vh;border-radius:10px;box-shadow:0 20px 60px #000}
+#lb button{position:absolute;border:0;background:rgba(13,37,49,.85);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:26px;cursor:pointer}
+#lb .x{top:14px;right:14px}#lb .pv{left:12px;top:50%}#lb .nx{right:12px;top:50%}
+
+/* ================= FICHA ================= */
+#modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(3,9,13,.74);backdrop-filter:blur(4px);overflow:auto;padding:24px 14px}
 #modal.open{display:block}
 .sheet{position:relative;max-width:680px;margin:0 auto;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:20px;padding:24px}
 .sheet h2{font:700 30px/1.05 var(--head);text-transform:uppercase;margin:0 40px 4px 0}
@@ -110,77 +171,95 @@ h1 em{font-style:normal;color:var(--lime)}
 .sheet .big b{font:700 46px/1 var(--head);min-width:130px}
 .sheet .big .tank{flex:1;margin:0;height:14px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-.st{background:rgba(10,25,20,.55);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.st{background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 .st small{display:block;color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
 .st b{display:block;font:600 21px var(--head);margin-top:2px}
 .st span{color:var(--muted);font-size:12px}
 .st b span{font-size:inherit;color:inherit}
-.chart{margin-top:18px;background:rgba(10,25,20,.55);border:1px solid var(--line);border-radius:12px;padding:12px}
+.chart{margin-top:18px;background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:12px}
 .chart small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
 .axis{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
 .src{color:var(--muted);font-size:13px;margin:12px 0 0}
-footer{margin-top:50px;border-top:1px solid var(--line);padding:26px 0 46px;color:var(--muted);font-size:13px}
+
+footer{position:relative;margin-top:56px;border-top:1px solid var(--line);padding:28px 0 52px;color:var(--muted);font-size:13px;overflow:hidden}
+footer::before{content:"";position:absolute;inset:0;background:var(--topo);background-size:520px;opacity:.7;pointer-events:none}
+footer .wrap{position:relative}
 footer p{max-width:780px;margin:6px 0}
 
-@media (max-width:820px){
-  .hero .wrap{grid-template-columns:1fr}
-  .bass{max-width:320px;justify-self:center;order:-1}
-  .dash{grid-template-columns:1fr}
-  .hero{padding-top:34px}
+/* ================= ESCRITORIO ================= */
+@media (min-width:640px){
+  .grid{grid-template-columns:repeat(2,1fr)}
+  .gallery{columns:3}
+  .controls{grid-template-columns:240px 1fr}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (min-width:900px){
+  .hero{padding-top:44px}
+  .hero .wrap{grid-template-columns:1.1fr .9fr;align-items:center}
+  .collage{height:400px;max-width:none}
+  .p1{height:270px}.p2{height:290px}.p3{height:200px}
+  .dash{grid-template-columns:290px 1fr}
+  .grid{grid-template-columns:repeat(3,1fr)}
+  .gallery{columns:4}
+  .kpis{grid-template-columns:repeat(4,1fr)}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 
+<!-- Iconos SVG reutilizables: cambia el trazo aquí para adaptarlos -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24"><path d="M2 12c3-5 8-7 13-5l3 2 4-3v12l-4-3-3 2c-5 2-10 0-13-5Z"/><circle cx="8" cy="11" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-lure" viewBox="0 0 24 24"><path d="M3 12c2-3 5-4 9-4s7 1 9 4c-2 3-5 4-9 4s-7-1-9-4Z"/><path d="M3 12 1 9M21 12l2-3M9 16v3m6-3v3"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/></symbol>
+  <symbol id="i-boat" viewBox="0 0 24 24"><path d="M3 15h18l-2.5 4h-13L3 15Z"/><path d="M12 15V4l6 7"/></symbol>
+  <symbol id="i-kayak" viewBox="0 0 24 24"><path d="M2 14c4-3 16-3 20 0-4 3-16 3-20 0Z"/><path d="M8 5l8 14"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19 14 10"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+</svg>
+
 <header class="hero">
   <div class="wrap">
     <div>
-      <span class="eyebrow"><i></i>Datos oficiales del Ministerio</span>
+      <div class="brand"><span class="dot"></span>Datos oficiales · Pesca de black bass</div>
       <h1>Nivel de <em>embalses</em><br>de España</h1>
-      <p class="lead">Cuánta agua tiene cada embalse antes de que salgas a pescar. Si el nivel sube, baja o se mantiene, con tus aguas favoritas siempre a mano.</p>
+      <p class="lead">Cuánta agua tiene cada embalse antes de salir a pescar. Busca el tuyo, mira si sube o baja y guarda tus aguas favoritas.</p>
+
+      <form class="search" role="search" onsubmit="return false">
+        <svg class="i"><use href="#i-search"/></svg>
+        <label class="sr" for="q">Buscar embalse o cuenca</label>
+        <input id="q" type="search" placeholder="Busca un embalse o cuenca…" autocomplete="off">
+        <button type="button" id="go">Buscar</button>
+      </form>
+      <div class="quick" id="quick" aria-label="Cuencas frecuentes"></div>
       <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
     </div>
 
-    <!-- Black bass -->
-    <svg class="bass" viewBox="0 0 520 260" role="img" aria-label="Ilustración de un black bass">
-      <defs>
-        <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#4f7a1f"/><stop offset=".55" stop-color="#8fb43a"/><stop offset="1" stop-color="#e7edc6"/>
-        </linearGradient>
-        <linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3d6118"/><stop offset="1" stop-color="#7ea32f"/></linearGradient>
-      </defs>
-      <!-- cola -->
-      <path d="M392 130 C430 98 462 66 500 58 C488 100 488 160 500 202 C462 194 430 162 392 130Z" fill="url(#gf)"/>
-      <!-- aleta dorsal -->
-      <path d="M170 82 L180 44 L200 60 L214 36 L236 58 L258 40 L270 66 L300 52 L310 86 C260 72 210 72 170 82Z" fill="url(#gf)"/>
-      <!-- aleta anal y pélvica -->
-      <path d="M300 176 C330 196 352 204 372 196 C356 182 346 170 338 160Z" fill="url(#gf)"/>
-      <path d="M196 182 C206 204 222 216 244 220 C238 204 236 194 238 180Z" fill="url(#gf)"/>
-      <!-- cuerpo -->
-      <path d="M40 132 C46 100 76 78 130 72 C210 62 300 74 392 130 C300 190 210 200 130 190 C78 184 48 166 40 132Z" fill="url(#gb)"/>
-      <!-- boca abierta -->
-      <path d="M40 132 C58 128 84 130 112 138 C84 142 58 142 40 132Z" fill="#14200a" opacity=".85"/>
-      <!-- franja lateral -->
-      <path d="M96 132 C170 120 270 124 380 130" stroke="#2c4a10" stroke-width="12" stroke-linecap="round" opacity=".55" fill="none"/>
-      <!-- branquia -->
-      <path d="M132 84 C150 112 150 152 132 182" stroke="#2c4a10" stroke-width="3" fill="none" opacity=".6"/>
-      <!-- ojo -->
-      <circle cx="102" cy="112" r="13" fill="#f4e7a4"/><circle cx="104" cy="112" r="7" fill="#101a08"/><circle cx="107" cy="109" r="2.2" fill="#fff"/>
-    </svg>
+    <div class="collage" aria-hidden="true">
+      <div class="polaroid p1"><img src="img/t/f05.jpg" alt=""></div>
+      <div class="polaroid p2"><img src="img/t/f31.jpg" alt=""></div>
+      <div class="polaroid p3"><img src="img/t/f24.jpg" alt=""></div>
+      <svg class="lure" viewBox="0 0 120 60" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 30c10-16 28-22 52-22 22 0 38 8 46 22-8 14-24 22-46 22-24 0-42-6-52-22Z" fill="rgba(214,162,74,.18)"/>
+        <path d="M14 30 4 18M112 30l8-10M52 52v6m24-6v6"/><circle cx="34" cy="26" r="3.4" fill="currentColor"/>
+        <path d="M60 14c2 10 2 22 0 32" stroke-width="2" opacity=".6"/>
+      </svg>
+    </div>
   </div>
 
-  <svg class="waves" viewBox="0 0 2400 70" preserveAspectRatio="none" aria-hidden="true">
-    <path fill="#0a1713" d="M0 40 Q150 0 300 40 T600 40 T900 40 T1200 40 T1500 40 T1800 40 T2100 40 T2400 40 V70 H0Z"/>
+  <svg class="waves" viewBox="0 0 2400 64" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#06141c" d="M0 36Q150 0 300 36T600 36T900 36T1200 36T1500 36T1800 36T2100 36T2400 36V64H0Z"/>
   </svg>
 </header>
 
 <main class="wrap">
-  <section class="dash">
+  <section class="dash" aria-label="Resumen">
     <div class="card gauge">
-      <svg viewBox="0 0 200 200" aria-hidden="true">
-        <circle cx="100" cy="100" r="82" fill="none" stroke="#0a1914" stroke-width="16"/>
-        <circle id="ring" cx="100" cy="100" r="82" fill="none" stroke="var(--lime)" stroke-width="16" stroke-linecap="round"
+      <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="82" fill="none" stroke="#07161e" stroke-width="16"/>
+        <circle id="ring" cx="100" cy="100" r="82" fill="none" stroke="var(--teal)" stroke-width="16" stroke-linecap="round"
           stroke-dasharray="515.2" stroke-dashoffset="515.2" transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s ease,stroke .4s"/>
       </svg>
       <div class="big" id="gpct">–</div>
@@ -189,6 +268,8 @@ footer p{max-width:780px;margin:6px 0}
     </div>
     <div class="kpis" id="kpis"></div>
   </section>
+
+  <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
 
   <section class="section">
     <h2>Mis embalses</h2>
@@ -209,7 +290,6 @@ footer p{max-width:780px;margin:6px 0}
   <section class="section" id="lista">
     <h2>Todos los embalses</h2>
     <div class="controls">
-      <input id="q" type="search" placeholder="Buscar embalse…" aria-label="Buscar embalse">
       <select id="cuenca" aria-label="Cuenca"></select>
       <select id="sort" aria-label="Ordenar">
         <option value="nombre">Ordenar: nombre</option>
@@ -231,19 +311,32 @@ footer p{max-width:780px;margin:6px 0}
     <button class="more" id="more" hidden>Ver más embalses</button>
   </section>
 
-  <footer id="foot"></footer>
+  <section class="section" id="capturas">
+    <h2>Mis capturas</h2>
+    <p class="hint">Black bass de estos embalses. Toca una foto para verla grande.</p>
+    <div class="gallery" id="gallery"></div>
+  </section>
 </main>
 
+<footer><div class="wrap" id="foot"></div></footer>
+
 <div id="modal" role="dialog" aria-modal="true" data-close><div class="sheet" onclick="event.stopPropagation()"></div></div>
+<div id="lb" role="dialog" aria-modal="true"><button class="x" aria-label="Cerrar">×</button><button class="pv" aria-label="Anterior">‹</button><img alt="Captura de black bass"><button class="nx" aria-label="Siguiente">›</button></div>
 
 <script src="data/embalses.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $ = (s) => document.querySelector(s);
 const fmt = (n, d = 0) => n == null ? "–" : n.toLocaleString("es-ES", {minimumFractionDigits:d, maximumFractionDigits:d});
-const hex = (p) => p < 25 ? "#e5594f" : p < 50 ? "#f2a93b" : p < 75 ? "#5cc08a" : "#3b8fe0";
+const hex = (p) => p < 25 ? "#e0564c" : p < 50 ? "#e8a23c" : p < 75 ? "#6fbf86" : "#3b9be0";
+const lvlClass = (p) => p < 25 ? "l-lo" : p < 50 ? "l-md" : p < 75 ? "l-ok" : "l-hi";
 const esc = (s) => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const trendOf = (e) => e.variacion_hm3 > 0.05 ? "sube" : e.variacion_hm3 < -0.05 ? "baja" : "igual";
+const ico = (n) => `<svg class="i"><use href="#i-${n}"/></svg>`;
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+// Silueta de pez (marca de agua de las tarjetas)
+document.documentElement.style.setProperty("--fish", `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 90'><path fill='#fff' d='M4 46c8-18 28-30 56-30 20 0 34 6 46 14l10-14c4-5 10-4 10 3v54c0 7-6 8-10 3l-10-14c-12 8-26 14-46 14C32 76 12 64 4 46Z'/></svg>`)}")`);
 
 let all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
 let favs = new Set();
@@ -254,6 +347,20 @@ const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...f
 const lvl = (e) => e.vivo ? {vol:e.vivo.volumen, pct:e.vivo.porcentaje} : {vol:e.volumen, pct:e.porcentaje};
 const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
 
+// Etiquetas orientativas según tamaño, nivel y tendencia (no son datos medidos)
+function badges(e, L){
+  const b = [];
+  if (e.capacidad >= 300) b.push(`<span class="badge">${ico("boat")}Ideal para barco</span>`);
+  else if (e.capacidad >= 40) b.push(`<span class="badge">${ico("lure")}Barco o pato</span>`);
+  else b.push(`<span class="badge">${ico("kayak")}Pato o kayak</span>`);
+  if (L.pct >= 85) b.push(`<span class="badge g">${ico("leaf")}Orillas inundadas</span>`);
+  else if (L.pct < 35) b.push(`<span class="badge r">${ico("wave")}Orillas expuestas</span>`);
+  else if (trendOf(e) === "sube") b.push(`<span class="badge b">${ico("up")}Subiendo</span>`);
+  else if (trendOf(e) === "baja") b.push(`<span class="badge">${ico("down")}Bajando</span>`);
+  else b.push(`<span class="badge g">${ico("fish")}Nivel estable</span>`);
+  return b.join("");
+}
+
 function card(e){
   const t = trendOf(e), v = e.variacion_hm3, L = lvl(e);
   const txt = t === "sube" ? `▲ +${fmt(v,1)} hm³` : t === "baja" ? `▼ ${fmt(v,1)} hm³` : "= Estable";
@@ -261,11 +368,12 @@ function card(e){
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
     <div class="sub">${esc(e.cuenca)} ${e.vivo?'<span class="live">● En directo</span>':''}</div>
+    <div class="badges">${badges(e, L)}</div>
     <div class="row">
       <div class="pc">${fmt(L.pct,0)}<small> %</small></div>
-      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span style="font-weight:400;color:var(--muted)">vs. semana ant.</span></div>
+      <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span>vs. semana ant.</span></div>
     </div>
-    <div class="tank"><i style="width:${Math.min(L.pct,100)}%;background-color:${hex(L.pct)}"></i></div>
+    <div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div>
     <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?'a las '+fdt(e.vivo.fecha):'de '+fmt(e.capacidad)+' hm³'}</span></div>
   </article>`;
 }
@@ -289,7 +397,8 @@ async function openDetail(id){
   let h = `<button class="x" data-close aria-label="Cerrar">×</button>
     <h2>${esc(e.nombre)}</h2>
     <div class="sub">${esc(e.cuenca)} · uso ${esc((e.uso||"–").toLowerCase())}${e.electrico?" · hidroeléctrico":""}</div>
-    <div class="big"><b style="color:${col}">${fmt(L.pct,1)} %</b><div class="tank"><i style="width:${Math.min(L.pct,100)}%;background-color:${col}"></i></div></div>
+    <div class="badges">${badges(e, L)}</div>
+    <div class="big"><b style="color:${col}">${fmt(L.pct,1)} %</b><div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div></div>
     <div class="stats">
       ${stat("Volumen", fmt(L.vol, e.vivo?2:0)+" hm³", e.vivo?"lectura en directo":"boletín semanal")}
       ${stat("Capacidad", fmt(e.capacidad)+" hm³")}
@@ -306,7 +415,7 @@ async function openDetail(id){
       ${stat("Últimas 24 h", v.var24h!=null?`<span class="${v.var24h>0?'up':v.var24h<0?'down':''}">${v.var24h>0?'+':''}${fmt(v.var24h,2)} hm³</span>`:"–", v.var24h!=null?"":"acumulando historial")}
     </div>`;
     const pts = (v.historial||[]).map(([t,x]) => [new Date(t).getTime(), x]);
-    if (pts.length > 1) h += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#c3e04a")}</div>`;
+    if (pts.length > 1) h += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#f0c874")}</div>`;
     h += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
   }
   h += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>
@@ -329,16 +438,39 @@ async function openDetail(id){
     const w = 600, hh = 150, x0 = ahora - 366*864e5, X = x => (x-x0)/(ahora-x0)*(w-8)+4, Y = y => hh-6-(y-y0)/((y1-y0)||1)*(hh-14);
     const path = a => a.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("");
     const hace = prev.length ? prev[prev.length-1][1] : null;
-    box.innerHTML = `<small>Volumen semanal (hm³): <span style="color:#c3e04a">■</span> último año · <span style="color:#8fb0a2">■</span> año anterior</small>
+    box.innerHTML = `<small>Volumen semanal (hm³): <span style="color:#f0c874">■</span> último año · <span style="color:#8fb1bd">■</span> año anterior</small>
       <svg viewBox="0 0 ${w} ${hh}" width="100%" height="${hh}" preserveAspectRatio="none">
-        <path d="${path(prev)}" fill="none" stroke="#8fb0a2" stroke-width="1.8" opacity=".8"/>
-        <path d="${path(cur)}" fill="none" stroke="#c3e04a" stroke-width="2.4" stroke-linejoin="round"/></svg>
+        <path d="${path(prev)}" fill="none" stroke="#8fb1bd" stroke-width="1.8" opacity=".8"/>
+        <path d="${path(cur)}" fill="none" stroke="#f0c874" stroke-width="2.4" stroke-linejoin="round"/></svg>
       <div class="axis"><span>mín. ${fmt(y0)} hm³</span><span>${hace!=null?"hace un año: "+fmt(hace)+" hm³":""}</span><span>máx. ${fmt(y1)} hm³</span></div>`;
   } catch { const b = $("#hist"); if (b) b.innerHTML = '<small>Volumen semanal</small><div class="empty" style="padding:16px">No se pudo cargar el histórico.</div>'; }
 }
 function closeDetail(){ $("#modal").classList.remove("open"); document.body.style.overflow = ""; }
 
+/* ---------- Fotos: cinta, galería y visor ---------- */
+const N_FOTOS = 37, nn = (i) => String(i).padStart(2, "0");
+let lbIdx = 0;
+function initFotos(){
+  const lista = Array.from({length:N_FOTOS}, (_, i) => i + 1);
+  $("#gallery").innerHTML = lista.map(i => `<button data-lb="${i}" aria-label="Ver foto ${i}"><img loading="lazy" decoding="async" src="img/t/f${nn(i)}.jpg" alt="Captura de black bass en un embalse"></button>`).join("");
+  const cinta = [20, 26, 24, 12, 19, 37, 9, 35, 15, 4, 32, 22].map(i => `<img loading="lazy" src="img/t/f${nn(i)}.jpg" alt="">`).join("");
+  $("#ribbon").innerHTML = cinta + cinta;
+  const show = (i) => { lbIdx = (i + N_FOTOS - 1) % N_FOTOS + 1; $("#lb img").src = `img/f${nn(lbIdx)}.jpg`; $("#lb").classList.add("open"); };
+  $("#gallery").addEventListener("click", ev => { const b = ev.target.closest("[data-lb]"); if (b) show(+b.dataset.lb); });
+  $("#lb .x").onclick = () => $("#lb").classList.remove("open");
+  $("#lb .pv").onclick = (ev) => { ev.stopPropagation(); show(lbIdx - 1); };
+  $("#lb .nx").onclick = (ev) => { ev.stopPropagation(); show(lbIdx + 1); };
+  $("#lb").addEventListener("click", ev => { if (ev.target.id === "lb") $("#lb").classList.remove("open"); });
+  document.addEventListener("keydown", ev => {
+    if (!$("#lb").classList.contains("open")) return;
+    if (ev.key === "Escape") $("#lb").classList.remove("open");
+    if (ev.key === "ArrowLeft") show(lbIdx - 1);
+    if (ev.key === "ArrowRight") show(lbIdx + 1);
+  });
+}
+
 async function init(){
+  initFotos();
   let d = window.EMBALSES_DATA;
   if (!d){
     try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
@@ -353,10 +485,16 @@ async function init(){
   $("#foot").innerHTML = `
     <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión.</p>
     <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b> y <b>Júcar</b>; el resto (Ebro, Duero, Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web se actualiza cada hora.</p>
-    <p>Esta web muestra el volumen almacenado, no la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
+    <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
+  const grandes = ["Tajo","Guadiana","Guadalquivir","Ebro","Duero","Júcar","Segura"].filter(c => cuencas.includes(c));
+  $("#quick").innerHTML = grandes.map(c => `<button type="button" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  $("#quick").addEventListener("click", ev => {
+    const b = ev.target.closest("[data-c]"); if (!b) return;
+    $("#cuenca").value = b.dataset.c; shown = 24; render(); $("#lista").scrollIntoView({behavior:"smooth"});
+  });
 
   try {
     map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
@@ -365,6 +503,9 @@ async function init(){
   } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
 
   for (const id of ["#q","#cuenca","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
+  const irLista = () => $("#lista").scrollIntoView({behavior:"smooth"});
+  $("#go").addEventListener("click", irLista);
+  $("#q").addEventListener("keydown", ev => { if (ev.key === "Enter") irLista(); });
   $("#chips").addEventListener("click", ev => {
     const b = ev.target.closest(".chip"); if (!b) return;
     tfilter = b.dataset.t; shown = 24;
@@ -388,8 +529,8 @@ async function init(){
 }
 
 function render(){
-  const q = $("#q").value.trim().toLowerCase(), c = $("#cuenca").value;
-  const base = all.filter(e => (!q || e.nombre.toLowerCase().includes(q)) && (!c || e.cuenca === c));
+  const q = norm($("#q").value.trim()), c = $("#cuenca").value;
+  const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(e.cuenca).includes(q)) && (!c || e.cuenca === c));
   const list = base.filter(e => !tfilter || trendOf(e) === tfilter);
 
   // Indicador general sobre la selección (cuenca/búsqueda). Se usa la lectura en directo si existe.
@@ -398,14 +539,14 @@ function render(){
   const p = cap ? vol/cap*100 : 0, dv = vol - prev;
   const sube = base.filter(e => trendOf(e)==="sube").length, baja = base.filter(e => trendOf(e)==="baja").length;
   $("#gpct").textContent = fmt(p,1) + " %";
-  $("#glbl").textContent = c ? c : "Llenado total en España";
+  $("#glbl").textContent = c ? c : (q ? "Selección de la búsqueda" : "Llenado total en España");
   $("#ring").style.strokeDashoffset = 515.2 * (1 - Math.min(p,100)/100);
   $("#ring").style.stroke = hex(p);
   $("#kpis").innerHTML = `
     <div class="card kpi"><small>Agua almacenada</small><b>${fmt(vol)} hm³</b><span>de ${fmt(cap)} hm³ de capacidad</span></div>
     <div class="card kpi"><small>Vs. semana anterior</small><b class="${dv>=0?'up':'down'}">${dv>=0?'+':''}${fmt(dv,0)} hm³</b><span>${dv>=0?'ganan agua':'pierden agua'} en conjunto</span></div>
-    <div class="card kpi"><small>Subiendo</small><b class="up">▲ ${fmt(sube)}</b><span>embalses con más agua que hace una semana</span></div>
-    <div class="card kpi"><small>Bajando</small><b class="down">▼ ${fmt(baja)}</b><span>embalses con menos agua que hace una semana</span></div>`;
+    <div class="card kpi"><small>Subiendo</small><b class="up">${ico("up")} ${fmt(sube)}</b><span>embalses con más agua que hace una semana</span></div>
+    <div class="card kpi"><small>Bajando</small><b class="down">${ico("down")} ${fmt(baja)}</b><span>embalses con menos agua que hace una semana</span></div>`;
 
   // Favoritos
   const fl = all.filter(e => favs.has(e.id));
@@ -416,8 +557,8 @@ function render(){
   for (const e of (map ? list : [])){
     if (e.lat == null) continue;
     const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
-    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#0a1713", weight:1.5, fillColor:hex(e.porcentaje), fillOpacity:.9})
-      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(lvl(e).pct,1)} % · ${fmt(lvl(e).vol, 1)} / ${fmt(e.capacidad)} hm³${e.vivo?' · <b style="color:#c3e04a">en directo</b>':''}<br><a href="#" onclick="openDetail(${e.id});return false">Ver ficha</a>`);
+    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#06141c", weight:1.5, fillColor:hex(lvl(e).pct), fillOpacity:.9})
+      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(lvl(e).pct,1)} % · ${fmt(lvl(e).vol, 1)} / ${fmt(e.capacidad)} hm³${e.vivo?' · <b style="color:#f0c874">en directo</b>':''}<br><a href="#" onclick="openDetail(${e.id});return false">Ver ficha</a>`);
     m.addTo(layer); markers.set(e.id, m);
   }
   if (map && list.length && list.length < all.length){
