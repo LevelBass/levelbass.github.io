@@ -32,7 +32,7 @@ function cookiesInit(){
   $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
 }
 
-let all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
+let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
 const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch {} };
@@ -51,10 +51,20 @@ function confAviso(e){
   const f = CONFD.fuentes[c.f];
   return `<div class="confbox"><b>${ico("anchor")} Embalse confinado · ${esc(c.c)}</b><p>Con barca solo puedes navegar aquí: la embarcación queda confinada por el mejillón cebra y no puede usarse en otros embalses sin limpieza y autorización. ${esc(c.n)}</p>${f ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.nombre)} ↗</a>` : ""}</div>`;
 }
-function confArrows(){
-  const c = $("#confgrid"); if (!c) return;
-  $("#confinados .carr.prev").disabled = c.scrollLeft < 4;
-  $("#confinados .carr.next").disabled = c.scrollLeft + c.clientWidth >= c.scrollWidth - 4;
+// Carruseles horizontales (.cwrap > .ccar con flechas .carr)
+function carArrows(c){
+  if (!c) return;
+  const w = c.closest(".cwrap"); if (!w) return;
+  w.querySelector(".carr.prev").disabled = c.scrollLeft < 4;
+  w.querySelector(".carr.next").disabled = c.scrollLeft + c.clientWidth >= c.scrollWidth - 4;
+}
+function initCarousels(){
+  document.querySelectorAll(".cwrap").forEach(w => {
+    const c = w.querySelector(".ccar");
+    c.addEventListener("scroll", () => carArrows(c), {passive: true});
+    addEventListener("resize", () => carArrows(c));
+    w.querySelectorAll(".carr").forEach(b => b.addEventListener("click", () => c.scrollBy({left: (b.classList.contains("next") ? 1 : -1) * Math.max(240, c.clientWidth * .8), behavior: "smooth"})));
+  });
 }
 function renderConf(){
   if (!$("#confgrid") || !all.length) return;
@@ -68,7 +78,7 @@ function renderConf(){
     const p = lvl(x.e).pct;
     return `<button type="button" class="crow" data-open="${x.e.id}" title="${esc(x.c.n)}" style="--c:${hex(p)}"><b>${esc(x.e.nombre)}</b><span>${esc(x.c.c)}${x.e.provincia ? " · " + esc(x.e.provincia) : ""}</span><em>${fmt(p,0)} %</em><p>${esc(x.c.n)}</p></button>`;
   }).join("");
-  $("#confgrid").scrollLeft = 0; confArrows();
+  $("#confgrid").scrollLeft = 0; carArrows($("#confgrid"));
   $("#confn").textContent = todos.length;
   const fch = new Date(CONFD.actualizado + "T12:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
   $("#confsrc").innerHTML = `Revisado el ${fch}. Las listas cambian; confirma siempre en tu confederación antes de ir.` +
@@ -656,10 +666,8 @@ async function init(){
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");
   initSlugs();
-  const car = $("#confgrid");
-  car.addEventListener("scroll", confArrows, {passive: true});
-  addEventListener("resize", confArrows);
-  document.querySelectorAll(".carr").forEach(b => b.addEventListener("click", () => car.scrollBy({left: (b.classList.contains("next") ? 1 : -1) * Math.max(240, car.clientWidth * .8), behavior: "smooth"})));
+  initCarousels();
+  addEventListener("load", () => document.querySelectorAll(".ccar").forEach(carArrows));
   $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
   addEventListener("hashchange", routeFromHash);
   initSolunar();
@@ -690,7 +698,6 @@ async function init(){
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
     render();
   });
-  $("#more").addEventListener("click", () => { shown += 24; render(); });
   document.addEventListener("click", ev => {
     const s = ev.target.closest("[data-fav]");
     if (s){
@@ -763,8 +770,10 @@ function render(){
     return dir === "d" ? -r : r;
   });
   $("#count").textContent = `${fmt(list.length)} embalses`;
-  $("#grid").innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty" style="grid-column:1/-1">Sin resultados</div>';
-  $("#more").hidden = list.length <= shown;
+  const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
+  const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
+  gridEl.innerHTML = list.map(card).join("") || '<div class="empty">Sin resultados</div>';
+  gridEl.scrollLeft = sl; carArrows(gridEl);
   renderConf();
 }
 

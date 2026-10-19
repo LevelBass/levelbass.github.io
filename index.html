@@ -33,7 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 
@@ -209,8 +209,11 @@
       <button class="chip" data-t="igual">= Estable</button>
     </div>
     <div id="count" class="legend"></div>
-    <div id="grid" class="grid"></div>
-    <button class="more" id="more" hidden>Ver más embalses</button>
+    <div class="cwrap">
+      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
+      <div id="grid" class="ccar" tabindex="0" aria-label="Todos los embalses, desliza para ver más"></div>
+      <button type="button" class="carr next" aria-label="Siguientes">›</button>
+    </div>
   </section>
 
   <section class="section" id="capturas">
@@ -234,6 +237,6 @@
 <script src="data/confinados.js?v=5"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="app.js?v=9" defer></script>
+<script src="app.js?v=11" defer></script>
 </body>
 </html>

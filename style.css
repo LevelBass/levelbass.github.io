@@ -425,3 +425,9 @@ footer p{max-width:780px;margin:6px 0}
 .ccar .crow b{font-size:15px}
 .ccar .crow em{font-size:20px}
 .ccar .crow p{grid-column:1/-1;margin:4px 0 0;font-size:12px;line-height:1.35;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}
+
+/* Lista de todos los embalses en carrusel */
+#grid.ccar{align-items:stretch}
+#grid.ccar .res{flex:0 0 270px;scroll-snap-align:start}
+#grid.ccar .empty{flex:1}
+@media (max-width:640px){#grid.ccar .res{flex-basis:80%}}
