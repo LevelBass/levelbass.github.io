@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LevelBass</title>
 <meta property="og:title" content="LevelBass">
+<meta property="og:image" content="https://miguel220773.github.io/embalses-espana/img/logo-700.png">
+<link rel="icon" type="image/png" href="img/logo-160.png">
 <meta name="description" content="LevelBass: el nivel de agua de los embalses de España al día, pensado para pescadores de black bass.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -246,7 +248,9 @@ html{scroll-padding-top:64px}
 .topbar{position:sticky;top:0;z-index:60;background:rgba(6,20,28,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .tb-inner{max-width:1180px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:14px}
 .tb-logo{flex:none;display:inline-flex;align-items:center;gap:7px;font:700 20px var(--head);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);text-decoration:none;padding:10px 0}
-.tb-logo svg{font-size:22px;color:var(--bronze)}
+.tb-logo img{width:36px;height:36px;border-radius:50%;display:block}
+.biglogo{display:block;width:150px;height:150px;border-radius:50%;margin:0 0 14px;box-shadow:0 10px 30px rgba(0,0,0,.5),0 0 0 3px rgba(240,200,116,.25)}
+@media (min-width:900px){.biglogo{width:180px;height:180px}}
 .tb-logo b{color:var(--gold)}
 .tb-links{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;min-width:0}
 .tb-links::-webkit-scrollbar{display:none}
@@ -413,7 +417,7 @@ footer p{max-width:780px;margin:6px 0}
 <!-- Menú fijo: cada enlace lleva a su sección -->
 <nav class="topbar" aria-label="Secciones">
   <div class="tb-inner">
-    <a class="tb-logo" href="#top"><svg class="i"><use href="#i-fish"/></svg>Level<b>Bass</b></a>
+    <a class="tb-logo" href="#top" aria-label="LevelBass, inicio"><img src="img/logo-160.png" alt="" width="36" height="36">Level<b>Bass</b></a>
     <div class="tb-links" id="tblinks">
       <a href="#favoritos"><svg class="i"><use href="#i-star"/></svg>Favoritos <small id="tbcount"></small></a>
       <a href="#solunar"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
@@ -428,7 +432,7 @@ footer p{max-width:780px;margin:6px 0}
 <header class="hero" id="top">
   <div class="wrap">
     <div>
-      <div class="logo"><svg class="i" viewBox="0 0 24 24"><use href="#i-fish"/></svg><span>Level<b>Bass</b></span></div>
+      <img class="biglogo" src="img/logo-700.png" alt="LevelBass, black bass" width="170" height="170">
       <div class="brand"><span class="dot"></span>Datos oficiales · Pesca de black bass</div>
       <h1>Nivel de <em>embalses</em><br>de España</h1>
       <p class="lead">Cuánta agua tiene cada embalse antes de salir a pescar. Busca el tuyo, mira si sube o baja y guarda tus aguas favoritas.</p>
