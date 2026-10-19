@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nivel de Embalses</title>
-<meta name="description" content="Nivel de agua de los embalses de España al día, pensado para pescadores de black bass.">
+<title>LevelBass</title>
+<meta property="og:title" content="LevelBass">
+<meta name="description" content="LevelBass: el nivel de agua de los embalses de España al día, pensado para pescadores de black bass.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -38,6 +39,9 @@ svg.i{width:1em;height:1em;vertical-align:-.14em;fill:none;stroke:currentColor;s
   background-size:auto,auto,520px,auto}
 .hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:minmax(0,1fr);gap:26px}
 .hero .wrap>*{min-width:0}
+.logo{display:inline-flex;align-items:center;gap:10px;font:700 30px/1 var(--head);letter-spacing:.04em;text-transform:uppercase;margin-bottom:16px}
+.logo svg{font-size:34px;color:var(--bronze)}
+.logo b{background:linear-gradient(90deg,var(--gold),var(--bronze));-webkit-background-clip:text;background-clip:text;color:transparent}
 .brand{display:flex;align-items:center;gap:10px;font:600 14px var(--head);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
 .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--olive);box-shadow:0 0 0 0 rgba(155,180,60,.6);animation:pulse 2.4s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 10px rgba(155,180,60,0)}100%{box-shadow:0 0 0 0 rgba(155,180,60,0)}}
@@ -223,6 +227,7 @@ footer p{max-width:780px;margin:6px 0}
 <header class="hero">
   <div class="wrap">
     <div>
+      <div class="logo"><svg class="i" viewBox="0 0 24 24"><use href="#i-fish"/></svg><span>Level<b>Bass</b></span></div>
       <div class="brand"><span class="dot"></span>Datos oficiales · Pesca de black bass</div>
       <h1>Nivel de <em>embalses</em><br>de España</h1>
       <p class="lead">Cuánta agua tiene cada embalse antes de salir a pescar. Busca el tuyo, mira si sube o baja y guarda tus aguas favoritas.</p>
