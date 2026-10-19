@@ -959,14 +959,15 @@ function closeDetail(){
 }
 
 /* ---------- Fotos: cinta, galería y visor ---------- */
-const N_FOTOS = 37, nn = (i) => String(i).padStart(2, "0");
-let lbIdx = 0;
+const nn = (i) => String(i).padStart(2, "0");
+const FOTOS_QUITADAS = [1, 6, 12, 29]; // fotos retiradas de la web
+const FOTOS = Array.from({length:37}, (_, i) => i + 1).filter(i => !FOTOS_QUITADAS.includes(i));
+let lbIdx = 0; // posición dentro de FOTOS
 function initFotos(){
-  const lista = Array.from({length:N_FOTOS}, (_, i) => i + 1);
-  $("#gallery").innerHTML = lista.map(i => `<button data-lb="${i}" aria-label="Ver foto ${i}"><img loading="lazy" decoding="async" src="img/t/f${nn(i)}.jpg" alt="Captura de black bass en un embalse"></button>`).join("");
-  const cinta = [20, 26, 24, 12, 19, 37, 9, 35, 15, 4, 32, 22].map(i => `<img loading="lazy" src="img/t/f${nn(i)}.jpg" alt="">`).join("");
+  $("#gallery").innerHTML = FOTOS.map((n, pos) => `<button data-lb="${pos}" aria-label="Ver foto ${pos + 1}"><img loading="lazy" decoding="async" src="img/t/f${nn(n)}.jpg" alt="Captura de black bass en un embalse"></button>`).join("");
+  const cinta = [20, 26, 24, 19, 37, 9, 35, 15, 4, 32, 22, 3].map(i => `<img loading="lazy" src="img/t/f${nn(i)}.jpg" alt="">`).join("");
   $("#ribbon").innerHTML = cinta + cinta;
-  const show = (i) => { lbIdx = (i + N_FOTOS - 1) % N_FOTOS + 1; $("#lb img").src = `img/f${nn(lbIdx)}.jpg`; $("#lb").classList.add("open"); };
+  const show = (pos) => { lbIdx = (pos + FOTOS.length) % FOTOS.length; $("#lb img").src = `img/f${nn(FOTOS[lbIdx])}.jpg`; $("#lb").classList.add("open"); };
   $("#gallery").addEventListener("click", ev => { const b = ev.target.closest("[data-lb]"); if (b) show(+b.dataset.lb); });
   $("#lb .x").onclick = () => $("#lb").classList.remove("open");
   $("#lb .pv").onclick = (ev) => { ev.stopPropagation(); show(lbIdx - 1); };
