@@ -409,3 +409,19 @@ footer p{max-width:780px;margin:6px 0}
 .avisos{margin-top:8px;font-size:13px}
 .avisos summary{cursor:pointer;color:var(--gold)}
 .avisos ul{margin:6px 0 0;padding-left:18px}
+
+/* Confinados en carrusel horizontal */
+.cwrap{position:relative;margin-top:8px}
+.ccar{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding:2px 0 4px;-webkit-overflow-scrolling:touch}
+.ccar::-webkit-scrollbar{display:none}
+.ccar .crow{flex:0 0 215px;scroll-snap-align:start}
+.carr{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:38px;height:38px;border-radius:50%;border:1px solid var(--bronze);background:rgba(6,20,28,.92);color:var(--gold);font:700 24px/1 var(--head);cursor:pointer;display:grid;place-items:center;padding:0 0 3px;box-shadow:0 6px 16px rgba(0,0,0,.45);transition:opacity .2s}
+.carr:hover:not(:disabled){background:var(--bronze);color:#2a1c05}
+.carr:disabled{opacity:0;pointer-events:none}
+.carr.prev{left:-8px}.carr.next{right:-8px}
+@media (max-width:640px){.ccar .crow{flex-basis:70%}.carr.prev{left:-4px}.carr.next{right:-4px}}
+
+.ccar .crow{flex-basis:240px;padding:12px 14px;align-content:start;row-gap:4px}
+.ccar .crow b{font-size:15px}
+.ccar .crow em{font-size:20px}
+.ccar .crow p{grid-column:1/-1;margin:4px 0 0;font-size:12px;line-height:1.35;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;white-space:normal}

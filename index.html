@@ -33,7 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -180,8 +180,11 @@
     <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
     <div class="chips" id="confchips"></div>
     <div id="confcount" class="legend"></div>
-    <div id="confgrid" class="cgrid"></div>
-    <button class="more" id="confmore" hidden>Ver más</button>
+    <div class="cwrap">
+      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
+      <div id="confgrid" class="ccar" tabindex="0" aria-label="Embalses confinados, desliza para ver más"></div>
+      <button type="button" class="carr next" aria-label="Siguientes">›</button>
+    </div>
     <p class="src" id="confsrc"></p>
   </section>
 
@@ -231,6 +234,6 @@
 <script src="data/confinados.js?v=5"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="app.js?v=7" defer></script>
+<script src="app.js?v=9" defer></script>
 </body>
 </html>
