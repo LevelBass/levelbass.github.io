@@ -627,9 +627,10 @@ function initHoy(){
   setInterval(() => { if (all.length) renderHoy(); }, 60 * 1000); // el solunar se refresca solo
 
   const url = "https://embed.windy.com/embed2.html?lat=40.2&lon=-3.7&detailLat=40.2&detailLon=-3.7&zoom=6&level=surface&overlay=wind&product=ecmwf&menu=&message=true&marker=&calendar=now&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1";
-  const box = $("#windbox"), poner = () => { if (!box.firstChild) box.innerHTML = `<iframe title="Mapa de viento Windy" loading="lazy" src="${url}" allowfullscreen></iframe>`; };
-  if ("IntersectionObserver" in window) new IntersectionObserver((en, ob) => { if (en.some(x => x.isIntersecting)){ poner(); ob.disconnect(); } }, {rootMargin:"300px"}).observe(box);
-  else poner();
+  // El mapa de viento es de un tercero (Windy): solo se carga cuando el visitante lo pide, así no se mandan datos antes de tiempo
+  const box = $("#windbox");
+  box.innerHTML = `<div class="windask"><svg class="i" aria-hidden="true"><use href="#i-wind"/></svg><p>Mapa de viento en tiempo real de <b>Windy.com</b></p><button type="button" id="windgo">Ver el mapa de viento</button><small>Al pulsar se carga contenido de windy.com</small></div>`;
+  $("#windgo").addEventListener("click", () => { box.innerHTML = `<iframe title="Mapa de viento Windy" src="${url}" allowfullscreen></iframe>`; });
 }
 
 async function init(){
