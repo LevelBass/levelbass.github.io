@@ -32,8 +32,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -80,7 +80,7 @@
 <header class="hero" id="top">
   <div class="wrap">
     <div>
-      <img class="biglogo" src="img/logo-400.webp" alt="LevelBass, black bass" width="170" height="170">
+      <img class="biglogo" src="img/logo-400.webp" alt="LevelBass, black bass" width="170" height="170" fetchpriority="high">
       <div class="brand"><span class="dot"></span>Datos oficiales · Pesca de black bass</div>
       <h1>Nivel de <em>embalses</em><br>de España</h1>
       <p class="lead">Cuánta agua tiene cada embalse antes de salir a pescar. Busca el tuyo, mira si sube o baja y guarda tus aguas favoritas.</p>
@@ -102,7 +102,7 @@
         <div class="polaroid p2"><img src="img/t/f21.webp" alt="Black bass sobre la alfombra del barco" width="420" height="560" decoding="async"></div>
         <div class="polaroid p3"><img src="img/t/f26.webp" alt="Proa del barco al atardecer" width="420" height="560" decoding="async"></div>
         <!-- El pez ocupa el hueco libre de la esquina inferior derecha, sin tocar las fotos -->
-        <img class="pecito" src="img/pez-dorado.webp" alt="" width="190" height="100">
+        <img class="pecito" src="img/pez-dorado.webp" alt="" width="190" height="100" decoding="async">
       </div>
     </div>
   </div>
@@ -144,10 +144,10 @@
         <button id="solhoy" class="hoybtn">Hoy</button>
       </div>
     </div>
-    <div class="card hoy" id="hoy" aria-label="Luna y solunar del día elegido"></div>
+    <div class="card hoy" id="hoy" role="region" aria-label="Luna y solunar del día elegido"></div>
     <div class="solgrid">
-      <div class="card" id="solcal" aria-label="Calendario solunar"></div>
-      <div class="card" id="solbest" aria-label="Mejores días"></div>
+      <div class="card" id="solcal" role="region" aria-label="Calendario solunar"></div>
+      <div class="card" id="solbest" role="region" aria-label="Mejores días"></div>
     </div>
     <h3 class="subh">Próximos 7 días</h3>
     <div class="soltabla-wrap"><table class="soltabla" id="soltabla"></table></div>
@@ -225,8 +225,8 @@
 <div id="modal" role="dialog" aria-modal="true"><div class="sheet"></div></div>
 <script src="data/embalses.js"></script>
 <script src="data/confinados.js?v=5"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
-<script src="app.js?v=12" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
+<script src="app.js?v=14" defer></script>
 </body>
 </html>

@@ -207,7 +207,7 @@ function lunaSvg(p, s = 44){
 function solunar(fecha, lat, lon){
   const d0 = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
   let alto = -9, bajo = 9, mAlto = null, mBajo = null;
-  for (let m = 0; m < 1440; m += 4){
+  for (let m = 0; m < 1440; m += 8){ // cada 8 min basta para situar el paso de la luna (±4 min) y es mucho más ligero
     const a = SunCalc.getMoonPosition(new Date(d0.getTime() + m * 60000), lat, lon).altitude;
     if (a > alto){ alto = a; mAlto = m; }
     if (a < bajo){ bajo = a; mBajo = m; }
@@ -547,11 +547,13 @@ function renderHoy(){
 
     $("#soldate").value = isoLocal(solFecha);
     $("#solhoy").disabled = esHoy;
-    calendarioSolunar(z);
-    mejoresDias(z);
-    tablaSolunar(z);
+    // Calendario, mejores días y tabla (muchos cálculos): solo cuando el visitante llega a la sección
+    const extras = () => { calendarioSolunar(z); mejoresDias(z); tablaSolunar(z); };
+    if (solVisto) extras(); else solPendiente = extras;
   } catch (err) { console.error(err); $("#solunar").hidden = true; }
 }
+let solVisto = false, solPendiente = null;
+alVer("#solunar", () => { solVisto = true; if (solPendiente){ const f = solPendiente; solPendiente = null; enReposo(f); } }, "500px");
 
 // Calendario del mes: luna y estrellas de cada día; se pulsa un día para verlo
 function calendarioSolunar(z){
@@ -671,11 +673,15 @@ async function init(){
     $("#cuenca").value = b.dataset.c; shown = 24; render(); $("#lista").scrollIntoView({behavior:"smooth"});
   });
 
-  try {
-    map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, className:"tiles-dark", attribution:"© OpenStreetMap"}).addTo(map);
-    layer = L.layerGroup().addTo(map);
-  } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
+  // El mapa se crea solo cuando el visitante se acerca a él (carga más rápida)
+  alVer("#mapa", () => {
+    try {
+      map = L.map("map", {scrollWheelZoom:false}).setView([39.9, -3.5], 6);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {maxZoom:18, className:"tiles-dark", attribution:"© OpenStreetMap"}).addTo(map);
+      layer = L.layerGroup().addTo(map);
+      pintarMapa(ultimaLista);
+    } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
+  }, "600px");
 
   for (const id of ["#q","#cuenca","#prov","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
   const irLista = () => $("#lista").scrollIntoView({behavior:"smooth"});
@@ -710,6 +716,32 @@ async function init(){
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
 }
 
+let ultimaLista = [];
+// Ejecuta fn cuando el elemento se acerca a la pantalla (o ya, si el navegador no lo permite)
+function alVer(sel, fn, margen = "300px"){
+  const el = document.querySelector(sel); if (!el) return;
+  if (!("IntersectionObserver" in window)) return fn();
+  const io = new IntersectionObserver((en) => { if (en.some(x => x.isIntersecting)){ io.disconnect(); fn(); } }, {rootMargin: margen});
+  io.observe(el);
+}
+const enReposo = (fn) => ("requestIdleCallback" in window) ? requestIdleCallback(fn, {timeout: 400}) : setTimeout(fn, 30);
+function pintarMapa(list){
+  if (!map) return;
+  layer.clearLayers(); markers.clear();
+  for (const e of list){
+    if (e.lat == null) continue;
+    const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
+    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#06141c", weight:1.5, fillColor:hex(lvl(e).pct), fillOpacity:.9})
+      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(lvl(e).pct,1)} % · ${fmt(lvl(e).vol, 1)} / ${fmt(e.capacidad)} hm³${e.vivo?' · <b style="color:#f0c874">en directo</b>':''}<br><a href="#" onclick="openDetail(${e.id});return false">Ver ficha</a>`);
+    m.addTo(layer); markers.set(e.id, m);
+  }
+  if (list.length && list.length < all.length){
+    const pts = list.filter(e => e.lat != null).map(e => [e.lat,e.lon]);
+    if (pts.length) map.fitBounds(pts, {padding:[30,30], maxZoom:10});
+  } else if (list.length === all.length) map.setView([39.9,-3.5], 6);
+}
+let renderToken = 0;
+
 function render(){
   const q = norm($("#q").value.trim()), c = $("#cuenca").value, pv = $("#prov").value;
   const base = all.filter(e => (!q || norm(e.nombre).includes(q) || norm(natural(e.nombre)).includes(q) || norm(e.cuenca).includes(q) || norm(e.provincia || "").includes(q)) && (!c || e.cuenca === c) && (!pv || e.provincia === pv));
@@ -736,19 +768,9 @@ function render(){
   $("#favcount").textContent = $("#tbcount").textContent = fl.length ? `(${fl.length})` : "";
   $("#favs").innerHTML = fl.length ? fl.map(favCard).join("") : '<div class="empty favvacio">Pulsa la ☆ de cualquier embalse para guardarlo aquí y tenerlo siempre a mano. Se queda guardado en este navegador.</div>';
 
-  // Mapa
-  if (map){ layer.clearLayers(); markers.clear(); }
-  for (const e of (map ? list : [])){
-    if (e.lat == null) continue;
-    const r = Math.max(5, Math.min(18, Math.sqrt(e.capacidad||1)*0.7));
-    const m = L.circleMarker([e.lat,e.lon], {radius:r, color:"#06141c", weight:1.5, fillColor:hex(lvl(e).pct), fillOpacity:.9})
-      .bindPopup(`<b>${esc(e.nombre)}</b><br>${esc(e.cuenca)}<br>${fmt(lvl(e).pct,1)} % · ${fmt(lvl(e).vol, 1)} / ${fmt(e.capacidad)} hm³${e.vivo?' · <b style="color:#f0c874">en directo</b>':''}<br><a href="#" onclick="openDetail(${e.id});return false">Ver ficha</a>`);
-    m.addTo(layer); markers.set(e.id, m);
-  }
-  if (map && list.length && list.length < all.length){
-    const pts = list.filter(e => e.lat != null).map(e => [e.lat,e.lon]);
-    if (pts.length) map.fitBounds(pts, {padding:[30,30], maxZoom:10});
-  } else if (map && list.length === all.length) map.setView([39.9,-3.5], 6);
+  // Mapa (se pinta cuando existe; si aún no se ha creado, se pinta al crearlo)
+  ultimaLista = list;
+  pintarMapa(list);
 
   // Lista
   const [k, dir] = $("#sort").value.split("-");
@@ -761,8 +783,19 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses`;
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  gridEl.innerHTML = list.map(card).join("") || '<div class="empty">Sin resultados</div>';
+  // Las tarjetas se pintan por tandas: las primeras al momento y el resto cuando el navegador está libre
+  const token = ++renderToken, LOTE = 36;
+  gridEl.innerHTML = list.slice(0, LOTE).map(card).join("") || '<div class="empty">Sin resultados</div>';
   gridEl.scrollLeft = sl; carArrows(gridEl);
+  let desde = LOTE;
+  const resto = () => {
+    if (token !== renderToken || desde >= list.length) return;
+    gridEl.insertAdjacentHTML("beforeend", list.slice(desde, desde + 60).map(card).join(""));
+    desde += 60; carArrows(gridEl);
+    if (sl && gridEl.scrollLeft < sl) gridEl.scrollLeft = sl;
+    if (desde < list.length) enReposo(resto);
+  };
+  if (list.length > LOTE) enReposo(resto);
   renderConf();
 }
 

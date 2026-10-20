@@ -414,6 +414,8 @@ footer p{max-width:780px;margin:6px 0}
 
 /* Lista de todos los embalses en carrusel */
 #grid.ccar{align-items:stretch}
-#grid.ccar .res{flex:0 0 270px;scroll-snap-align:start}
+#grid.ccar .res{flex:0 0 270px;scroll-snap-align:start;content-visibility:auto;contain-intrinsic-size:auto 270px auto 250px}
+/* Con casi 400 tarjetas, las olas animadas de cada barra se quedan fijas (se animan solo en la ficha y los favoritos) */
+#grid.ccar .res .tank i::after{animation:none}
 #grid.ccar .empty{flex:1}
 @media (max-width:640px){#grid.ccar .res{flex-basis:80%}}

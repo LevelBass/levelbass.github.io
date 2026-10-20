@@ -2,7 +2,9 @@ name: Actualizar embalses
 
 on:
   schedule:
-    - cron: "7 * * * *" # cada hora
+    # GitHub retrasa y se salta bastantes ejecuciones programadas, así que se pide cada 15 minutos
+    # para que en la práctica se actualice más o menos cada hora.
+    - cron: "3,18,33,48 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -15,6 +17,7 @@ concurrency:
 jobs:
   actualizar:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
