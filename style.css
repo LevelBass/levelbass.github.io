@@ -307,7 +307,7 @@ html{scroll-padding-top:64px}
 .soltabla th{font:600 12px var(--head);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;padding:12px 8px;border-bottom:1px solid var(--line)}
 .soltabla td{text-align:center;padding:10px 8px;font-size:14px;border-top:1px solid var(--line)}
 .soltabla th:first-child,.soltabla td:first-child{text-align:left;padding-left:16px}
-.soltabla tr.hoy td{background:rgba(214,162,74,.08)}
+.soltabla tr.diahoy td{background:rgba(214,162,74,.08)}
 .soltabla td.M{color:var(--gold);font-weight:600}.soltabla td.m{color:#8fd29a}
 .soltabla .ph{display:flex;align-items:center;gap:8px}
 .soltabla .ph span{color:var(--muted);font-size:12px;display:block}

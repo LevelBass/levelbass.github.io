@@ -459,7 +459,8 @@ function initFotos(){
   // Con pocas fotos la cinta se repite varias veces para que el bucle no deje huecos
   const cinta = FOTOS.map(i => `<img loading="lazy" decoding="async" src="img/t/f${nn(i)}.webp" alt="" width="210" height="280">`).join("");
   const mitad = cinta + cinta;
-  $("#ribbon").innerHTML = mitad + mitad;
+  const cintaEl = $("#ribbon");
+  if (cintaEl) cintaEl.innerHTML = mitad + mitad;
 }
 
 // ================= TABLA SOLUNAR =================
@@ -582,7 +583,7 @@ function tablaSolunar(z){
   for (let i = 0; i < 7; i++){
     const f = new Date(solFecha.getFullYear(), solFecha.getMonth(), solFecha.getDate() + i), s = solunar(f, z.lat, z.lon);
     const t = (k) => { const p = s.per.find(x => x.k === k); return p ? hhmm(Math.max(0, p.ini)) + "–" + hhmm(Math.min(1440, p.fin)) : "–"; };
-    filas.push(`<tr class="${i === 0 ? "hoy" : ""}${s.estrellas >= 4 ? " top" : ""}" data-dia="${isoLocal(f)}"><td><div class="ph">${lunaSvg(s.fase, 34)}<div><b>${f.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"short"})}</b><span>${s.nombre} · ${fmt(s.fraccion * 100, 0)} %</span></div></div></td>
+    filas.push(`<tr class="${i === 0 ? "diahoy" : ""}${s.estrellas >= 4 ? " top" : ""}" data-dia="${isoLocal(f)}"><td><div class="ph">${lunaSvg(s.fase, 34)}<div><b>${f.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"short"})}</b><span>${s.nombre} · ${fmt(s.fraccion * 100, 0)} %</span></div></div></td>
       <td class="M">${t("M1")}</td><td class="M">${t("M2")}</td><td class="m">${t("m1")}</td><td class="m">${t("m2")}</td>
       <td>${s.orto != null ? hhmm(s.orto) : "–"} · ${s.ocaso != null ? hhmm(s.ocaso) : "–"}</td>
       <td class="est">${estrellas(s.estrellas)}<span class="vv">${VEREDICTO[s.estrellas]}</span></td></tr>`);
@@ -630,7 +631,7 @@ function initHoy(){
 }
 
 async function init(){
-  initFotos();
+  try { initFotos(); } catch (e) { console.warn("fotos", e); } // lo decorativo nunca debe romper la página
   initHoy();
   let d = window.EMBALSES_DATA;
   if (!d){
