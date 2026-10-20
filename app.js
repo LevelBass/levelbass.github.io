@@ -453,13 +453,15 @@ function closeDetail(deHash){
 
 /* ---------- Fotos: cinta, galería y visor ---------- */
 const nn = (i) => String(i).padStart(2, "0");
-const FOTOS_QUITADAS = [1, 6, 12, 29]; // fotos retiradas de la web
-const FOTOS = Array.from({length:37}, (_, i) => i + 1).filter(i => !FOTOS_QUITADAS.includes(i));
+// Solo se muestran fotos de peces solos o del barco (sin personas)
+const FOTOS = [17, 18, 20, 21, 26, 30, 34];
 let lbIdx = 0; // posición dentro de FOTOS
 function initFotos(){
   $("#gallery").innerHTML = FOTOS.map((n, pos) => `<button data-lb="${pos}" aria-label="Ver foto ${pos + 1}"><img loading="lazy" decoding="async" src="img/t/f${nn(n)}.webp" alt="Captura de black bass nº ${pos + 1}" width="210" height="280"></button>`).join("");
-  const cinta = [20, 26, 24, 19, 37, 9, 35, 15, 4, 32, 22, 3].map(i => `<img loading="lazy" decoding="async" src="img/t/f${nn(i)}.webp" alt="Black bass capturado en un embalse" width="210" height="280">`).join("");
-  $("#ribbon").innerHTML = cinta + cinta;
+  // Con pocas fotos la cinta se repite varias veces para que el bucle no deje huecos
+  const cinta = FOTOS.map(i => `<img loading="lazy" decoding="async" src="img/t/f${nn(i)}.webp" alt="" width="210" height="280">`).join("");
+  const mitad = cinta + cinta;
+  $("#ribbon").innerHTML = mitad + mitad;
   const show = (pos) => { lbIdx = (pos + FOTOS.length) % FOTOS.length; $("#lb img").src = `img/f${nn(FOTOS[lbIdx])}.webp`; $("#lb").classList.add("open"); };
   $("#gallery").addEventListener("click", ev => { const b = ev.target.closest("[data-lb]"); if (b) show(+b.dataset.lb); });
   $("#lb .x").onclick = () => $("#lb").classList.remove("open");
