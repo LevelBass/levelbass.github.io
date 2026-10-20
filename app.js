@@ -451,29 +451,15 @@ function closeDetail(deHash){
   $("#modal .sheet").innerHTML = ""; // también detiene el mapa de viento incrustado
 }
 
-/* ---------- Fotos: cinta, galería y visor ---------- */
+/* ---------- Fotos: cinta decorativa ---------- */
 const nn = (i) => String(i).padStart(2, "0");
 // Solo se muestran fotos de peces solos o del barco (sin personas)
 const FOTOS = [17, 18, 20, 21, 26, 30, 34];
-let lbIdx = 0; // posición dentro de FOTOS
 function initFotos(){
-  $("#gallery").innerHTML = FOTOS.map((n, pos) => `<button data-lb="${pos}" aria-label="Ver foto ${pos + 1}"><img loading="lazy" decoding="async" src="img/t/f${nn(n)}.webp" alt="Captura de black bass nº ${pos + 1}" width="210" height="280"></button>`).join("");
   // Con pocas fotos la cinta se repite varias veces para que el bucle no deje huecos
   const cinta = FOTOS.map(i => `<img loading="lazy" decoding="async" src="img/t/f${nn(i)}.webp" alt="" width="210" height="280">`).join("");
   const mitad = cinta + cinta;
   $("#ribbon").innerHTML = mitad + mitad;
-  const show = (pos) => { lbIdx = (pos + FOTOS.length) % FOTOS.length; $("#lb img").src = `img/f${nn(FOTOS[lbIdx])}.webp`; $("#lb").classList.add("open"); };
-  $("#gallery").addEventListener("click", ev => { const b = ev.target.closest("[data-lb]"); if (b) show(+b.dataset.lb); });
-  $("#lb .x").onclick = () => $("#lb").classList.remove("open");
-  $("#lb .pv").onclick = (ev) => { ev.stopPropagation(); show(lbIdx - 1); };
-  $("#lb .nx").onclick = (ev) => { ev.stopPropagation(); show(lbIdx + 1); };
-  $("#lb").addEventListener("click", ev => { if (ev.target.id === "lb") $("#lb").classList.remove("open"); });
-  document.addEventListener("keydown", ev => {
-    if (!$("#lb").classList.contains("open")) return;
-    if (ev.key === "Escape") $("#lb").classList.remove("open");
-    if (ev.key === "ArrowLeft") show(lbIdx - 1);
-    if (ev.key === "ArrowRight") show(lbIdx + 1);
-  });
 }
 
 // ================= TABLA SOLUNAR =================

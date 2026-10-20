@@ -140,18 +140,6 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .more:hover{border-color:var(--bronze)}
 .empty{color:var(--muted);text-align:center;padding:30px}
 
-/* ================= GALERÍA ================= */
-.gallery{columns:2;column-gap:10px}
-.gallery button{display:block;width:100%;margin:0 0 10px;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);cursor:zoom-in;break-inside:avoid;position:relative}
-.gallery img{display:block;width:100%;height:auto;transition:transform .4s}
-.gallery button:hover img{transform:scale(1.05)}
-.gallery button::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 60%,rgba(6,20,28,.55));pointer-events:none}
-#lb{position:fixed;inset:0;z-index:1200;display:none;background:rgba(3,9,13,.92);align-items:center;justify-content:center;padding:16px}
-#lb.open{display:flex}
-#lb img{max-width:100%;max-height:92vh;border-radius:10px;box-shadow:0 20px 60px #000}
-#lb button{position:absolute;border:0;background:rgba(13,37,49,.85);color:var(--ink);width:44px;height:44px;border-radius:50%;font-size:26px;cursor:pointer}
-#lb .x{top:14px;right:14px}#lb .pv{left:12px;top:50%}#lb .nx{right:12px;top:50%}
-
 /* ================= FICHA ================= */
 #modal{position:fixed;inset:0;z-index:1000;display:none;background:rgba(3,9,13,.74);backdrop-filter:blur(4px);overflow:auto;padding:24px 14px}
 #modal.open{display:block}
@@ -358,7 +346,6 @@ footer p{max-width:780px;margin:6px 0}
 /* ================= ESCRITORIO ================= */
 @media (min-width:640px){
   .grid{grid-template-columns:repeat(2,1fr)}
-  .gallery{columns:3}
   .controls{grid-template-columns:repeat(3,1fr)}
 }
 @media (min-width:900px){
@@ -369,7 +356,6 @@ footer p{max-width:780px;margin:6px 0}
   .p1{height:270px}.p2{height:290px}.p3{height:200px}
   .dash{grid-template-columns:290px 1fr}
   .grid{grid-template-columns:repeat(3,1fr)}
-  .gallery{columns:4}
   .kpis{grid-template-columns:repeat(4,1fr)}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
