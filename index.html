@@ -34,7 +34,7 @@
 <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=17">
 </head>
 <body>
 
@@ -130,7 +130,9 @@
 
   <section class="favbar" id="favoritos" aria-label="Mis embalses favoritos">
     <h2>★ Mis embalses favoritos <small id="favcount"></small></h2>
+    <div id="avisos"></div>
     <div id="favs" class="favrow"></div>
+    <div class="favtools" id="favtools" hidden><button type="button" id="favlink" class="mini">🔗 Copiar enlace de mis favoritos</button><span>Ábrelo en tu otro móvil u ordenador para tener allí los mismos favoritos.</span></div>
   </section>
 
   <section class="section" id="solunar" aria-label="Tabla solunar">
@@ -226,8 +228,9 @@
 <div id="modal" role="dialog" aria-modal="true"><div class="sheet"></div></div>
 <script src="data/embalses.js"></script>
 <script src="data/confinados.js?v=5"></script>
+<script src="data/fichas.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
-<script src="app.js?v=16" defer></script>
+<script src="app.js?v=18" defer></script>
 </body>
 </html>

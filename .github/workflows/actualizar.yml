@@ -29,5 +29,5 @@ jobs:
         run: |
           git config user.name "embalses-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/
+          git add data/ e/
           git diff --staged --quiet || (git commit -m "Actualizar datos de embalses" && git pull --rebase -q && git push)

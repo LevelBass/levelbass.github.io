@@ -40,6 +40,8 @@ const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...f
 // Nivel actual: si hay lectura en directo se usa esa; si no, el boletín semanal
 const lvl = (e) => e.vivo ? {vol:e.vivo.volumen, pct:e.vivo.porcentaje} : {vol:e.volumen, pct:e.porcentaje};
 const fdt = (s) => new Date(s).toLocaleString("es-ES", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"});
+// Algunas fuentes (Ebro) solo dan un valor al día: se muestra solo la fecha, no una hora inventada
+const fdv = (e) => e.vivo.diario ? new Date(e.vivo.fecha).toLocaleDateString("es-ES", {day:"numeric", month:"short"}) : fdt(e.vivo.fecha);
 
 // Etiquetas orientativas según tamaño, nivel y tendencia (no son datos medidos)
 // Embalses confinados (mejillón cebra): datos en data/confinados.js
@@ -107,9 +109,10 @@ function favCard(e){
   return `<article class="fav" data-open="${e.id}" tabindex="0">
     <button class="fav-x" data-fav="${e.id}" aria-label="Quitar de favoritos" title="Quitar de favoritos">×</button>
     <h3>${esc(e.nombre)}</h3>
-    <div class="sub">${esc(e.provincia || e.cuenca)}</div>
+    <div class="sub">${esc(e.provincia || e.cuenca)} ${edadHtml(e)}</div>
     <div class="fr"><b style="color:${hex(L.pct)}">${fmt(L.pct,0)}<small> %</small></b><span class="${t==='sube'?'up':t==='baja'?'down':''}">${txt} hm³<br><em>${e.extra ? "24 h" : "semana"}</em></span></div>
     <div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div>
+    <div class="favbest" data-best="${e.id}">${e.lat != null ? "Calculando mejor día…" : ""}</div>
     <span class="ver">Ver ficha →</span>
   </article>`;
 }
@@ -120,14 +123,14 @@ function card(e){
   return `<article class="res" data-id="${e.id}">
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
-    <div class="sub">${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)} ${e.vivo?'<span class="live">● En directo</span>':''}</div>
+    <div class="sub">${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)} ${edadHtml(e)}</div>
     <div class="badges">${badges(e, L)}</div>
     <div class="row">
       <div class="pc">${fmt(L.pct,0)}<small> %</small></div>
       <div class="trend ${t==='sube'?'up':t==='baja'?'down':''}">${txt}<br><span>${e.extra ? "últimas 24 h" : "vs. semana ant."}</span></div>
     </div>
     <div class="tank"><i class="${lvlClass(L.pct)}" style="width:${Math.min(L.pct,100)}%"></i></div>
-    <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?'a las '+fdt(e.vivo.fecha):'de '+fmt(e.capacidad, e.capacidad < 20 ? 1 : 0)+' hm³'}</span></div>
+    <div class="meta"><span>${fmt(L.vol, e.vivo?1:0)} hm³</span><span>${e.vivo?(e.vivo.diario?'del ':'a las ')+fdv(e):'de '+fmt(e.capacidad, e.capacidad < 20 ? 1 : 0)+' hm³'}</span></div>
   </article>`;
 }
 
@@ -167,7 +170,7 @@ async function getWx(lat, lon){
   const k = lat.toFixed(2) + "," + lon.toFixed(2);
   if (!wxCache.has(k)){
     const q = new URLSearchParams({
-      latitude: lat, longitude: lon, timezone: "Europe/Madrid", forecast_days: 5, past_hours: 6, wind_speed_unit: "kmh",
+      latitude: lat, longitude: lon, timezone: "Europe/Madrid", forecast_days: 7, past_hours: 6, wind_speed_unit: "kmh",
       current: "temperature_2m,weather_code,surface_pressure,pressure_msl,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day",
       hourly: "pressure_msl",
       daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max",
@@ -259,7 +262,7 @@ function lunaHtml(lat, lon){
 /* ---- Tiempo ---- */
 function wxHtml(w){
   const c = w.current, ic = wmo(c.weather_code), pr = presion(w);
-  const dias = w.daily.time.map((t, i) => {
+  const dias = w.daily.time.slice(0, 5).map((t, i) => {
     const d = wmo(w.daily.weather_code[i]);
     return `<div class="dwx"><b>${new Date(t + "T12:00").toLocaleDateString("es-ES", {weekday:"short", day:"numeric"})}</b>${ico(d.i)}<span>${d.t}</span><em>${Math.round(w.daily.temperature_2m_max[i])}° <small>${Math.round(w.daily.temperature_2m_min[i])}°</small></em><span class="r">${ico("drop")} ${w.daily.precipitation_probability_max[i] ?? 0} %</span></div>`;
   }).join("");
@@ -300,12 +303,275 @@ function topoMapa(e){
 }
 
 /* ---------- Ficha de embalse ---------- */
+/* ---------- Antigüedad del dato ---------- */
+function edad(e){
+  const f = e.vivo ? new Date(e.vivo.fecha) : e.fecha ? new Date(e.fecha + "T12:00") : null;
+  if (!f || isNaN(f)) return null;
+  const min = Math.max(0, (Date.now() - f) / 60000);
+  if (e.vivo?.diario) return {txt: "del " + fdv(e), cls: min <= 36 * 60 ? "" : min <= 72 * 60 ? "mid" : "old", vivo: true, diario: true};
+  const txt = min < 90 ? `hace ${Math.max(1, Math.round(min))} min` : min < 2880 ? `hace ${Math.round(min / 60)} h` : `hace ${Math.round(min / 1440)} d`;
+  return e.vivo ? {txt, cls: min <= 180 ? "" : min <= 720 ? "mid" : "old", vivo: true} : {txt, cls: min <= 10 * 1440 ? "wk" : "old", vivo: false};
+}
+function edadHtml(e, largo){
+  const a = edad(e); if (!a) return "";
+  return a.vivo
+    ? `<span class="live ${a.cls}" title="${a.diario ? "Valor diario del SAIH de la confederación" : "Última lectura del SAIH de la confederación"}">● ${a.diario ? (largo ? "Dato diario " : "Diario ") : largo ? "En directo · " : ""}${a.txt}</span>`
+    : `<span class="live wk ${a.cls === "old" ? "old" : ""}" title="Dato del boletín semanal del Ministerio">${largo ? "Boletín semanal · " : "Semanal · "}${a.txt}</span>`;
+}
+
+/* ---------- Tendencia del nivel (24 h, 7 días, 30 días) ---------- */
+// Variación a partir del historial en directo, solo si cubre casi todo el periodo pedido
+function histVar(e, dias){
+  const h = e.vivo?.historial; if (!h || h.length < 2) return null;
+  const fin = h[h.length - 1], t1 = new Date(fin[0]).getTime();
+  const ini = h.find(([t]) => t1 - new Date(t).getTime() <= dias * 864e5);
+  if (!ini || ini === fin) return null;
+  return (t1 - new Date(ini[0]).getTime()) / 864e5 >= dias - 0.75 ? fin[1] - ini[1] : null;
+}
+function tendencias(e){
+  const d1 = e.vivo?.var24h ?? null;
+  let d7 = histVar(e, 7);
+  if (d7 == null && !e.extra) d7 = e.variacion_hm3;
+  return {d1, d7, d30: e.var4s_hm3 ?? null};
+}
+// Lectura orientativa para el black bass según el ritmo de cambio (puntos de llenado por día)
+function consejoNivel(e, t){
+  const cap = e.capacidad; if (!cap) return null;
+  const r = t.d1 != null ? t.d1 / cap * 100 : t.d7 != null ? t.d7 / cap * 100 / 7 : null;
+  if (r == null) return null;
+  if (r >= 0.4) return {cls: "up", t: "Sube deprisa", d: "El agua nueva cubre orillas y vegetación, y el black bass suele adelantarse a las zonas recién inundadas. Prueba cebos de poca profundidad pegados a la orilla; si el agua baja turbia, señuelos que hagan ruido o vibren."};
+  if (r >= 0.1) return {cls: "up", t: "Va subiendo", d: "Buena señal: los peces siguen el agua nueva hacia la orilla y la vegetación inundada."};
+  if (r <= -0.4) return {cls: "down", t: "Baja deprisa", d: "Los peces se retiran a zonas más hondas y comen peor. Busca cortados, puntas y el antiguo cauce, y lleva el señuelo más lento y más abajo."};
+  if (r <= -0.1) return {cls: "down", t: "Va bajando", d: "Los peces se alejan de la orilla hacia estructuras algo más hondas: puntas, bordes de vegetación y caídas."};
+  return {cls: "", t: "Nivel estable", d: "Los peces mantienen sus zonas habituales: lo que te funcionó en tus últimas salidas suele seguir funcionando."};
+}
+function tendHtml(e){
+  const t = tendencias(e), cap = e.capacidad;
+  const celda = (lbl, v, nota) => {
+    if (v == null) return `<div class="tc"><small>${lbl}</small><b>–</b><span>${nota}</span></div>`;
+    const p = cap ? v / cap * 100 : null, cl = v > 0.004 ? "up" : v < -0.004 ? "down" : "", fl = v > 0.004 ? "▲" : v < -0.004 ? "▼" : "■";
+    return `<div class="tc"><small>${lbl}</small><b class="${cl}">${fl} ${v > 0 ? "+" : ""}${fmt(v, Number.isInteger(v) ? 0 : Math.abs(v) < 10 ? 2 : 1)} hm³</b><span class="${cl}">${p == null ? "" : (p > 0 ? "+" : "") + fmt(p, 1) + " pts de llenado"}</span></div>`;
+  };
+  const c = consejoNivel(e, t);
+  return `<h4>Tendencia del nivel</h4><div class="tend">
+    ${celda("24 horas", t.d1, e.vivo ? "acumulando historial" : "solo con lectura en directo")}
+    ${celda("7 días", t.d7, e.extra ? "acumulando historial" : "sin datos")}
+    ${celda("30 días", t.d30, "sin datos")}
+  </div>${c ? `<div class="consejo ${c.cls ? "c-" + c.cls : ""}"><b>${c.cls === "up" ? "▲" : c.cls === "down" ? "▼" : "■"} ${c.t}</b><p>${c.d}</p><small>Lectura orientativa para black bass, no un dato medido.</small></div>` : ""}`;
+}
+
+/* ---------- Temperatura estimada del agua y fase del black bass ---------- */
+const tempCache = new Map();
+function getTemps(lat, lon){
+  const k = lat.toFixed(2) + "," + lon.toFixed(2);
+  if (!tempCache.has(k)){
+    const q = new URLSearchParams({latitude: lat, longitude: lon, timezone: "Europe/Madrid", past_days: 21, forecast_days: 1, daily: "temperature_2m_mean"});
+    tempCache.set(k, fetch("https://api.open-meteo.com/v1/forecast?" + q).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }));
+  }
+  return tempCache.get(k);
+}
+// El agua tarda en calentarse y enfriarse: se estima con una media móvil de la temperatura media diaria del aire
+function aguaEstimada(j){
+  const t = (j.daily?.temperature_2m_mean || []).filter(x => x != null); if (t.length < 10) return null;
+  let tw = (t[0] + t[1] + t[2]) / 3; const serie = [tw];
+  for (const x of t.slice(3)){ tw += 0.13 * (x - tw); serie.push(tw); }
+  return {temp: Math.min(29, Math.max(6, tw)), sube: tw - serie[serie.length - 8] > 0};
+}
+const FASES = {
+  invierno: {n: "Invierno", t: "Agua fría: el black bass está lento y agrupado en zonas hondas y soleadas. Pesca lenta, señuelos pequeños y de movimiento suave, y mejor en las horas centrales del día."},
+  prefreza: {n: "Prefreza", t: "El agua se templa y los peces se acercan a la orilla a comer fuerte antes de la freza. Buen momento para jerkbaits, crankbaits de poca profundidad y spinnerbaits en puntas y zonas someras con sol."},
+  freza: {n: "Freza", t: "Los machos preparan nidos en fondos duros y poco profundos. Evita molestar a los peces que vigilan nido y consulta si tu comunidad limita la pesca en esta época."},
+  postfreza: {n: "Postfreza", t: "Los peces se recuperan y se dispersan; al principio comen poco. Prueba cebos naturales y lentos cerca de vegetación y estructuras, en las primeras y últimas horas."},
+  verano: {n: "Verano", t: "Agua cálida: los peces buscan sombra y frescor (profundidad, vegetación, árboles, estructuras). Pesca al amanecer y atardecer, o cebos más hondos durante el día."},
+  otono: {n: "Otoño", t: "El pez se activa para alimentarse antes del invierno y persigue bancos de pequeños peces. Buenas jornadas con crankbaits, vibrantes y swimbaits cerca de los alevines."},
+  otonoTardio: {n: "Otoño tardío", t: "El agua se enfría y el pez se vuelve más selectivo y lento, agrupado en zonas más hondas. Cebos más lentos y pequeños, y paciencia."},
+};
+function faseBass(temp, mes){
+  if (temp < 10) return FASES.invierno;
+  if (mes >= 2 && mes <= 7) return temp < 15 ? FASES.prefreza : temp <= 20.5 ? FASES.freza : temp <= 24 ? FASES.postfreza : FASES.verano;
+  return temp >= 22 ? FASES.verano : temp >= 16 ? FASES.otono : FASES.otonoTardio;
+}
+function aguaHtml(a){
+  if (!a) return "";
+  const f = faseBass(a.temp, new Date().getMonth() + 1);
+  return `<h4>Agua y fase del black bass</h4><div class="agua"><div class="at"><b>${fmt(a.temp, 0)}<small> °C</small></b><span>agua estimada</span></div>
+    <div class="af"><b>${f.n}</b><p>${f.t}</p></div></div>
+    <p class="src">Estimación a partir de las temperaturas del aire de las últimas semanas (no es una medición del embalse). La fase es orientativa y cambia según la altitud y la zona.</p>`;
+}
+
+/* ---------- Mejor día de la semana (solunar + presión + viento + lluvia) ---------- */
+function mejorSemana(w, lat, lon){
+  const out = [];
+  for (let i = 0; i < w.daily.time.length; i++){
+    const dia = w.daily.time[i], fecha = new Date(dia + "T12:00"), s = solunar(fecha, lat, lon);
+    const viento = w.daily.wind_speed_10m_max[i] ?? 0, lluvia = w.daily.precipitation_probability_max[i] ?? 0;
+    const iA = w.hourly.time.indexOf(dia + "T06:00"), iB = w.hourly.time.indexOf(dia + "T20:00");
+    const pa = iA >= 0 ? w.hourly.pressure_msl[iA] : null, pb = iB >= 0 ? w.hourly.pressure_msl[iB] : null;
+    const dp = pa != null && pb != null ? pb - pa : null;
+    const razones = [];
+    const sol = s.estrellas * 4; if (s.estrellas >= 4) razones.push("luna favorable");
+    let vi = 3; if (viento <= 8){ vi = 18; razones.push("casi sin viento"); } else if (viento <= 22){ vi = 25; razones.push("brisa suave"); } else if (viento <= 30){ vi = 12; razones.push("viento fuerte"); } else razones.push("mucho viento");
+    let ll = 3; if (lluvia <= 20){ ll = 20; razones.push("sin lluvia"); } else if (lluvia <= 40) ll = 15; else if (lluvia <= 60){ ll = 9; razones.push("riesgo de lluvia"); } else razones.push("lluvia probable");
+    let pr = 15; // sin dato: neutro
+    if (dp != null){
+      if (dp < -6){ pr = 10; razones.push("presión cayendo rápido"); }
+      else if (dp < -1.5){ pr = 25; razones.push("presión bajando poco a poco"); }
+      else if (dp <= 1.5){ pr = 16; razones.push("presión estable"); }
+      else if (dp <= 4){ pr = 12; razones.push("presión subiendo"); }
+      else { pr = 6; razones.push("presión subiendo deprisa"); }
+    }
+    // cielo: el pez suele moverse mejor con nubes que con sol fuerte y sin una nube
+    const cod = w.daily.weather_code[i]; let ci = 4;
+    if (cod === 2 || cod === 3){ ci = 8; razones.push("cielo nublado"); } else if (cod === 0 || cod === 1) ci = 3; else if (cod >= 95) ci = 0;
+    const pts = Math.round(sol + vi + ll + pr + ci);
+    out.push({fecha, pts, razones, etiqueta: pts >= 85 ? "Excelente" : pts >= 72 ? "Muy bueno" : pts >= 58 ? "Bueno" : pts >= 44 ? "Regular" : "Flojo"});
+  }
+  return out;
+}
+function mejorHtml(sem){
+  if (!sem?.length) return "";
+  const m = sem.reduce((a, b) => b.pts > a.pts ? b : a);
+  const barras = sem.map(d => `<div class="bd ${d === m ? "best" : ""}" title="${d.etiqueta}: ${d.razones.join(", ")}"><b>${d.pts}</b><u><i style="height:${Math.max(8, (d.pts - 35) / 65 * 100)}%"></i></u><span>${d.fecha.toLocaleDateString("es-ES", {weekday: "short"})}<br>${d.fecha.getDate()}</span></div>`).join("");
+  return `<h4>Mejor día de la semana</h4><div class="mejor"><div class="bdias">${barras}</div>
+    <p><b>${larga(m.fecha)}</b> · ${m.pts}/100 · ${m.etiqueta}<br><span>${m.razones.join(", ")}</span></p></div>
+    <p class="src">Nota orientativa que combina fase lunar y periodos solunares, presión, viento y probabilidad de lluvia. No es una predicción de capturas.</p>`;
+}
+const mejorCache = new Map(); // id -> semana calculada
+function cargarMejorDia(){
+  for (const e of all){
+    if (!favs.has(e.id) || e.lat == null || mejorCache.has(e.id)) continue;
+    mejorCache.set(e.id, "x");
+    getWx(e.lat, e.lon).then(w => { mejorCache.set(e.id, mejorSemana(w, e.lat, e.lon)); pintaMejorFav(e.id); }).catch(() => mejorCache.delete(e.id));
+  }
+}
+function pintaMejorFav(id){
+  const n = document.querySelector(`[data-best="${id}"]`), s = mejorCache.get(id); if (!n || !Array.isArray(s)) return;
+  const m = s.reduce((a, b) => b.pts > a.pts ? b : a);
+  n.innerHTML = `Mejor día: <b>${m.fecha.toLocaleDateString("es-ES", {weekday: "short", day: "numeric"})}</b> · ${m.pts}`;
+}
+
+/* ---------- Avisos y alertas (se comprueban con la web abierta) ---------- */
+let alertas = [], estadoAl = {};
+try { alertas = JSON.parse(localStorage.getItem("alertas") || "[]"); estadoAl = JSON.parse(localStorage.getItem("alertasEstado") || "{}"); } catch {}
+const guardaAl = () => { try { localStorage.setItem("alertas", JSON.stringify(alertas)); localStorage.setItem("alertasEstado", JSON.stringify(estadoAl)); } catch {} };
+const claveAl = (a) => `${a.id}|${a.tipo}|${a.valor}`;
+function toast(html, ms = 6000, acciones){
+  let t = $("#toast"); if (!t){ t = document.createElement("div"); t.id = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+  t.innerHTML = `<span>${html}</span>${(acciones || []).map((a, i) => `<button type="button" data-ta="${i}">${a.t}</button>`).join("")}`;
+  t.onclick = (ev) => { const b = ev.target.closest("[data-ta]"); if (b){ acciones[+b.dataset.ta].f(); t.classList.remove("on"); } };
+  t.classList.add("on"); clearTimeout(t._h); if (ms) t._h = setTimeout(() => t.classList.remove("on"), ms);
+}
+function notificar(titulo, cuerpo){ try { if ("Notification" in window && Notification.permission === "granted") new Notification(titulo, {body: cuerpo, icon: "img/icon-192.png"}); } catch {} }
+async function cumple(a){
+  const e = all.find(x => x.id === a.id); if (!e) return null;
+  if (a.tipo === "sube") return lvl(e).pct >= a.valor;
+  if (a.tipo === "baja") return lvl(e).pct <= a.valor;
+  if (e.lat == null) return null;
+  const p = presion(await getWx(e.lat, e.lon));
+  return p.dif != null && p.dif <= -a.valor;
+}
+function textoAl(a){
+  const e = all.find(x => x.id === a.id); if (!e) return "";
+  return a.tipo === "sube" ? `${e.nombre} está al ${fmt(lvl(e).pct, 0)} % (tu aviso: por encima del ${a.valor} %)`
+    : a.tipo === "baja" ? `${e.nombre} está al ${fmt(lvl(e).pct, 0)} % (tu aviso: por debajo del ${a.valor} %)`
+    : `${e.nombre}: la presión está cayendo (tu aviso: bajada de ${a.valor} hPa o más en 3 h)`;
+}
+async function revisarAlertas(){
+  const activas = [];
+  for (const a of alertas){
+    let ok = null; try { ok = await cumple(a); } catch {}
+    if (ok == null) continue;
+    const k = claveAl(a);
+    if (ok){ activas.push(a); if (!estadoAl[k]){ estadoAl[k] = 1; toast("🔔 " + esc(textoAl(a)), 9000); notificar("LevelBass", textoAl(a)); } }
+    else delete estadoAl[k];
+  }
+  guardaAl();
+  const box = $("#avisos");
+  if (box) box.innerHTML = activas.length ? `<div class="avisobox"><b>🔔 Tus alertas activas</b><ul>${activas.map(a => `<li><button type="button" data-open="${a.id}">${esc(textoAl(a))}</button></li>`).join("")}</ul></div>` : "";
+}
+function alertasHtml(id){
+  const mias = alertas.filter(a => a.id === id);
+  const lista = mias.map(a => `<li><span>${a.tipo === "sube" ? "Nivel por encima del " + a.valor + " %" : a.tipo === "baja" ? "Nivel por debajo del " + a.valor + " %" : "Presión baja " + a.valor + " hPa o más en 3 h"}${estadoAl[claveAl(a)] ? ' <em>· activa ahora</em>' : ""}</span><button type="button" data-aldel="${alertas.indexOf(a)}" aria-label="Quitar alerta">×</button></li>`).join("");
+  const perm = "Notification" in window && Notification.permission === "default" ? '<button type="button" class="mini" data-alperm>Activar avisos del dispositivo</button>' : "";
+  return `<h4>Alertas de este embalse</h4><div class="alertbox">
+    ${lista ? `<ul class="allist">${lista}</ul>` : '<p class="src" style="margin:0 0 8px">Aún no tienes alertas aquí.</p>'}
+    <div class="aladd"><select id="altipo" aria-label="Tipo de alerta"><option value="baja">Avísame si el nivel baja de…</option><option value="sube">Avísame si el nivel sube de…</option><option value="presion">Avísame si la presión baja…</option></select>
+    <input id="alval" type="number" inputmode="decimal" min="1" max="100" step="1" value="40" aria-label="Valor"><span id="alud">%</span><button type="button" class="mini on" data-aladd="${id}">Añadir</button></div>
+    ${perm}
+    <p class="src">Las alertas se comprueban mientras tienes LevelBass abierta (en el móvil, mejor con la web instalada en la pantalla de inicio). No llegan avisos con la web cerrada.</p></div>`;
+}
+function pintaAlertasFicha(){ const b = $("#p-alert"); if (b && fichaId != null) b.innerHTML = alertasHtml(fichaId); }
+
+/* ---------- Compartir ---------- */
+async function copiar(txt){
+  try { await navigator.clipboard.writeText(txt); return true; } catch {}
+  const t = document.createElement("textarea"); t.value = txt; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch {} t.remove(); return ok;
+}
+async function compartir(id){
+  const e = all.find(x => x.id === id); if (!e) return;
+  const url = `${SITE}e/${slugs.get(id)}/`, L = lvl(e);
+  const texto = `${e.nombre}: ${fmt(L.pct, 0)} % de agua (${fmt(L.vol, e.vivo ? 1 : 0)} de ${fmt(e.capacidad)} hm³) · LevelBass`;
+  try { if (navigator.share){ await navigator.share({title: e.nombre + " · LevelBass", text: texto, url}); return; } } catch (err) { if (err && err.name === "AbortError") return; }
+  toast(await copiar(texto + "\n" + url) ? "Enlace copiado. Pégalo donde quieras." : "No se pudo copiar: " + esc(url), 4000);
+}
+// Los favoritos viajan en el enlace (ids separados por puntos): sirve para pasarlos de un dispositivo a otro o a un amigo
+async function compartirFavs(){
+  if (!favs.size) return;
+  const url = `${SITE}#/favs=${[...favs].join(".")}`;
+  toast(await copiar(url) ? "Enlace copiado. Ábrelo en tu otro dispositivo para copiar allí tus favoritos." : "No se pudo copiar el enlace", 5000);
+}
+function ofrecerFavs(ids){
+  const nuevos = ids.filter(i => all.some(e => e.id === i) && !favs.has(i));
+  history.replaceState(null, "", location.pathname + location.search);
+  if (!nuevos.length){ toast("Ya tienes esos favoritos guardados.", 4000); return; }
+  toast(`Este enlace trae <b>${nuevos.length}</b> embalse${nuevos.length > 1 ? "s" : ""} favorito${nuevos.length > 1 ? "s" : ""}.`, 0, [
+    {t: "Añadirlos", f: () => { nuevos.forEach(i => favs.add(i)); saveFavs(); render(); toast("Favoritos añadidos.", 3000); }},
+    {t: "Ahora no", f: () => {}},
+  ]);
+}
+
+/* ---------- Rampas y accesos cercanos (OpenStreetMap) ---------- */
+const rampasCache = new Map();
+async function buscaRampas(lat, lon){
+  const k = lat.toFixed(3) + "," + lon.toFixed(3);
+  if (rampasCache.has(k)) return rampasCache.get(k);
+  const q = `[out:json][timeout:20];(nwr["leisure"="slipway"](around:8000,${lat},${lon});nwr["leisure"="fishing"](around:8000,${lat},${lon});nwr["man_made"="pier"](around:8000,${lat},${lon}););out center 40;`;
+  let j = null;
+  for (const u of ["https://overpass-api.de/api/interpreter", "https://overpass.kumi.systems/api/interpreter"]){
+    try { const r = await fetch(u, {method: "POST", headers: {"Content-Type": "application/x-www-form-urlencoded"}, body: "data=" + encodeURIComponent(q), signal: AbortSignal.timeout(9000)}); if (r.ok){ j = await r.json(); break; } } catch {}
+  }
+  if (!j) throw new Error("overpass");
+  const rad = Math.PI / 180, dist = (a, b) => 6371 * Math.acos(Math.min(1, Math.sin(lat * rad) * Math.sin(a * rad) + Math.cos(lat * rad) * Math.cos(a * rad) * Math.cos((b - lon) * rad)));
+  const res = j.elements.map(x => {
+    const la = x.lat ?? x.center?.lat, lo = x.lon ?? x.center?.lon; if (la == null) return null;
+    const t = x.tags || {};
+    return {la, lo, d: dist(la, lo), tipo: t.leisure === "slipway" ? "Rampa" : t.leisure === "fishing" ? "Puesto de pesca" : "Embarcadero", nombre: t.name || ""};
+  }).filter(Boolean).sort((a, b) => a.d - b.d).slice(0, 8);
+  rampasCache.set(k, res);
+  return res;
+}
+function rampasHtml(r){
+  if (!r.length) return `<p class="src" style="margin:0">No hay rampas ni puestos de pesca marcados en OpenStreetMap cerca de este punto. Eso no significa que no existan: mira el mapa de satélite en la pestaña Mapa.</p>`;
+  return `<ul class="rampas">${r.map(x => `<li><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${x.la},${x.lo}"><b>${x.tipo}${x.nombre ? " · " + esc(x.nombre) : ""}</b><span>${fmt(x.d, 1)} km</span></a></li>`).join("")}</ul>
+    <p class="src">Datos de <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>, que pueden estar incompletos o desfasados. Distancias desde el punto del embalse.</p>`;
+}
+const FICHAS = window.FICHAS || {}; // data/fichas.js: datos prácticos escritos a mano por embalse
+function practicoHtml(e){
+  const f = FICHAS[e.id] || {};
+  const filas = [["Permiso", f.permiso], ["Coto o veda", f.coto], ["Rampa", f.rampa], ["Normativa", f.normativa], ["Notas", f.notas]].filter(x => x[1]);
+  return `<h4>Antes de salir</h4><div class="practico">
+    ${filas.length ? `<dl>${filas.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>${f.fuente ? `<p class="src" style="margin:6px 0 0">Fuente: ${esc(f.fuente)}</p>` : ""}` : ""}
+    <p>Necesitas la <b>licencia de pesca de la comunidad autónoma</b> donde pescas (suele valer solo en esa comunidad). Cada tramo puede tener cotos, vedas, tallas y épocas propias, y algunas especies exigen normas especiales: confírmalo en la web oficial de tu comunidad y de la confederación del embalse antes de ir.</p></div>`;
+}
+
 let fichaId = null;
-const SITE = "https://levelbass.github.io/";
+const SITE = "https://levelbass.es/";
 const baseTitle = document.title, baseDesc = document.querySelector('meta[name="description"]').content;
 const slugs = new Map(), idPorSlug = new Map();
 function initSlugs(){
   const sl = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  slugs.clear(); idPorSlug.clear();
   for (const e of all){
     let s = sl(e.nombre) || "embalse";
     if (idPorSlug.has(s)) s += "-" + e.id;
@@ -315,7 +581,7 @@ function initSlugs(){
 function metaFicha(e){
   const L = lvl(e), t = `${e.nombre} · nivel del embalse | LevelBass`;
   const d = `${e.nombre} (${e.cuenca}): ${fmt(L.pct,1)} % de capacidad, ${fmt(L.vol, e.vivo?2:0)} de ${fmt(e.capacidad)} hm³. Tiempo, presión, viento y luna para pescar black bass.`;
-  const url = e ? SITE + "#/embalse/" + slugs.get(e.id) : SITE;
+  const url = SITE + "e/" + slugs.get(e.id) + "/";
   document.title = t;
   const set = (sel, v) => { const n = document.querySelector(sel); if (n) n.setAttribute(n.tagName === "LINK" ? "href" : "content", v); };
   set('meta[name="description"]', d); set('meta[property="og:title"]', t); set('meta[property="og:description"]', d); set('meta[property="og:url"]', url);
@@ -329,6 +595,8 @@ function metaBase(){
   set('meta[name="twitter:title"]', "LevelBass · Nivel de los embalses de España"); set('meta[name="twitter:description"]', baseDesc); set('link[rel="canonical"]', SITE);
 }
 function routeFromHash(){
+  const fv = location.hash.match(/^#\/favs=([0-9.]+)/);
+  if (fv){ ofrecerFavs(fv[1].split(".").map(Number).filter(Boolean)); return; }
   const m = location.hash.match(/^#\/embalse\/([^/?]+)/);
   if (m){ const id = idPorSlug.get(decodeURIComponent(m[1])); if (id != null && id !== fichaId) openDetail(id, true); }
   else if (fichaId != null) closeDetail(true);
@@ -351,25 +619,27 @@ async function openDetail(id, deHash){
       ${e.extra
         ? stat("Estado", "Solo en directo", "no está en el boletín semanal")
         : stat("Vs. semana ant.", `<span class="${e.variacion_hm3>0?'up':e.variacion_hm3<0?'down':''}">${e.variacion_hm3>0?'+':''}${fmt(e.variacion_hm3,1)} hm³</span>`, f)}
-    </div>`;
+    </div>` + tendHtml(e) + '<div id="p-agua"></div><div id="p-mejor"></div>';
   if (e.vivo){
     const v = e.vivo;
-    res += `<h4><span class="live">● En directo</span> · ${esc(v.fuente)} · ${fdt(v.fecha)}</h4>
-    <div class="stats">
+    res += `<h4><span class="live">● ${v.diario ? "Dato diario" : "En directo"}</span> &nbsp;· ${esc(v.fuente)} · ${fdv(e)}</h4>
+    ${v.cota != null || v.entrada != null || v.salida != null ? `<div class="stats">
       ${stat("Cota", v.cota!=null?fmt(v.cota,2)+" m":"–", v.cota_aliviadero!=null?"cota máxima "+fmt(v.cota_aliviadero,2)+" m":"")}
       ${stat("Entrada", v.entrada!=null?fmt(v.entrada,2)+" m³/s":"–", "caudal recibido")}
       ${stat("Salida", v.salida!=null?fmt(v.salida,2)+" m³/s":"–", "caudal desembalsado")}
-      ${stat("Últimas 24 h", v.var24h!=null?`<span class="${v.var24h>0?'up':v.var24h<0?'down':''}">${v.var24h>0?'+':''}${fmt(v.var24h,2)} hm³</span>`:"–", v.var24h!=null?"":"acumulando historial")}
-    </div>`;
+    </div>` : ""}`;
     const pts = (v.historial||[]).map(([t,x]) => [new Date(t).getTime(), x]);
     if (pts.length > 1) res += `<div class="chart"><small>Volumen en directo, últimos días</small>${spark(pts, 600, 110, "#f0c874")}</div>`;
     res += `<p class="src"><a href="${esc(v.url)}" target="_blank" rel="noopener">Ver en el SAIH oficial ↗</a></p>`;
   }
   if (!e.extra) res += `<div class="chart" id="hist"><small>Volumen semanal, último año frente al anterior</small><div class="empty" style="padding:16px">Cargando histórico…</div></div>`;
   if (tiene) res += `<div class="goto"><a class="btn-go" target="_blank" rel="noopener" href="https://www.google.com/maps/dir/?api=1&destination=${e.lat},${e.lon}">${ico("pin")} Cómo llegar</a><a class="btn-go alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${e.lat},${e.lon}">Ver en Google Maps ↗</a></div><p class="src">Coordenadas ${e.lat}, ${e.lon}</p>`;
+  if (tiene) res += `<h4>Rampas y accesos cercanos</h4><div id="p-rampas"><div class="empty" style="padding:12px">Buscando…</div></div>`;
+  res += practicoHtml(e) + `<div id="p-alert">${alertasHtml(id)}</div>`;
 
   const sinCoord = '<div class="empty">Este embalse no tiene coordenadas en los datos oficiales, así que no se puede mostrar esta sección.</div>';
   const h = `<button class="x" data-close aria-label="Cerrar">×</button>
+    <button class="share-big" data-share="${id}" aria-label="Compartir este embalse">Compartir</button>
     <button class="fav-big ${favs.has(id)?'on':''}" data-fav="${id}" aria-label="Favorito">${favs.has(id)?'★ Favorito':'☆ Guardar'}</button>
     <h2>${esc(e.nombre)}</h2>
     <div class="sub">${esc(e.cuenca)}${e.uso?" · uso "+esc(e.uso.toLowerCase()):""}${e.electrico?" · hidroeléctrico":""}</div>
@@ -411,6 +681,7 @@ async function openDetail(id, deHash){
     $("#q-presion").innerHTML = `<small>${ico("wave")} Presión</small><b>${fmt(pr.hpa,0)} <i>hPa</i></b><span class="${pr.cls||""}">${pr.dif == null ? "sin tendencia" : (pr.dif >= 0 ? "+" : "") + fmt(pr.dif,1) + " en 3 h · " + pr.txt}</span>`;
     $("#p-wx").innerHTML = wxHtml(w);
     $("#p-wind").innerHTML = vientoHtml(w, e.lat, e.lon);
+    try { const sem = mejorSemana(w, e.lat, e.lon); mejorCache.set(id, sem); $("#p-mejor").innerHTML = mejorHtml(sem); pintaMejorFav(id); } catch (err) { console.warn("mejor día", err); }
   }).catch(() => {
     if (fichaId !== id) return;
     $("#q-viento").innerHTML = `<small>${ico("wind")} Viento</small><b>–</b><span>sin datos</span>`;
@@ -418,6 +689,12 @@ async function openDetail(id, deHash){
     $("#q-presion").innerHTML = `<small>${ico("wave")} Presión</small><b>–</b><span>sin datos</span>`;
     $("#p-wx").innerHTML = $("#p-wind").innerHTML = '<div class="empty">No se pudo cargar el tiempo ahora mismo.</div>';
   });
+
+  if (tiene){
+    getTemps(e.lat, e.lon).then(j => { if (fichaId === id && $("#p-agua")) $("#p-agua").innerHTML = aguaHtml(aguaEstimada(j)); }).catch(() => {});
+    buscaRampas(e.lat, e.lon).then(r => { if (fichaId === id && $("#p-rampas")) $("#p-rampas").innerHTML = rampasHtml(r); })
+      .catch(() => { if (fichaId === id && $("#p-rampas")) $("#p-rampas").innerHTML = '<p class="src" style="margin:0">Ahora mismo no se pueden consultar las rampas (el servicio de OpenStreetMap está saturado). Mira el mapa de satélite en la pestaña Mapa.</p>'; });
+  }
 
   // Histórico semanal desde el servicio del Ministerio (se consulta en el momento)
   if (e.extra) return;
@@ -633,6 +910,22 @@ function initHoy(){
   $("#windgo").addEventListener("click", () => { box.innerHTML = `<iframe title="Mapa de viento Windy" src="${url}" allowfullscreen></iframe>`; });
 }
 
+function pintaStamp(d){
+  const f = new Date(d.fecha_boletin + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
+  const h = (Date.now() - new Date(d.actualizado)) / 36e5, cl = h > 6 ? "old" : h > 2 ? "mid" : "";
+  $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill ${cl}" title="Última vez que la web consultó las fuentes">Comprobado <b>${act}</b>${h > 2 ? ` · hace ${Math.round(h)} h` : ""}</span><span class="pill"><b>${all.filter(e => e.vivo).length}</b> embalses en directo</span>`;
+}
+// Con la web abierta se vuelven a pedir los datos cada 10 minutos (sin recargar la página)
+async function refrescarDatos(){
+  if (document.hidden || $("#modal").classList.contains("open")) return;
+  try {
+    const d = await (await fetch("data/embalses.json?" + Date.now())).json();
+    if (!d.embalses?.length || d.actualizado === window.EMBALSES_DATA?.actualizado) { pintaStamp(window.EMBALSES_DATA || d); return; }
+    window.EMBALSES_DATA = d; all = d.embalses; initSlugs(); pintaStamp(d); render(); revisarAlertas();
+  } catch {}
+}
+
 async function init(){
   try { initFotos(); } catch (e) { console.warn("fotos", e); } // lo decorativo nunca debe romper la página
   initHoy();
@@ -645,13 +938,12 @@ async function init(){
   const nLive = all.filter(e => e.vivo).length;
 
   const f = new Date(d.fecha_boletin + "T00:00").toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
-  const act = new Date(d.actualizado).toLocaleString("es-ES", {dateStyle:"medium", timeStyle:"short"});
-  $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill">Comprobado <b>${act}</b></span><span class="pill"><b>${nLive}</b> embalses en directo</span>`;
+  pintaStamp(d);
   $("#foot").innerHTML = `
-    <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. Los embalses más pequeños que publican las confederaciones (Tajo, Guadiana, Guadalquivir y Júcar) se añaden solo con su lectura en directo.</p>
-    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b> y <b>Júcar</b>; el resto (Ebro, Duero, Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web se actualiza cada hora.</p>
+    <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. Los embalses más pequeños que publican las confederaciones (Tajo, Guadiana, Guadalquivir, Júcar y Duero) se añaden solo con su lectura en directo.</p>
+    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b>, <b>Júcar</b>, <b>Duero</b> y <b>Ebro</b> (el Ebro publica un valor al día); el resto (Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web consulta las fuentes de forma automática varias veces al día: en «Comprobado» ves cuándo fue la última vez, y cada embalse indica la antigüedad de su dato.</p>
     <p>Tiempo y presión: <a href="https://open-meteo.com">Open-Meteo</a>. Viento: <a href="https://www.windy.com">Windy</a>. Mapas: OpenStreetMap, OpenTopoMap y Esri. Fases lunares calculadas con SunCalc; los periodos solunares son una referencia tradicional de pesca, no una predicción científica.</p>
-    <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua, la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
+    <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua (la que ves es una estimación a partir del aire), la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
   cookiesInit();
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
@@ -694,7 +986,24 @@ async function init(){
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
     render();
   });
+  document.addEventListener("change", ev => {
+    if (ev.target.id !== "altipo") return;
+    const pr = ev.target.value === "presion";
+    $("#alval").value = pr ? 3 : 40; $("#alval").max = pr ? 20 : 100; $("#alud").textContent = pr ? "hPa en 3 h" : "%";
+  });
   document.addEventListener("click", ev => {
+    const sh = ev.target.closest("[data-share]"); if (sh){ compartir(+sh.dataset.share); return; }
+    if (ev.target.closest("#favlink")){ compartirFavs(); return; }
+    const ad = ev.target.closest("[data-aladd]");
+    if (ad){
+      const a = {id: +ad.dataset.aladd, tipo: $("#altipo").value, valor: parseFloat(String($("#alval").value).replace(",", "."))};
+      if (!(a.valor > 0) || (a.tipo !== "presion" && a.valor > 100)){ toast("Pon un valor válido.", 3000); return; }
+      if (!alertas.some(x => claveAl(x) === claveAl(a))) alertas.push(a);
+      guardaAl(); pintaAlertasFicha(); revisarAlertas(); return;
+    }
+    const dl = ev.target.closest("[data-aldel]");
+    if (dl){ const a = alertas[+dl.dataset.aldel]; if (a){ delete estadoAl[claveAl(a)]; alertas.splice(+dl.dataset.aldel, 1); guardaAl(); pintaAlertasFicha(); revisarAlertas(); } return; }
+    if (ev.target.closest("[data-alperm]")){ try { Promise.resolve(Notification.requestPermission()).then(pintaAlertasFicha); } catch {} return; }
     const s = ev.target.closest("[data-fav]");
     if (s){
       const id = +s.dataset.fav;
@@ -715,6 +1024,10 @@ async function init(){
   });
   render();
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
+  revisarAlertas();
+  setInterval(refrescarDatos, 10 * 60 * 1000);
+  setInterval(revisarAlertas, 10 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescarDatos(); });
 }
 
 let ultimaLista = [];
@@ -768,6 +1081,8 @@ function render(){
   const fl = all.filter(e => favs.has(e.id));
   $("#favcount").textContent = $("#tbcount").textContent = fl.length ? `(${fl.length})` : "";
   $("#favs").innerHTML = fl.length ? fl.map(favCard).join("") : '<div class="empty favvacio">Pulsa la ☆ de cualquier embalse para guardarlo aquí y tenerlo siempre a mano. Se queda guardado en este navegador.</div>';
+  const ft = $("#favtools"); if (ft) ft.hidden = !fl.length;
+  fl.forEach(e => pintaMejorFav(e.id));
 
   // Mapa (se pinta cuando existe; si aún no se ha creado, se pinta al crearlo)
   ultimaLista = list;
@@ -798,6 +1113,7 @@ function render(){
   };
   if (list.length > LOTE) enReposo(resto);
   renderConf();
+  cargarMejorDia();
 }
 
 init();
