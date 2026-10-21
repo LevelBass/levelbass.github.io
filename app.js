@@ -916,13 +916,37 @@ function pintaStamp(d){
   const h = (Date.now() - new Date(d.actualizado)) / 36e5, cl = h > 6 ? "old" : h > 2 ? "mid" : "";
   $("#stamp").innerHTML = `<span class="pill">Boletín semanal del <b>${f}</b></span><span class="pill ${cl}" title="Última vez que la web consultó las fuentes">Comprobado <b>${act}</b>${h > 2 ? ` · hace ${Math.round(h)} h` : ""}</span><span class="pill"><b>${all.filter(e => e.vivo).length}</b> embalses en directo</span>`;
 }
+// El SAIH del Ebro no responde desde los servidores de GitHub, pero sí permite leerlo desde el navegador del visitante
+let ebroDatos = null;
+const normN = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\bembalse\b|\bpantano\b/g, "").replace(/\b(de|del|la|las|el|los|l|d)\b/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+function aplicaEbro(){
+  if (!ebroDatos) return false;
+  const por = new Map(all.filter(e => e.cuenca === "Ebro" && (!e.vivo || e.vivo.fuente === "SAIH Ebro")).map(e => [normN(e.nombre), e]));
+  let n = 0;
+  for (const x of ebroDatos){
+    const e = por.get(normN(x.nombre)); if (!e) continue;
+    e.vivo = {fuente: "SAIH Ebro", volumen: x.volumen, nmn: x.nmn, porcentaje: x.porcentaje, cota: null, cota_aliviadero: null, entrada: null, salida: null, fecha: x.fecha, url: x.url, diario: true, var24h: null, historial: []};
+    n++;
+  }
+  return n > 0;
+}
+async function cargarEbro(){
+  try {
+    const j = await (await fetch("https://www.saihebro.com/api/principal/getVolumenesEmbalsados", {signal: AbortSignal.timeout(10000)})).json();
+    ebroDatos = Object.entries(j.volumenes || {}).filter(([k, v]) => /^E\d+$/.test(k) && v.fechaAnsi).map(([k, v]) => {
+      const a = v.data?.[1], vol = parseFloat(a?.volumen), pct = a?.y;
+      return vol >= 0 && pct > 0 ? {nombre: v.zona, volumen: vol, porcentaje: pct, nmn: Math.round(vol / pct * 1000) / 10, fecha: v.fechaAnsi + "T00:00", url: "https://www.saihebro.com/info/volumenes-embalsados-embalse-" + k} : null;
+    }).filter(Boolean);
+    if (aplicaEbro()){ pintaStamp(window.EMBALSES_DATA); render(); revisarAlertas(); }
+  } catch {}
+}
 // Con la web abierta se vuelven a pedir los datos cada 10 minutos (sin recargar la página)
 async function refrescarDatos(){
   if (document.hidden || $("#modal").classList.contains("open")) return;
   try {
     const d = await (await fetch("data/embalses.json?" + Date.now())).json();
     if (!d.embalses?.length || d.actualizado === window.EMBALSES_DATA?.actualizado) { pintaStamp(window.EMBALSES_DATA || d); return; }
-    window.EMBALSES_DATA = d; all = d.embalses; initSlugs(); pintaStamp(d); render(); revisarAlertas();
+    window.EMBALSES_DATA = d; all = d.embalses; aplicaEbro(); initSlugs(); pintaStamp(d); render(); revisarAlertas();
   } catch {}
 }
 
@@ -941,7 +965,7 @@ async function init(){
   pintaStamp(d);
   $("#foot").innerHTML = `
     <p>Fuente: <a href="https://www.miteco.gob.es/es/agua/temas/evaluacion-de-los-recursos-hidricos/boletin-hidrologico.html">MITECO · Boletín Hidrológico semanal</a>. Embalses peninsulares de más de 5 hm³. Datos provisionales sujetos a revisión. Los embalses más pequeños que publican las confederaciones (Tajo, Guadiana, Guadalquivir, Júcar y Duero) se añaden solo con su lectura en directo.</p>
-    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b>, <b>Júcar</b>, <b>Duero</b> y <b>Ebro</b> (el Ebro publica un valor al día); el resto (Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web consulta las fuentes de forma automática varias veces al día: en «Comprobado» ves cuándo fue la última vez, y cada embalse indica la antigüedad de su dato.</p>
+    <p><b>Datos semanales:</b> el Ministerio publica el boletín una vez por semana (martes) para todos los embalses peninsulares de más de 5 hm³. <b>Datos en directo:</b> los sistemas SAIH de las confederaciones publican lecturas cada 5–15 minutos, pero cada una en su propia web y formato. Hoy la web lee en directo las cuencas del <b>Guadalquivir</b>, <b>Guadiana</b>, <b>Tajo</b>, <b>Júcar</b>, <b>Duero</b> y <b>Ebro</b> (el Ebro publica un valor al día y tu navegador lo consulta directamente en su web); el resto (Segura, Miño-Sil, Cantábrico…) muestra el dato semanal. Donde la fuente lo da, se muestra también cota y caudales de entrada y salida. La web consulta las fuentes de forma automática varias veces al día: en «Comprobado» ves cuándo fue la última vez, y cada embalse indica la antigüedad de su dato.</p>
     <p>Tiempo y presión: <a href="https://open-meteo.com">Open-Meteo</a>. Viento: <a href="https://www.windy.com">Windy</a>. Mapas: OpenStreetMap, OpenTopoMap y Esri. Fases lunares calculadas con SunCalc; los periodos solunares son una referencia tradicional de pesca, no una predicción científica.</p>
     <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua (la que ves es una estimación a partir del aire), la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
@@ -1024,7 +1048,9 @@ async function init(){
   });
   render();
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
+  cargarEbro();
   revisarAlertas();
+  setInterval(() => { cargarEbro(); }, 30 * 60 * 1000);
   setInterval(refrescarDatos, 10 * 60 * 1000);
   setInterval(revisarAlertas, 10 * 60 * 1000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) refrescarDatos(); });

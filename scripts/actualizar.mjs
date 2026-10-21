@@ -76,6 +76,7 @@ try {
 } catch (err) { console.log("Histórico de 4 semanas no disponible:", err.message); }
 
 // ---------------------------------------------------------------- 2) Lectores en directo
+// (El Ebro no está aquí: su SAIH no responde desde los servidores de GitHub, así que lo lee la propia web en el navegador del visitante.)
 // Cada lector devuelve [{ nombre, volumen, nmn, cota, cota_aliviadero, entrada, salida, fecha:"AAAA-MM-DDTHH:mm", url }]
 const lectores = {
   async jucar() {
@@ -202,19 +203,6 @@ const lectores = {
     return out;
   },
 
-  async ebro() {
-    // SAIH Ebro: la web publica un JSON con el volumen diario de cada embalse (códigos E001, E002…)
-    const j = await (await fetch("https://www.saihebro.com/api/principal/getVolumenesEmbalsados", { headers: { ...UA, Referer: "https://www.saihebro.com/" } })).json();
-    const out = [];
-    for (const [k, v] of Object.entries(j.volumenes ?? {})) {
-      if (!/^E[0-9]+$/.test(k) || !v.fechaAnsi) continue;
-      const act = v.data?.[1], vol = parseFloat(act?.volumen), pct = act?.y;
-      if (!(vol >= 0) || !(pct > 0)) continue;
-      out.push({ nombre: v.zona, volumen: vol, porcentaje: pct, nmn: redondea((vol / pct) * 100, 1), fecha: v.fechaAnsi + "T00:00", diario: true, sinAlta: true, url: `https://www.saihebro.com/info/volumenes-embalsados-embalse-${k}` });
-    }
-    return out;
-  },
-
   async guadiana() {
     // SIRA Guadiana es una aplicación que carga los datos con JavaScript: se lee con un navegador sin ventana.
     const { chromium } = await import("playwright-core");
@@ -241,10 +229,10 @@ const lectores = {
   },
 };
 
-const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir", tajo: "SAIH Tajo", duero: "SAIH Duero", ebro: "SAIH Ebro", guadiana: "SIRA Guadiana" };
+const fuentes = { jucar: "SAIH Júcar", guadalquivir: "SAIH Guadalquivir", tajo: "SAIH Tajo", duero: "SAIH Duero", guadiana: "SIRA Guadiana" };
 const porNombre = new Map(embalses.map((e) => [norm(e.nombre), e]));
 
-const CUENCA_DE = { jucar: "Júcar", guadalquivir: "Guadalquivir", tajo: "Tajo", duero: "Duero", ebro: "Ebro", guadiana: "Guadiana" };
+const CUENCA_DE = { jucar: "Júcar", guadalquivir: "Guadalquivir", tajo: "Tajo", duero: "Duero", guadiana: "Guadiana" };
 const hash = (s) => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; };
 // Coordenadas UTM (ETRS89/WGS84) -> latitud y longitud
 const utmALatLon = (x, y, huso) => {
@@ -288,7 +276,7 @@ for (const [clave, leer] of Object.entries(lectores)) {
         const c = embalses.filter((x) => { const m = norm(x.nombre); return m.startsWith(n + " ") || n.startsWith(m + " "); });
         if (c.length === 1) e = c[0];
       }
-      if (!e && l.volumen != null && !l.sinAlta && !/azud|deriv|contraemb/i.test(l.nombre)) {
+      if (!e && l.volumen != null && !/azud|deriv|contraemb/i.test(l.nombre)) {
         // Embalse que el SAIH publica pero que no está en el boletín semanal (menos de 5 hm³): se añade solo con dato en directo
         // La capacidad se deduce del volumen y el % de la fuente (el máximo que publican algunos SAIH no siempre cuadra)
         const cap = l.porcentaje > 1 ? (l.volumen / l.porcentaje) * 100 : l.nmn > 0 && l.nmn < 100000 ? l.nmn : null;
@@ -307,7 +295,7 @@ for (const [clave, leer] of Object.entries(lectores)) {
         porcentaje: l.porcentaje != null ? redondea(l.porcentaje) : redondea(e.capacidad ? (l.volumen / e.capacidad) * 100 : null),
         // (si e es nuevo y la fuente no da %, el cálculo anterior ya usa la capacidad deducida)
         cota: l.cota, cota_aliviadero: l.cota_aliviadero, entrada: l.entrada, salida: l.salida,
-        fecha: l.fecha, url: l.url, ...(l.diario ? { diario: true } : {}),
+        fecha: l.fecha, url: l.url,
       };
       if (l.historial?.length) semillas.set(e.id, l.historial);
       ok++;
