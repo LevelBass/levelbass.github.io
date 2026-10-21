@@ -950,6 +950,9 @@ async function refrescarDatos(){
   if (document.hidden || $("#modal").classList.contains("open")) return;
   try {
     const d = await (await fetch("data/embalses.json?" + Date.now())).json();
+    // Si hay una versión nueva de la web, se ofrece cargarla (el navegador a veces conserva la antigua)
+    const mia = document.querySelector('meta[name="lb-version"]')?.content;
+    if (d.version && mia && d.version !== mia && !$("#toast.on")) toast("Hay una versión nueva de LevelBass.", 0, [{t: "Actualizar", f: () => { location.href = location.pathname + "?r=" + Date.now(); }}, {t: "Luego", f: () => {}}]);
     if (!d.embalses?.length || d.actualizado === window.EMBALSES_DATA?.actualizado) { pintaStamp(window.EMBALSES_DATA || d); return; }
     window.EMBALSES_DATA = d; all = d.embalses; aplicaEbro(); initSlugs(); pintaStamp(d); render(); revisarAlertas();
   } catch {}

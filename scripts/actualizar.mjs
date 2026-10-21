@@ -350,7 +350,21 @@ await writeFile(join(DIR, "provincias.json"), JSON.stringify(provs));
 
 embalses.sort((x, y) => x.nombre.localeCompare(y.nombre, "es"));
 const fechas = [...new Set(embalses.filter((e) => e.fecha).map((e) => e.fecha))].sort();
+// Versión de la web: app.js y style.css se enlazan con un código que cambia solo cuando cambian sus ficheros,
+// así los visitantes reciben siempre la versión nueva sin tener que forzar la recarga.
+const { createHash } = await import("node:crypto");
+const raizWeb = join(DIR, "..");
+const huella = async (f) => createHash("sha1").update((await readFile(join(raizWeb, f), "utf8")).replace(/\r/g, "")).digest("hex").slice(0, 8);
+const hApp = await huella("app.js"), hCss = await huella("style.css"), version = hApp + hCss;
+try {
+  const ix = await readFile(join(raizWeb, "index.html"), "utf8");
+  const nuevo = ix.replace(/app\.js\?v=\w+/, `app.js?v=${hApp}`).replace(/style\.css\?v=\w+/, `style.css?v=${hCss}`)
+    .replace(/(<meta name="lb-version" content=")[^"]*(")/, `$1${version}$2`);
+  if (nuevo !== ix) await writeFile(join(raizWeb, "index.html"), nuevo);
+} catch (err) { console.log("No se pudo sellar la versión:", err.message); }
+
 const salida = {
+  version,
   fuente: "MITECO · Boletín Hidrológico semanal + SAIH en directo",
   actualizado: new Date().toISOString(),
   fecha_boletin: fechas[fechas.length - 1],
