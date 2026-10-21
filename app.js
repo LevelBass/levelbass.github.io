@@ -937,7 +937,12 @@ async function cargarEbro(){
       const a = v.data?.[1], vol = parseFloat(a?.volumen), pct = a?.y;
       return vol >= 0 && pct > 0 ? {nombre: v.zona, volumen: vol, porcentaje: pct, nmn: Math.round(vol / pct * 1000) / 10, fecha: v.fechaAnsi + "T00:00", url: "https://www.saihebro.com/info/volumenes-embalsados-embalse-" + k} : null;
     }).filter(Boolean);
-    if (aplicaEbro()){ pintaStamp(window.EMBALSES_DATA); render(); revisarAlertas(); }
+    if (aplicaEbro()){
+      pintaStamp(window.EMBALSES_DATA); render(); revisarAlertas();
+      // si llegaron directos a la ficha de un embalse del Ebro, se rehace con el dato nuevo
+      const abierto = all.find(x => x.id === fichaId);
+      if (abierto && abierto.cuenca === "Ebro" && !$("#modal").dataset.ebro){ $("#modal").dataset.ebro = "1"; openDetail(fichaId, true); }
+    }
   } catch {}
 }
 // Con la web abierta se vuelven a pedir los datos cada 10 minutos (sin recargar la página)
