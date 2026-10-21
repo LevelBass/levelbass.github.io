@@ -491,3 +491,11 @@ footer p{max-width:780px;margin:6px 0}
 .practico p{margin:0}.practico dl{margin:0 0 8px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
 .practico dt{color:var(--gold);font-weight:600}.practico dd{margin:0}
 @media (max-width:560px){.tc b{font-size:15px;white-space:normal}.tc{padding:9px 8px}.sheet h2{padding-top:40px}.share-big,.fav-big{top:12px}.share-big{right:150px}}
+
+/* ---------- Imágenes de otra época ---------- */
+.hist{display:grid;gap:10px;margin-top:10px;background:rgba(6,20,28,.55);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.hist label{display:grid;gap:4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.hist select{background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:14px;text-transform:none;letter-spacing:0}
+.hist .hrange{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:13px}
+.hist .hrange input{flex:1;accent-color:var(--gold)}
+.hist .hrange input:disabled{opacity:.4}

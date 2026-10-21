@@ -287,6 +287,18 @@ function vientoHtml(w, lat, lon){
     <p class="src">Mapa interactivo de <a href="https://www.windy.com" target="_blank" rel="noopener">Windy.com</a>. El viento se indica de dónde sopla.</p>`;
 }
 
+/* ---- Imágenes de otras épocas ---- */
+// Fotos aéreas del IGN (WMS) y satélite por año de Esri Wayback (la cifra es el número de versión de Wayback)
+const HIST_IGN = [["AMS_1956-1957", "Vuelo americano 1956-57"], ["Interministerial_1973-1986", "Interministerial 1973-86"], ["Nacional_1981-1986", "Nacional 1981-86"], ["OLISTAT", "OLISTAT 1997-98"], ["SIGPAC", "SIGPAC 1997-2003"],
+  ...Array.from({length: 21}, (_, i) => [`PNOA${2004 + i}`, `PNOA ${2004 + i}`])];
+const HIST_ESRI = [[5844, 2014], [28163, 2015], [18966, 2016], [25521, 2017], [23448, 2018], [4756, 2019], [29260, 2020], [26120, 2021], [45134, 2022], [56102, 2023], [16453, 2024], [13192, 2025]];
+function histOpciones(){
+  const o = (v, t) => `<option value="${v}">${t}</option>`;
+  return `<option value="">Sin imagen histórica</option>
+    <optgroup label="Fotos aéreas del IGN">${HIST_IGN.map(([id, t]) => o("ign:" + id, t)).join("")}</optgroup>
+    <optgroup label="Satélite por año (Esri)">${HIST_ESRI.map(([id, y]) => o("esri:" + id, "Satélite " + y)).join("")}</optgroup>`;
+}
+
 /* ---- Mapa topográfico ---- */
 let tmap = null;
 function topoMapa(e){
@@ -298,6 +310,20 @@ function topoMapa(e){
     tmap = L.map(box, {layers:[sat], scrollWheelZoom:false}).setView([e.lat, e.lon], 13);
     L.control.layers({"Satélite": sat, "Topográfico": topo}, null, {collapsed:false}).addTo(tmap);
     L.circleMarker([e.lat, e.lon], {radius:8, color:"#06141c", weight:2, fillColor:"#f0c874", fillOpacity:1}).addTo(tmap).bindTooltip(e.nombre);
+    // Imagen de otra época por encima de la actual, con un deslizador para compararlas
+    const sel = $("#histsel"), op = $("#histop"); let hl = null;
+    if (sel && op){
+      sel.onchange = () => {
+        if (hl){ tmap.removeLayer(hl); hl = null; }
+        op.disabled = !sel.value; if (!sel.value) return;
+        const [tipo, id] = sel.value.split(":");
+        hl = tipo === "ign"
+          ? L.tileLayer.wms("https://www.ign.es/wms/pnoa-historico", {layers: id, format: "image/png", transparent: true, version: "1.3.0", maxZoom: 19, zIndex: 5, attribution: "© IGN · fotos aéreas históricas"})
+          : L.tileLayer(`https://wayback.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/WMTS/1.0.0/default028mm/MapServer/tile/${id}/{z}/{y}/{x}`, {maxZoom: 18, zIndex: 5, attribution: "Esri Wayback"});
+        hl.setOpacity(op.value / 100); hl.addTo(tmap);
+      };
+      op.oninput = () => { if (hl) hl.setOpacity(op.value / 100); };
+    }
     setTimeout(() => tmap && tmap.invalidateSize(), 60);
   } catch { box.innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
 }
@@ -658,7 +684,12 @@ async function openDetail(id, deHash){
     <section class="pane" data-pane="wx" id="p-wx">${tiene ? '<div class="empty">Cargando el tiempo…</div>' : sinCoord}</section>
     <section class="pane" data-pane="wind" id="p-wind">${tiene ? '<div class="empty">Cargando el viento…</div>' : sinCoord}</section>
     <section class="pane" data-pane="moon">${lunaHtml(la, lo)}</section>
-    <section class="pane" data-pane="topo">${tiene ? '<div id="tmap"></div><p class="src">Capas de satélite y topográfica (OpenTopoMap) para localizar reculas, puntas, vaguadas y estructuras. Usa el selector de capas arriba a la derecha.</p>' : sinCoord}</section>`;
+    <section class="pane" data-pane="topo">${tiene ? `<div id="tmap"></div>
+      <div class="hist"><label>Imagen de otra época <select id="histsel" aria-label="Imagen histórica">${histOpciones()}</select></label>
+        <label class="hrange"><span>Actual</span><input type="range" id="histop" min="0" max="100" value="100" disabled aria-label="Mezcla entre la imagen actual y la histórica"><span>Histórica</span></label></div>
+      <p class="src">Elige una fecha y desliza para comparar con la imagen actual. Cada año del IGN cubre solo algunas zonas: si ves la imagen actual debajo, ese año no hay foto aquí, prueba otro. Con el embalse bajo (por ejemplo 2022-2023) se ven puntas, islas y antiguos cauces; las fotos de 1956 a 1986 enseñan el terreno antes de que se inundara. Capas: satélite, topográfica (OpenTopoMap), fotos aéreas del IGN y satélite por año de Esri.</p>
+      <div class="goto"><a class="btn-go alt" target="_blank" rel="noopener" href="https://earth.google.com/web/@${e.lat},${e.lon},400a,6000d,35y,0h,0t,0r">Abrir en Google Earth ↗</a></div>
+      <p class="src">En Google Earth Pro (gratis, para ordenador) tienes además la regla del tiempo con todas las imágenes antiguas.</p>` : sinCoord}</section>`;
   $("#modal .sheet").innerHTML = h;
   $("#modal").classList.add("open"); document.body.style.overflow = "hidden";
   $("#modal").scrollTop = 0;
