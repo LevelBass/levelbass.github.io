@@ -260,6 +260,19 @@ const utmALatLon = (x, y, huso) => {
 };
 
 const estado = {};
+// Si una fuente falla o llega vacía, se conserva su última lectura (la web indica su antigüedad) en vez de perder el dato en directo
+let previo = null;
+try { previo = JSON.parse(await readFile(join(DIR, "embalses.json"), "utf8")); } catch {}
+const conservaLecturas = (clave) => {
+  let n = 0;
+  for (const p of previo?.embalses ?? []) {
+    if (p.vivo?.fuente !== fuentes[clave]) continue;
+    let e = embalses.find((x) => x.id === p.id);
+    if (!e) { if (!p.extra) continue; const { vivo, ...resto } = p; e = resto; embalses.push(e); }
+    e.vivo = p.vivo; n++;
+  }
+  if (n) estado[clave] = { ...estado[clave], conservado: n };
+};
 const semillas = new Map(); // historial que ya trae la propia fuente (p. ej. Tajo: últimas 23 h)
 const sinEmparejar = [];
 for (const [clave, leer] of Object.entries(lectores)) {
@@ -300,8 +313,10 @@ for (const [clave, leer] of Object.entries(lectores)) {
       ok++;
     }
     estado[clave] = { ok, total: lista.length };
+    if (!ok) conservaLecturas(clave);
   } catch (err) {
-    estado[clave] = { error: String(err.message || err) };
+    estado[clave] = { error: String(err.message || err) + (err.cause ? " · " + (err.cause.code || err.cause.message) : "") };
+    conservaLecturas(clave);
   }
 }
 
