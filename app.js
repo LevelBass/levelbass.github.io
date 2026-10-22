@@ -78,7 +78,7 @@ function renderConf(){
   const lista = todos.filter(x => !confCuenca || x.c.c === confCuenca).sort((a, b) => a.e.nombre.localeCompare(b.e.nombre, "es"));
   $("#confcount").textContent = `${lista.length} embalses confinados`;
   const pagConf = document.body.dataset.page === "confinados", cm = $("#confmas");
-  if (cm){ cm.hidden = !pagConf || lista.length <= confShown; cm.textContent = "Ver más +"; }
+  if (cm){ cm.hidden = !pagConf || lista.length <= confShown; cm.textContent = "Ver más +"; $("#confmenos").hidden = !pagConf || confShown <= 12; }
   $("#confgrid").innerHTML = (pagConf ? lista.slice(0, confShown) : lista).map(x => {
     const p = lvl(x.e).pct;
     return `<button type="button" class="crow" data-open="${x.e.id}" title="${esc(x.c.n)}" style="--c:${hex(p)}"><b>${esc(x.e.nombre)}</b><span>${esc(x.c.c)}${x.e.provincia ? " · " + esc(x.e.provincia) : ""}</span><em>${fmt(p,0)} %</em><p>${esc(x.c.n)}</p></button>`;
@@ -1104,6 +1104,8 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
+  $("#confmenos").addEventListener("click", () => { confShown = 12; renderConf(); $("#confinados").scrollIntoView({behavior: "smooth"}); });
+  $("#vermenos").addEventListener("click", () => { shown = PASO; render(); $("#lista").scrollIntoView({behavior: "smooth"}); });
   $("#confmas").addEventListener("click", () => { confShown += 12; renderConf(); });
   $("#vermas").addEventListener("click", () => { shown += PASO; render(); });
   filtrosDeLaUrl();
@@ -1186,11 +1188,11 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  // La lista (portada y /embalses/) enseña 12 y un botón «Ver más +» añade otros 12
-  if (!document.body.dataset.page || document.body.dataset.page === "lista"){
+  // En su página (/embalses/) se enseñan 12 y «Ver más +» añade otros 12 (con «Ver menos −» se vuelve a 12); en la portada va el carrusel completo
+  if (document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
-    if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; }
+    if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; $("#vermenos").hidden = shown <= PASO; }
     renderConf(); cargarMejorDia(); return;
   }
   // Las tarjetas se pintan por tandas: las primeras al momento y el resto cuando el navegador está libre

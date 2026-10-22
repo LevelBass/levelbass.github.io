@@ -636,3 +636,5 @@ body:not([data-page]) #solunar,body:not([data-page]) #confinados{display:none}
 .vermas{display:block;margin:16px auto 4px;border:1px solid var(--bronze);background:linear-gradient(135deg,rgba(214,162,74,.18),rgba(13,37,49,.7));color:var(--gold);border-radius:12px;padding:11px 26px;font:600 15px var(--head);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
 .vermas:hover{border-color:var(--gold);color:var(--ink)}
 .vermas[hidden]{display:none}
+.masmenos{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:16px}
+.masmenos .vermas{margin:0}
