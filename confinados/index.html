@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embalses confinados por mejillón cebra | LevelBass</title>
+<link rel="canonical" href="https://levelbass.es/confinados/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LevelBass">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://levelbass.es/confinados/">
+<meta property="og:title" content="Embalses confinados por mejillón cebra | LevelBass">
+<meta property="og:description" content="Embalses donde la barca queda confinada por el mejillón cebra y las normas de cada confederación hidrográfica.">
+<meta property="og:image" content="https://levelbass.es/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Logo de LevelBass, black bass">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Embalses confinados por mejillón cebra | LevelBass">
+<meta name="twitter:description" content="Embalses donde la barca queda confinada por el mejillón cebra y las normas de cada confederación hidrográfica.">
+<meta name="twitter:image" content="https://levelbass.es/img/og.jpg">
+<link rel="icon" type="image/png" href="/img/logo-160.png">
+<!-- Para añadirla a la pantalla de inicio como una app (iPhone y Android) -->
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LevelBass">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#06141c">
+<meta name="lb-version" content="262fbde60c393559">
+<meta name="description" content="Embalses donde la barca queda confinada por el mejillón cebra y las normas de cada confederación hidrográfica.">
+
+
+<link rel="preload" href="/fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
+<link rel="stylesheet" href="/style.css?v=pag2">
+</head>
+<body data-page="confinados">
+
+<!-- Iconos SVG reutilizables: cambia el trazo aquí para adaptarlos -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24"><path d="M2 12c3-5 8-7 13-5l3 2 4-3v12l-4-3-3 2c-5 2-10 0-13-5Z"/><circle cx="8" cy="11" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-lure" viewBox="0 0 24 24"><path d="M3 12c2-3 5-4 9-4s7 1 9 4c-2 3-5 4-9 4s-7-1-9-4Z"/><path d="M3 12 1 9M21 12l2-3M9 16v3m6-3v3"/><circle cx="7.5" cy="11" r=".8" fill="currentColor"/></symbol>
+  <symbol id="i-boat" viewBox="0 0 24 24"><path d="M3 15h18l-2.5 4h-13L3 15Z"/><path d="M12 15V4l6 7"/></symbol>
+  <symbol id="i-kayak" viewBox="0 0 24 24"><path d="M2 14c4-3 16-3 20 0-4 3-16 3-20 0Z"/><path d="M8 5l8 14"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19 14 10"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M2 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14m-6-6 6 6 6-6"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 0 9H7Z"/></symbol>
+  <symbol id="i-cloudsun" viewBox="0 0 24 24"><path d="M8 4v1m-4 3H3m2.2-2.8-.7-.7m7.3.7.7-.7"/><path d="M7 11a3 3 0 0 1 5.4-1.8"/><path d="M8 20a3.5 3.5 0 0 1-.4-7A5 5 0 0 1 17.5 13a3.5 3.5 0 0 1 0 7H8Z"/></symbol>
+  <symbol id="i-rain" viewBox="0 0 24 24"><path d="M7 15a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 6a4.5 4.5 0 0 1 0 9H7Z"/><path d="m8 18-1 3m5-3-1 3m5-3-1 3"/></symbol>
+  <symbol id="i-storm" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 5a4.5 4.5 0 0 1 0 9"/><path d="m12 11-3 5h4l-2 5"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 5a4.5 4.5 0 0 1 0 9H7Z"/><path d="M8 18v.01M12 20v.01M16 18v.01M10 22v.01M14 22v.01"/></symbol>
+  <symbol id="i-fog" viewBox="0 0 24 24"><path d="M7 13a4 4 0 0 1-.6-7.96A5.5 5.5 0 0 1 17 4a4.5 4.5 0 0 1 0 9"/><path d="M4 17h16M6 21h12"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3Z"/></symbol>
+  <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M7 11h10M4 14c0 4 3.6 7 8 7s8-3 8-7"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></symbol>
+</svg>
+
+<!-- Menú fijo: cada enlace lleva a su sección -->
+<nav class="topbar" aria-label="Secciones">
+  <div class="tb-inner">
+    <a class="tb-logo" href="/" aria-label="LevelBass, inicio"><img src="/img/logo-160.png" alt="" width="36" height="36">Level<b>Bass</b></a>
+    <div class="tb-links" id="tblinks">
+      <a href="/#favoritos"><svg class="i"><use href="#i-star"/></svg>Favoritos <small id="tbcount"></small></a>
+      <a href="/solunar/"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
+      <a href="/#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
+      <a href="/#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
+      <a href="/embalses/"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
+      <a href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div>
+      <img class="biglogo" src="/img/logo-400.webp" alt="LevelBass, black bass" width="170" height="170" fetchpriority="high">
+      <div class="brand"><span class="dot"></span>Datos oficiales · Pesca de black bass</div>
+      <h1>Nivel de <em>embalses</em><br>de España</h1>
+      <p class="lead">Cuánta agua tiene cada embalse antes de salir a pescar. Busca el tuyo, mira si sube o baja y guarda tus aguas favoritas.</p>
+
+      <form class="search" role="search" onsubmit="return false">
+        <svg class="i"><use href="#i-search"/></svg>
+        <label class="sr" for="q">Buscar embalse o cuenca</label>
+        <input id="q" type="search" placeholder="Busca un embalse o cuenca…" autocomplete="off">
+        <button type="button" id="go">Buscar</button>
+      </form>
+      <div class="quick" id="quick" aria-label="Cuencas frecuentes"></div>
+      <a class="heroconf" href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg><span><b>Embalses confinados</b><small>Si pescas en barca, mira dónde puedes navegar</small></span><em id="confn"></em></a>
+      <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
+    </div>
+
+    <div class="heroR">
+      <div class="collage" aria-hidden="true">
+        <div class="polaroid p1"><img src="/img/t/f18.webp" alt="Black bass con un swimbait" width="420" height="560" decoding="async"></div>
+        <div class="polaroid p2"><img src="/img/t/f21.webp" alt="Black bass sobre la alfombra del barco" width="420" height="560" decoding="async"></div>
+        <div class="polaroid p3"><img src="/img/t/f26.webp" alt="Proa del barco al atardecer" width="420" height="560" decoding="async"></div>
+        <!-- El pez ocupa el hueco libre de la esquina inferior derecha, sin tocar las fotos -->
+        <img class="pecito" src="/img/pez-dorado.webp" alt="" width="190" height="100" decoding="async">
+      </div>
+    </div>
+  </div>
+
+  <svg class="waves" viewBox="0 0 2400 64" preserveAspectRatio="none" aria-hidden="true">
+    <path fill="#06141c" d="M0 36Q150 0 300 36T600 36T900 36T1200 36T1500 36T1800 36T2100 36T2400 36V64H0Z"/>
+  </svg>
+</header>
+
+<main class="wrap">
+  <section class="dash" aria-label="Resumen">
+    <div class="card gauge">
+      <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="82" fill="none" stroke="#07161e" stroke-width="16"/>
+        <circle id="ring" cx="100" cy="100" r="82" fill="none" stroke="var(--teal)" stroke-width="16" stroke-linecap="round"
+          stroke-dasharray="515.2" stroke-dashoffset="515.2" transform="rotate(-90 100 100)" style="transition:stroke-dashoffset 1s ease,stroke .4s"/>
+      </svg>
+      <div class="big" id="gpct">–</div>
+      <div class="lbl" id="glbl">Llenado total</div>
+      <div class="sp"></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+  </section>
+
+  <section class="favbar" id="favoritos" aria-label="Mis embalses favoritos">
+    <h2>★ Mis embalses favoritos <small id="favcount"></small></h2>
+    <div id="avisos"></div>
+    <div id="favs" class="favrow"></div>
+    <div class="favtools" id="favtools" hidden><button type="button" id="favlink" class="mini">🔗 Copiar enlace de mis favoritos</button><span>Ábrelo en tu otro móvil u ordenador para tener allí los mismos favoritos.</span></div>
+  </section>
+
+  <section class="section" id="solunar" aria-label="Tabla solunar">
+    <a class="volver" href="/">← Inicio</a>
+    <h2>Tabla solunar</h2>
+    <p class="hint">Fase de la luna, periodos de mayor y menor actividad y el mejor momento para pescar. Elige el embalse y el día.</p>
+    <div class="solctl">
+      <label class="sr" for="solzona">Embalse o zona</label><select id="solzona"></select>
+      <div class="datenav">
+        <button id="solprev" aria-label="Día anterior">‹</button>
+        <label class="sr" for="soldate">Día</label><input type="date" id="soldate">
+        <button id="solnext" aria-label="Día siguiente">›</button>
+        <button id="solhoy" class="hoybtn">Hoy</button>
+      </div>
+    </div>
+    <div class="card hoy" id="hoy" role="region" aria-label="Luna y solunar del día elegido"></div>
+    <div class="solgrid">
+      <div class="card" id="solcal" role="region" aria-label="Calendario solunar"></div>
+      <div class="card" id="solbest" role="region" aria-label="Mejores días"></div>
+    </div>
+    <h3 class="subh">Próximos 7 días</h3>
+    <div class="soltabla-wrap"><table class="soltabla" id="soltabla"></table></div>
+    <p class="src"><b>M1 y M2</b> son los periodos mayores (la luna en lo más alto y en lo más bajo, unas 2 h). <b>m1 y m2</b> son los menores (salida y puesta de la luna, 1 h). Las estrellas son una estimación según la fase y si un periodo mayor cae al amanecer o al atardecer. Es una referencia tradicional de pesca, no una predicción científica.</p>
+  </section>
+
+  <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
+
+  <section class="section" id="mapa">
+    <h2>Mapa</h2>
+    <p class="legend">
+      <span><i style="background:var(--low)"></i>menos del 25 %</span>
+      <span><i style="background:var(--mid)"></i>25–50 %</span>
+      <span><i style="background:var(--ok)"></i>50–75 %</span>
+      <span><i style="background:var(--high)"></i>más del 75 %</span>
+    </p>
+    <div id="map"></div>
+  </section>
+
+  <section class="section" id="viento">
+    <h2>Viento en España</h2>
+    <p class="hint">Mapa de viento en tiempo real. Abre la ficha de un embalse para verlo centrado en él.</p>
+    <div class="windbox" id="windbox"></div>
+  </section>
+
+  <section class="section" id="lista">
+    <a class="volver" href="/">← Inicio</a>
+    <h2>Todos los embalses</h2>
+    <div class="controls">
+      <select id="cuenca" aria-label="Cuenca hidrográfica"></select>
+      <select id="prov" aria-label="Provincia"></select>
+      <select id="sort" aria-label="Ordenar">
+        <option value="nombre">Ordenar: nombre</option>
+        <option value="porcentaje-d">Más llenos primero</option>
+        <option value="porcentaje-a">Más vacíos primero</option>
+        <option value="capacidad-d">Más grandes primero</option>
+        <option value="variacion-d">Más suben esta semana</option>
+        <option value="variacion-a">Más bajan esta semana</option>
+      </select>
+    </div>
+    <div class="chips" id="chips">
+      <button class="chip on" data-t="">Todos</button>
+      <button class="chip" data-t="sube">▲ Subiendo</button>
+      <button class="chip" data-t="baja">▼ Bajando</button>
+      <button class="chip" data-t="igual">= Estable</button>
+    </div>
+    <div id="count" class="legend"></div>
+    <div class="cwrap">
+      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
+      <div id="grid" class="ccar" tabindex="0" aria-label="Todos los embalses, desliza para ver más"></div>
+      <button type="button" class="carr next" aria-label="Siguientes">›</button>
+    </div>
+  </section>
+
+  <section class="section" id="confinados" aria-label="Embalses confinados">
+    <a class="volver" href="/">← Inicio</a>
+    <h2>Embalses confinados</h2>
+    <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
+    <div class="chips" id="confchips"></div>
+    <div id="confcount" class="legend"></div>
+    <div class="cwrap">
+      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
+      <div id="confgrid" class="ccar" tabindex="0" aria-label="Embalses confinados, desliza para ver más"></div>
+      <button type="button" class="carr next" aria-label="Siguientes">›</button>
+    </div>
+    <p class="src" id="confsrc"></p>
+  </section>
+</main>
+
+<footer><div class="wrap" id="foot"></div></footer>
+
+<div id="cookies" role="dialog" aria-label="Cookies" hidden>
+  <p>Usamos <b>Google Analytics</b> para contar visitas y mejorar la web. Solo se activa si aceptas, y no guardamos datos personales tuyos.</p>
+  <div><button id="ck-no">Rechazar</button><button id="ck-si" class="si">Aceptar</button></div>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true"><div class="sheet"></div></div>
+<script src="/data/embalses.js"></script>
+<script src="/data/confinados.js?v=5"></script>
+<script src="/data/fichas.js?v=1"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
+<script src="/app.js?v=pag5" defer></script>
+</body>
+</html>

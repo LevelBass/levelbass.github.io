@@ -362,6 +362,8 @@ try {
     .replace(/(<meta name="lb-version" content=")[^"]*(")/, `$1${version}$2`);
   if (nuevo !== ix) await writeFile(join(raizWeb, "index.html"), nuevo);
 } catch (err) { console.log("No se pudo sellar la versión:", err.message); }
+// Las páginas /solunar/, /embalses/ y /confinados/ se generan a partir de index.html, ya con la versión sellada
+try { const { generarPaginas } = await import("./paginas.mjs"); await generarPaginas(raizWeb); } catch (err) { console.log("No se pudieron generar las páginas:", err.message); }
 
 const salida = {
   version,

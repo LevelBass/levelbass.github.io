@@ -35,10 +35,9 @@
 <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="style.css?v=pag1">
+<link rel="stylesheet" href="style.css?v=pag2">
 </head>
 <body>
-<script>try{var h=location.hash.slice(1);if(["solunar","lista","confinados"].indexOf(h)>-1)document.body.dataset.page=h}catch(e){}</script>
 
 <!-- Iconos SVG reutilizables: cambia el trazo aquí para adaptarlos -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -72,11 +71,11 @@
     <a class="tb-logo" href="#top" aria-label="LevelBass, inicio"><img src="img/logo-160.png" alt="" width="36" height="36">Level<b>Bass</b></a>
     <div class="tb-links" id="tblinks">
       <a href="#favoritos"><svg class="i"><use href="#i-star"/></svg>Favoritos <small id="tbcount"></small></a>
-      <a href="#solunar"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
+      <a href="/solunar/"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
       <a href="#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
       <a href="#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
-      <a href="#lista"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
-      <a href="#confinados"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>    </div>
+      <a href="/embalses/"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
+      <a href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>    </div>
   </div>
 </nav>
 
@@ -95,7 +94,7 @@
         <button type="button" id="go">Buscar</button>
       </form>
       <div class="quick" id="quick" aria-label="Cuencas frecuentes"></div>
-      <a class="heroconf" href="#confinados"><svg class="i"><use href="#i-anchor"/></svg><span><b>Embalses confinados</b><small>Si pescas en barca, mira dónde puedes navegar</small></span><em id="confn"></em></a>
+      <a class="heroconf" href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg><span><b>Embalses confinados</b><small>Si pescas en barca, mira dónde puedes navegar</small></span><em id="confn"></em></a>
       <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
     </div>
 
@@ -236,6 +235,6 @@
 <script src="data/fichas.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
-<script src="app.js?v=pag3" defer></script>
+<script src="app.js?v=pag5" defer></script>
 </body>
 </html>

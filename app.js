@@ -487,7 +487,7 @@ function toast(html, ms = 6000, acciones){
   t.onclick = (ev) => { const b = ev.target.closest("[data-ta]"); if (b){ acciones[+b.dataset.ta].f(); t.classList.remove("on"); } };
   t.classList.add("on"); clearTimeout(t._h); if (ms) t._h = setTimeout(() => t.classList.remove("on"), ms);
 }
-function notificar(titulo, cuerpo){ try { if ("Notification" in window && Notification.permission === "granted") new Notification(titulo, {body: cuerpo, icon: "img/icon-192.png"}); } catch {} }
+function notificar(titulo, cuerpo){ try { if ("Notification" in window && Notification.permission === "granted") new Notification(titulo, {body: cuerpo, icon: "/img/icon-192.png"}); } catch {} }
 async function cumple(a){
   const e = all.find(x => x.id === a.id); if (!e) return null;
   if (a.tipo === "sube") return lvl(e).pct >= a.valor;
@@ -593,7 +593,7 @@ function practicoHtml(e){
 
 let fichaId = null;
 const SITE = "https://levelbass.es/";
-const baseTitle = document.title, baseDesc = document.querySelector('meta[name="description"]').content;
+const baseCanon = document.querySelector('link[rel="canonical"]').href, baseOg = document.querySelector('meta[property="og:title"]').content, baseTitle = document.title, baseDesc = document.querySelector('meta[name="description"]').content;
 const slugs = new Map(), idPorSlug = new Map();
 function initSlugs(){
   const sl = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -616,28 +616,23 @@ function metaFicha(e){
 function metaBase(){
   document.title = baseTitle;
   const set = (sel, v) => { const n = document.querySelector(sel); if (n) n.setAttribute(n.tagName === "LINK" ? "href" : "content", v); };
-  set('meta[name="description"]', baseDesc); set('meta[property="og:title"]', "LevelBass · Nivel de los embalses de España");
-  set('meta[property="og:description"]', baseDesc); set('meta[property="og:url"]', SITE);
-  set('meta[name="twitter:title"]', "LevelBass · Nivel de los embalses de España"); set('meta[name="twitter:description"]', baseDesc); set('link[rel="canonical"]', SITE);
+  set('meta[name="description"]', baseDesc); set('meta[property="og:title"]', baseOg);
+  set('meta[property="og:description"]', baseDesc); set('meta[property="og:url"]', baseCanon);
+  set('meta[name="twitter:title"]', baseOg); set('meta[name="twitter:description"]', baseDesc); set('link[rel="canonical"]', baseCanon);
 }
-// "Páginas": Tabla solunar, Embalses y Confinados se ven solas al pulsar su enlace del menú (#solunar, #lista, #confinados)
-const PAGINAS = ["solunar", "lista", "confinados"];
-let buscando = false;
-function aplicarPagina(){
-  const h = location.hash;
-  if (/^#\/(embalse|favs=)/.test(h)) return; // la ficha se abre encima de la página en la que estés
-  const id = decodeURIComponent(h.slice(1)), p = PAGINAS.includes(id) ? id : "", antes = document.body.dataset.page || "";
-  if (p) document.body.dataset.page = p; else delete document.body.dataset.page;
-  if (p === "lista" && !buscando && $("#q").value){ $("#q").value = ""; shown = 24; render(); } // sin buscador a la vista, no se queda un filtro escondido
-  buscando = false;
-  if (p === "solunar"){ solVisto = true; if (solPendiente){ const f = solPendiente; solPendiente = null; enReposo(f); } } // calendario y tabla: ya se ven
-  if (p === antes && !p) return;
-  document.querySelectorAll(".ccar").forEach(carArrows);
-  const el = !p && id ? document.getElementById(id) : null;
-  if (el) el.scrollIntoView({behavior: "instant"}); else if (p || antes) scrollTo({top: 0, behavior: "instant"});
-  window.dispatchEvent(new Event("scroll"));
+// Tabla solunar, Embalses y Confinados son páginas propias (/solunar/, /embalses/, /confinados/): cada una es un index.html
+// con <body data-page=...> que solo muestra su sección. Desde la portada, la búsqueda lleva a /embalses/ con los filtros en la URL.
+function irLista(){
+  const u = new URLSearchParams(), q = $("#q").value.trim(), c = $("#cuenca").value;
+  if (q) u.set("q", q); if (c) u.set("c", c);
+  location.href = "/embalses/" + (u.toString() ? "?" + u : "");
 }
-function irLista(){ buscando = true; if (location.hash === "#lista") aplicarPagina(); else location.hash = "#lista"; }
+function filtrosDeLaUrl(){
+  if (document.body.dataset.page !== "lista") return;
+  const u = new URLSearchParams(location.search);
+  if (u.get("q")) $("#q").value = u.get("q");
+  if (u.get("c") && [...$("#cuenca").options].some(o => o.value === u.get("c"))) $("#cuenca").value = u.get("c");
+}
 function routeFromHash(){
   const fv = location.hash.match(/^#\/favs=([0-9.]+)/);
   if (fv){ ofrecerFavs(fv[1].split(".").map(Number).filter(Boolean)); return; }
@@ -783,7 +778,7 @@ const nn = (i) => String(i).padStart(2, "0");
 const FOTOS = [17, 18, 20, 21, 26, 30, 34];
 function initFotos(){
   // Con pocas fotos la cinta se repite varias veces para que el bucle no deje huecos
-  const cinta = FOTOS.map(i => `<img loading="lazy" decoding="async" src="img/t/f${nn(i)}.webp" alt="" width="210" height="280">`).join("");
+  const cinta = FOTOS.map(i => `<img loading="lazy" decoding="async" src="/img/t/f${nn(i)}.webp" alt="" width="210" height="280">`).join("");
   const mitad = cinta + cinta;
   const cintaEl = $("#ribbon");
   if (cintaEl) cintaEl.innerHTML = mitad + mitad;
@@ -937,10 +932,10 @@ function initSolunar(){
 
 function initHoy(){
   // Menú: resalta la sección en la que estás
-  const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => document.querySelector(a.getAttribute("href")));
+  const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => a.getAttribute("href").startsWith("#") ? document.querySelector(a.getAttribute("href")) : null), RUTAS = {solunar: "/solunar/", lista: "/embalses/", confinados: "/confinados/"};
   const spy = () => {
     let k = -1;
-    if (document.body.dataset.page) k = links.findIndex(a => a.getAttribute("href") === "#" + document.body.dataset.page);
+    if (document.body.dataset.page) k = links.findIndex(a => a.getAttribute("href") === RUTAS[document.body.dataset.page]);
     else secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 120) k = i; });
     links.forEach((a, i) => a.classList.toggle("on", i === k));
     // Centra el enlace activo dentro de la propia barra. No se usa scrollIntoView: con la barra "sticky"
@@ -1000,7 +995,7 @@ async function cargarEbro(){
 async function refrescarDatos(){
   if (document.hidden || $("#modal").classList.contains("open")) return;
   try {
-    const d = await (await fetch("data/embalses.json?" + Date.now())).json();
+    const d = await (await fetch("/data/embalses.json?" + Date.now())).json();
     // Si hay una versión nueva de la web, se ofrece cargarla (el navegador a veces conserva la antigua)
     const mia = document.querySelector('meta[name="lb-version"]')?.content;
     if (d.version && mia && d.version !== mia && !$("#toast.on")) toast("Hay una versión nueva de LevelBass.", 0, [{t: "Actualizar", f: () => { location.href = location.pathname + "?r=" + Date.now(); }}, {t: "Luego", f: () => {}}]);
@@ -1014,7 +1009,7 @@ async function init(){
   initHoy();
   let d = window.EMBALSES_DATA;
   if (!d){
-    try { d = await (await fetch("data/embalses.json?" + Date.now())).json(); }
+    try { d = await (await fetch("/data/embalses.json?" + Date.now())).json(); }
     catch { $("#stamp").innerHTML = '<span class="pill">No se pudieron cargar los datos.</span><button type="button" class="pill retry" onclick="location.reload()">Reintentar</button>'; return; }
   }
   all = d.embalses;
@@ -1036,8 +1031,9 @@ async function init(){
   initCarousels();
   addEventListener("load", () => document.querySelectorAll(".ccar").forEach(carArrows));
   $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
-  addEventListener("hashchange", () => { aplicarPagina(); routeFromHash(); });
+  addEventListener("hashchange", routeFromHash);
   initSolunar();
+  if (document.body.dataset.page === "solunar") solVisto = true; // en su página el calendario y la tabla se pintan ya
   renderHoy();
   const provs = [...new Set(all.map(e => e.provincia).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
   $("#prov").innerHTML = '<option value="">Todas las provincias</option>' + provs.map(p => `<option>${esc(p)}</option>`).join("");
@@ -1105,7 +1101,8 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
-  aplicarPagina();
+  filtrosDeLaUrl();
+  render();
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
   cargarEbro();
   revisarAlertas();
