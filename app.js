@@ -32,8 +32,8 @@ function cookiesInit(){
   $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
 }
 
-const PASO = 48;
-let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = document.body.dataset.page === "lista" ? 48 : 24, tfilter = "";
+const PASO = 24;
+let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = PASO, tfilter = "";
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
 const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch {} };
@@ -1186,8 +1186,8 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  // En su página (/embalses/) se enseñan de 48 en 48 con «Ver más»; en la portada, el carrusel completo
-  if (document.body.dataset.page === "lista"){
+  // La lista (portada y /embalses/) enseña 24 y un botón «Ver más +» añade otros 24
+  if (!document.body.dataset.page || document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
     if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; }
