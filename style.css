@@ -701,3 +701,4 @@ body[data-page="jornada"] main>section:not(#jornada){display:none}
 .jorlista b{font-weight:600}
 .jorlista span{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jorlista .mas{color:var(--muted);font-size:12.5px;padding:8px 10px}
+@media (max-width:560px){#hoy .sunmoon{grid-template-columns:repeat(2,minmax(0,1fr))}}

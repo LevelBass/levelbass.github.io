@@ -76,7 +76,7 @@ function renderConf(){
   $("#confchips").innerHTML = `<button class="chip ${confCuenca ? "" : "on"}" data-cc="">Todas (${todos.length})</button>` +
     cuencas.map(cu => `<button class="chip ${confCuenca === cu ? "on" : ""}" data-cc="${esc(cu)}">${esc(cu)} (${todos.filter(x => x.c.c === cu).length})</button>`).join("");
   const lista = todos.filter(x => !confCuenca || x.c.c === confCuenca).sort((a, b) => a.e.nombre.localeCompare(b.e.nombre, "es"));
-  $("#confcount").textContent = `${lista.length} embalses confinados`;
+  $("#confcount").textContent = `${lista.length} ${lista.length === 1 ? "embalse confinado" : "embalses confinados"}`;
   const pagConf = document.body.dataset.page === "confinados", cm = $("#confmas");
   if (cm){ cm.hidden = !pagConf || lista.length <= confShown; cm.textContent = "Ver más +"; $("#confmenos").hidden = !pagConf || confShown <= 12; }
   $("#confgrid").innerHTML = (pagConf ? lista.slice(0, confShown) : lista).map(x => {
@@ -1338,7 +1338,7 @@ function render(){
     const r = typeof x === "string" ? x.localeCompare(y,"es") : (x ?? -Infinity) - (y ?? -Infinity);
     return dir === "d" ? -r : r;
   });
-  $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
+  $("#count").textContent = `${fmt(list.length)} ${list.length === 1 ? "embalse" : "embalses"}` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
   // En /embalses/ se enseñan 12; «Ver más +» añade otros 12 y «Ver menos −» quita 12. La portada lleva el carrusel completo, sin botón
