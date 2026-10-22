@@ -48,7 +48,7 @@ const fdv = (e) => e.vivo.diario ? new Date(e.vivo.fecha).toLocaleDateString("es
 // Embalses confinados (mejillón cebra): datos en data/confinados.js
 const CONFD = window.CONFINADOS || {e: [], fuentes: {}};
 const CONF = new Map(CONFD.e.map(x => [x.id, x]));
-let confCuenca = "";
+let confCuenca = "", confShown = 12;
 function confAviso(e){
   const c = CONF.get(e.id); if (!c) return "";
   const f = CONFD.fuentes[c.f];
@@ -77,7 +77,9 @@ function renderConf(){
     cuencas.map(cu => `<button class="chip ${confCuenca === cu ? "on" : ""}" data-cc="${esc(cu)}">${esc(cu)} (${todos.filter(x => x.c.c === cu).length})</button>`).join("");
   const lista = todos.filter(x => !confCuenca || x.c.c === confCuenca).sort((a, b) => a.e.nombre.localeCompare(b.e.nombre, "es"));
   $("#confcount").textContent = `${lista.length} embalses confinados`;
-  $("#confgrid").innerHTML = lista.map(x => {
+  const pagConf = document.body.dataset.page === "confinados", cm = $("#confmas");
+  if (cm){ cm.hidden = !pagConf || lista.length <= confShown; cm.textContent = "Ver más +"; }
+  $("#confgrid").innerHTML = (pagConf ? lista.slice(0, confShown) : lista).map(x => {
     const p = lvl(x.e).pct;
     return `<button type="button" class="crow" data-open="${x.e.id}" title="${esc(x.c.n)}" style="--c:${hex(p)}"><b>${esc(x.e.nombre)}</b><span>${esc(x.c.c)}${x.e.provincia ? " · " + esc(x.e.provincia) : ""}</span><em>${fmt(p,0)} %</em><p>${esc(x.c.n)}</p></button>`;
   }).join("");
@@ -1031,7 +1033,7 @@ async function init(){
   initSlugs();
   initCarousels();
   addEventListener("load", () => document.querySelectorAll(".ccar").forEach(carArrows));
-  $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
+  $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; confShown = 12; renderConf(); } });
   addEventListener("hashchange", routeFromHash);
   initSolunar();
   if (document.body.dataset.page === "solunar") solVisto = true; // en su página el calendario y la tabla se pintan ya
@@ -1102,6 +1104,7 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
+  $("#confmas").addEventListener("click", () => { confShown += 12; renderConf(); });
   $("#vermas").addEventListener("click", () => { shown += PASO; render(); });
   filtrosDeLaUrl();
   render();
@@ -1187,7 +1190,7 @@ function render(){
   if (document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
-    if (vm){ vm.hidden = list.length <= shown; vm.textContent = `Ver más (${fmt(list.length - shown)} embalses más)`; }
+    if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; }
     renderConf(); cargarMejorDia(); return;
   }
   // Las tarjetas se pintan por tandas: las primeras al momento y el resto cuando el navegador está libre
