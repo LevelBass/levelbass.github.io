@@ -630,3 +630,6 @@ body[data-page] .volver:hover{color:var(--gold)}
 body[data-page] #grid.ccar,body[data-page] #confgrid.ccar{flex-wrap:wrap;overflow:visible;scroll-snap-type:none}
 body[data-page] .cwrap .carr{display:none}
 @media (max-width:540px){body[data-page="lista"] #grid.ccar .res,body[data-page="confinados"] #confgrid.ccar .crow{flex:1 1 100%}}
+
+/* Solunar y Confinados solo se ven en su página (/solunar/, /confinados/), no en la portada */
+body:not([data-page]) #solunar,body:not([data-page]) #confinados{display:none}
