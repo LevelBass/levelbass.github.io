@@ -32,7 +32,8 @@ function cookiesInit(){
   $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
 }
 
-let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = 24, tfilter = "";
+const PASO = 48;
+let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = document.body.dataset.page === "lista" ? 48 : 24, tfilter = "";
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
 const saveFavs = () => { try { localStorage.setItem("favs", JSON.stringify([...favs])); } catch {} };
@@ -1042,7 +1043,7 @@ async function init(){
   $("#quick").innerHTML = grandes.map(c => `<button type="button" data-c="${esc(c)}">${esc(c)}</button>`).join("");
   $("#quick").addEventListener("click", ev => {
     const b = ev.target.closest("[data-c]"); if (!b) return;
-    $("#cuenca").value = b.dataset.c; shown = 24; render(); irLista();
+    $("#cuenca").value = b.dataset.c; shown = PASO; render(); irLista();
   });
 
   // El mapa se crea solo cuando el visitante se acerca a él (carga más rápida)
@@ -1055,12 +1056,12 @@ async function init(){
     } catch { map = null; $("#map").innerHTML = '<div class="empty">No se pudo cargar el mapa.</div>'; }
   }, "600px");
 
-  for (const id of ["#q","#cuenca","#prov","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
+  for (const id of ["#q","#cuenca","#prov","#sort"]) $(id).addEventListener("input", () => { shown = PASO; render(); });
   $("#go").addEventListener("click", irLista);
   $("#q").addEventListener("keydown", ev => { if (ev.key === "Enter") irLista(); });
   $("#chips").addEventListener("click", ev => {
     const b = ev.target.closest(".chip"); if (!b) return;
-    tfilter = b.dataset.t; shown = 24;
+    tfilter = b.dataset.t; shown = PASO;
     document.querySelectorAll(".chip").forEach(c => c.classList.toggle("on", c === b));
     render();
   });
@@ -1101,6 +1102,7 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
+  $("#vermas").addEventListener("click", () => { shown += PASO; render(); });
   filtrosDeLaUrl();
   render();
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
@@ -1181,6 +1183,13 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
+  // En su página (/embalses/) se enseñan de 48 en 48 con «Ver más»; en la portada, el carrusel completo
+  if (document.body.dataset.page === "lista"){
+    const vm = $("#vermas");
+    gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
+    if (vm){ vm.hidden = list.length <= shown; vm.textContent = `Ver más (${fmt(list.length - shown)} embalses más)`; }
+    renderConf(); cargarMejorDia(); return;
+  }
   // Las tarjetas se pintan por tandas: las primeras al momento y el resto cuando el navegador está libre
   const token = ++renderToken, LOTE = 36;
   gridEl.innerHTML = list.slice(0, LOTE).map(card).join("") || '<div class="empty">Sin resultados</div>';
