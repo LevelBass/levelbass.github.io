@@ -620,6 +620,24 @@ function metaBase(){
   set('meta[property="og:description"]', baseDesc); set('meta[property="og:url"]', SITE);
   set('meta[name="twitter:title"]', "LevelBass · Nivel de los embalses de España"); set('meta[name="twitter:description"]', baseDesc); set('link[rel="canonical"]', SITE);
 }
+// "Páginas": Tabla solunar, Embalses y Confinados se ven solas al pulsar su enlace del menú (#solunar, #lista, #confinados)
+const PAGINAS = ["solunar", "lista", "confinados"];
+let buscando = false;
+function aplicarPagina(){
+  const h = location.hash;
+  if (/^#\/(embalse|favs=)/.test(h)) return; // la ficha se abre encima de la página en la que estés
+  const id = decodeURIComponent(h.slice(1)), p = PAGINAS.includes(id) ? id : "", antes = document.body.dataset.page || "";
+  if (p) document.body.dataset.page = p; else delete document.body.dataset.page;
+  if (p === "lista" && !buscando && $("#q").value){ $("#q").value = ""; shown = 24; render(); } // sin buscador a la vista, no se queda un filtro escondido
+  buscando = false;
+  if (p === "solunar"){ solVisto = true; if (solPendiente){ const f = solPendiente; solPendiente = null; enReposo(f); } } // calendario y tabla: ya se ven
+  if (p === antes && !p) return;
+  document.querySelectorAll(".ccar").forEach(carArrows);
+  const el = !p && id ? document.getElementById(id) : null;
+  if (el) el.scrollIntoView({behavior: "instant"}); else if (p || antes) scrollTo({top: 0, behavior: "instant"});
+  window.dispatchEvent(new Event("scroll"));
+}
+function irLista(){ buscando = true; if (location.hash === "#lista") aplicarPagina(); else location.hash = "#lista"; }
 function routeFromHash(){
   const fv = location.hash.match(/^#\/favs=([0-9.]+)/);
   if (fv){ ofrecerFavs(fv[1].split(".").map(Number).filter(Boolean)); return; }
@@ -921,7 +939,9 @@ function initHoy(){
   // Menú: resalta la sección en la que estás
   const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => document.querySelector(a.getAttribute("href")));
   const spy = () => {
-    let k = -1; secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 120) k = i; });
+    let k = -1;
+    if (document.body.dataset.page) k = links.findIndex(a => a.getAttribute("href") === "#" + document.body.dataset.page);
+    else secs.forEach((s, i) => { if (s && s.getBoundingClientRect().top <= 120) k = i; });
     links.forEach((a, i) => a.classList.toggle("on", i === k));
     // Centra el enlace activo dentro de la propia barra. No se usa scrollIntoView: con la barra "sticky"
     // el navegador intentaba llevar la página arriba del todo y la subía sola al hacer scroll.
@@ -1016,7 +1036,7 @@ async function init(){
   initCarousels();
   addEventListener("load", () => document.querySelectorAll(".ccar").forEach(carArrows));
   $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; renderConf(); } });
-  addEventListener("hashchange", routeFromHash);
+  addEventListener("hashchange", () => { aplicarPagina(); routeFromHash(); });
   initSolunar();
   renderHoy();
   const provs = [...new Set(all.map(e => e.provincia).filter(Boolean))].sort((a,b) => a.localeCompare(b,"es"));
@@ -1026,7 +1046,7 @@ async function init(){
   $("#quick").innerHTML = grandes.map(c => `<button type="button" data-c="${esc(c)}">${esc(c)}</button>`).join("");
   $("#quick").addEventListener("click", ev => {
     const b = ev.target.closest("[data-c]"); if (!b) return;
-    $("#cuenca").value = b.dataset.c; shown = 24; render(); $("#lista").scrollIntoView({behavior:"smooth"});
+    $("#cuenca").value = b.dataset.c; shown = 24; render(); irLista();
   });
 
   // El mapa se crea solo cuando el visitante se acerca a él (carga más rápida)
@@ -1040,7 +1060,6 @@ async function init(){
   }, "600px");
 
   for (const id of ["#q","#cuenca","#prov","#sort"]) $(id).addEventListener("input", () => { shown = 24; render(); });
-  const irLista = () => $("#lista").scrollIntoView({behavior:"smooth"});
   $("#go").addEventListener("click", irLista);
   $("#q").addEventListener("keydown", ev => { if (ev.key === "Enter") irLista(); });
   $("#chips").addEventListener("click", ev => {
@@ -1086,6 +1105,7 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
+  aplicarPagina();
   routeFromHash(); // si llegan con un enlace #/embalse/..., se abre su ficha
   cargarEbro();
   revisarAlertas();
@@ -1161,7 +1181,7 @@ function render(){
     const r = typeof x === "string" ? x.localeCompare(y,"es") : (x ?? -Infinity) - (y ?? -Infinity);
     return dir === "d" ? -r : r;
   });
-  $("#count").textContent = `${fmt(list.length)} embalses`;
+  $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
   // Las tarjetas se pintan por tandas: las primeras al momento y el resto cuando el navegador está libre

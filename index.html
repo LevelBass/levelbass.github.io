@@ -35,9 +35,10 @@
 <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="style.css?v=compact13">
+<link rel="stylesheet" href="style.css?v=pag1">
 </head>
 <body>
+<script>try{var h=location.hash.slice(1);if(["solunar","lista","confinados"].indexOf(h)>-1)document.body.dataset.page=h}catch(e){}</script>
 
 <!-- Iconos SVG reutilizables: cambia el trazo aquí para adaptarlos -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -137,6 +138,7 @@
   </section>
 
   <section class="section" id="solunar" aria-label="Tabla solunar">
+    <a class="volver" href="#top">← Inicio</a>
     <h2>Tabla solunar</h2>
     <p class="hint">Fase de la luna, periodos de mayor y menor actividad y el mejor momento para pescar. Elige el embalse y el día.</p>
     <div class="solctl">
@@ -178,6 +180,7 @@
   </section>
 
   <section class="section" id="lista">
+    <a class="volver" href="#top">← Inicio</a>
     <h2>Todos los embalses</h2>
     <div class="controls">
       <select id="cuenca" aria-label="Cuenca hidrográfica"></select>
@@ -206,6 +209,7 @@
   </section>
 
   <section class="section" id="confinados" aria-label="Embalses confinados">
+    <a class="volver" href="#top">← Inicio</a>
     <h2>Embalses confinados</h2>
     <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
     <div class="chips" id="confchips"></div>
@@ -232,6 +236,6 @@
 <script src="data/fichas.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
-<script src="app.js?v=262fbde6" defer></script>
+<script src="app.js?v=pag3" defer></script>
 </body>
 </html>

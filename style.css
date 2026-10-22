@@ -616,3 +616,17 @@ footer p{max-width:780px;margin:6px 0}
 .kpi b{font-size:22px;margin-top:0}
 .kpi span{font-size:11.5px;line-height:1.25}
 @media (min-width:900px){.dash{grid-template-columns:170px 1fr}}
+
+/* ---------- Páginas: solunar, embalses y confinados se ven solos ---------- */
+.volver{display:none}
+body[data-page] .hero,
+body[data-page="solunar"] main>section:not(#solunar),
+body[data-page="lista"] main>section:not(#lista),
+body[data-page="confinados"] main>section:not(#confinados){display:none}
+body[data-page] main{padding-top:6px}
+body[data-page] .section{margin-top:12px}
+body[data-page] .volver{display:inline-block;margin:6px 0 4px;color:var(--muted);text-decoration:none;font:600 13px var(--head);letter-spacing:.08em;text-transform:uppercase}
+body[data-page] .volver:hover{color:var(--gold)}
+body[data-page] #grid.ccar,body[data-page] #confgrid.ccar{flex-wrap:wrap;overflow:visible;scroll-snap-type:none}
+body[data-page] .cwrap .carr{display:none}
+@media (max-width:540px){body[data-page="lista"] #grid.ccar .res,body[data-page="confinados"] #confgrid.ccar .crow{flex:1 1 100%}}
