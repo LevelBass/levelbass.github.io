@@ -638,3 +638,6 @@ body:not([data-page]) #solunar,body:not([data-page]) #confinados{display:none}
 .vermas[hidden]{display:none}
 .masmenos{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:16px}
 .masmenos .vermas{margin:0}
+
+/* Sin la cinta de fotos en las páginas de Embalses y Confinados */
+body[data-page="lista"] .ribbon,body[data-page="confinados"] .ribbon{display:none}
