@@ -691,3 +691,13 @@ body[data-page="jornada"] main>section:not(#jornada){display:none}
 .jorsel input:focus{border-color:var(--gold)}
 .jorsel select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none;color-scheme:dark}
 .jorctl{align-items:end}
+.jorbus{position:relative}
+.jorbus>.i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:18px;pointer-events:none}
+.jorsel .jorbus input{width:100%;box-sizing:border-box;padding:11px 14px 11px 40px;background:var(--card)}
+.jorlista{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px;list-style:none;max-height:320px;overflow-y:auto;background:#0b2230;border:1px solid var(--bronze);border-radius:12px;box-shadow:0 14px 30px rgba(0,0,0,.5)}
+.jorlista[hidden]{display:none}
+.jorlista button{display:flex;align-items:baseline;justify-content:space-between;gap:10px;width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;padding:8px 10px;border-radius:8px;cursor:pointer}
+.jorlista button:hover,.jorlista button:focus-visible{background:rgba(214,162,74,.14);outline:0}
+.jorlista b{font-weight:600}
+.jorlista span{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jorlista .mas{color:var(--muted);font-size:12.5px;padding:8px 10px}

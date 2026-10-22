@@ -503,23 +503,40 @@ function initJornada(){
   const fv = con.filter(e => favs.has(e.id));
   const todas = () => '<option value="">Elige un embalse…</option>' + (fv.length ? `<optgroup label="Tus favoritos">${fv.map(opt).join("")}</optgroup><optgroup label="Todos los embalses">` : "") + con.map(opt).join("") + (fv.length ? "</optgroup>" : "");
   sel.innerHTML = todas();
-  // Buscador: filtra la lista y elige el primero que coincide (con una pequeña pausa al escribir)
-  const bus = $("#jorbuscar"); let pausa;
-  if (bus) bus.addEventListener("input", () => {
-    clearTimeout(pausa);
-    pausa = setTimeout(() => {
-      const q = norm(bus.value.trim()), antes = sel.dataset.ultimo || ""; // el embalse que se está viendo
-      if (!q){ sel.innerHTML = todas(); sel.value = antes; return; }
-      const r = con.filter(e => [e.nombre, natural(e.nombre), e.provincia || "", e.cuenca].some(t => norm(t).includes(q)));
-      sel.innerHTML = r.length ? `<option value="" disabled>${r.length} embalse${r.length > 1 ? "s" : ""} encontrado${r.length > 1 ? "s" : ""}</option>` + r.map(opt).join("") : '<option value="">Ningún embalse con ese nombre</option>';
-      if (r.length){ sel.value = r.some(e => String(e.id) === antes) ? antes : String(r[0].id); if (sel.value !== antes) renderJornada(); }
-    }, 300);
+  // Buscador «Busca tu embalse»: al escribir sale debajo la lista de los que coinciden y se elige uno pulsándolo
+  // (el <select> queda oculto y guarda la elección)
+  const bus = $("#jorbuscar"), lis = $("#jorlista");
+  const nombre = (e) => e.nombre + (e.provincia ? " · " + e.provincia : "");
+  const elegir = (id) => {
+    const e = con.find(x => x.id === id); if (!e) return;
+    sel.value = String(id); bus.value = nombre(e); lis.hidden = true; renderJornada();
+  };
+  const pintar = () => {
+    const q = norm(bus.value.trim());
+    const r = q ? con.filter(e => [e.nombre, natural(e.nombre), e.provincia || "", e.cuenca].some(t => norm(t).includes(q))) : [...fv, ...con.filter(e => !favs.has(e.id))];
+    lis.innerHTML = r.length
+      ? r.slice(0, 40).map(e => `<li><button type="button" data-jid="${e.id}">${favs.has(e.id) ? "★ " : ""}<b>${esc(e.nombre)}</b><span>${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)}</span></button></li>`).join("") + (r.length > 40 ? `<li class="mas">Escribe más para ver el resto (${r.length - 40})</li>` : "")
+      : '<li class="mas">Ningún embalse con ese nombre</li>';
+    lis.hidden = false;
+  };
+  bus.addEventListener("input", pintar);
+  bus.addEventListener("focus", () => { bus.select(); pintar(); });
+  bus.addEventListener("keydown", ev => {
+    if (ev.key === "Enter"){ const b = lis.querySelector("[data-jid]"); if (b){ ev.preventDefault(); elegir(+b.dataset.jid); bus.blur(); } }
+    if (ev.key === "Escape"){ lis.hidden = true; bus.blur(); }
   });
+  // mousedown y no click: así se elige antes de que el campo pierda el foco
+  lis.addEventListener("mousedown", ev => { const b = ev.target.closest("[data-jid]"); if (b){ ev.preventDefault(); elegir(+b.dataset.jid); bus.blur(); } });
+  bus.addEventListener("blur", () => setTimeout(() => {
+    lis.hidden = true;
+    const e = con.find(x => String(x.id) === sel.value); bus.value = e ? nombre(e) : ""; // vuelve a mostrar el embalse elegido
+  }, 150));
   const hoy = dia0(new Date()), max = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + JOR_DIAS - 1);
   fch.min = isoLocal(hoy); fch.max = isoLocal(max);
   // De la URL (?e=slug&d=AAAA-MM-DD); si no, el primer favorito y hoy
   const u = new URLSearchParams(location.search), id = idPorSlug.get(u.get("e") || "");
   sel.value = id != null && con.some(e => e.id === id) ? String(id) : fv.length ? String(fv[0].id) : "";
+  { const e = con.find(x => String(x.id) === sel.value); bus.value = e ? nombre(e) : ""; }
   const d = u.get("d");
   fch.value = d && d >= fch.min && d <= fch.max ? d : isoLocal(hoy);
   sel.addEventListener("input", renderJornada); fch.addEventListener("input", renderJornada);
