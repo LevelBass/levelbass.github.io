@@ -1104,8 +1104,8 @@ async function init(){
     if (ev.key === "Enter" && ev.target.matches?.(".fav")) openDetail(+ev.target.dataset.open);
   });
   render();
-  $("#confmenos").addEventListener("click", () => { confShown = 12; renderConf(); $("#confinados").scrollIntoView({behavior: "smooth"}); });
-  $("#vermenos").addEventListener("click", () => { shown = PASO; render(); $("#lista").scrollIntoView({behavior: "smooth"}); });
+  $("#confmenos").addEventListener("click", () => { confShown = Math.max(12, confShown - 12); renderConf(); });
+  $("#vermenos").addEventListener("click", () => { shown = Math.max(PASO, shown - PASO); render(); });
   $("#confmas").addEventListener("click", () => { confShown += 12; renderConf(); });
   $("#vermas").addEventListener("click", () => { shown += PASO; render(); });
   filtrosDeLaUrl();
@@ -1188,8 +1188,8 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  // En su página (/embalses/) se enseñan 12 y «Ver más +» añade otros 12 (con «Ver menos −» se vuelve a 12); en la portada va el carrusel completo
-  if (document.body.dataset.page === "lista"){
+  // La lista (portada y /embalses/) enseña 12; «Ver más +» añade otros 12 y «Ver menos −» quita 12
+  if (!document.body.dataset.page || document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
     if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; $("#vermenos").hidden = shown <= PASO; }
