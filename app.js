@@ -120,7 +120,7 @@ function favCard(e){
 function card(e){
   const t = trendOf(e), v = varDe(e), L = lvl(e), dec = e.extra ? 2 : 1;
   const txt = t === "sube" ? `▲ +${fmt(v,dec)} hm³` : t === "baja" ? `▼ ${fmt(v,dec)} hm³` : "= Estable";
-  return `<article class="res" data-id="${e.id}">
+  return `<article class="res" data-id="${e.id}" style="--c:${hex(L.pct)}">
     <button class="star ${favs.has(e.id)?'on':''}" data-fav="${e.id}" aria-label="Marcar favorito" title="Favorito">${favs.has(e.id)?'★':'☆'}</button>
     <h3>${esc(e.nombre)}</h3>
     <div class="sub">${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)} ${edadHtml(e)}</div>
