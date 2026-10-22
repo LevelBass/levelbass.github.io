@@ -603,3 +603,16 @@ footer p{max-width:780px;margin:6px 0}
 #solunar .soltabla .ph>div{display:flex;flex-direction:column}
 #solunar .soltabla .vv{display:inline;margin-left:4px;font-size:10.5px}
 #solunar .soltabla .est{white-space:nowrap}
+
+/* Resumen nacional más compacto */
+.dash{gap:8px}
+.dash .card{padding:10px 14px;border-radius:14px}
+.gauge svg.ring{width:104px;height:104px}
+.gauge .big{font-size:25px;margin-top:-63px}
+.gauge .lbl{font-size:12px;margin-top:2px}
+.gauge .sp{height:0}
+.kpis{gap:8px}
+.kpi small{font-size:10px;letter-spacing:.1em}
+.kpi b{font-size:22px;margin-top:0}
+.kpi span{font-size:11.5px;line-height:1.25}
+@media (min-width:900px){.dash{grid-template-columns:170px 1fr}}
