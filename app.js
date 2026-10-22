@@ -479,6 +479,127 @@ function pintaMejorFav(id){
   n.innerHTML = `Mejor día: <b>${m.fecha.toLocaleDateString("es-ES", {weekday: "short", day: "numeric"})}</b> · ${m.pts}`;
 }
 
+/* ---------- Planifica tu jornada (/jornada/): embalse + día -> resumen de todo ---------- */
+// Previsión de 16 días con datos por horas; sirve también para la nota del día (mejorSemana)
+const jorCache = new Map();
+function getWxJornada(lat, lon){
+  const k = lat.toFixed(2) + "," + lon.toFixed(2);
+  if (!jorCache.has(k)){
+    const q = new URLSearchParams({
+      latitude: lat, longitude: lon, timezone: "Europe/Madrid", forecast_days: 16, wind_speed_unit: "kmh",
+      hourly: "temperature_2m,weather_code,precipitation_probability,wind_speed_10m,wind_direction_10m,pressure_msl",
+      daily: "weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,wind_direction_10m_dominant",
+    });
+    jorCache.set(k, fetch("https://api.open-meteo.com/v1/forecast?" + q).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }));
+  }
+  return jorCache.get(k);
+}
+const JOR_DIAS = 16;
+let jorToken = 0;
+function initJornada(){
+  const sel = $("#jorembalse"), fch = $("#jorfecha"); if (!sel || !fch) return;
+  const con = all.filter(e => e.lat != null).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+  const opt = (e) => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`;
+  const fv = con.filter(e => favs.has(e.id));
+  sel.innerHTML = '<option value="">Elige un embalse…</option>' + (fv.length ? `<optgroup label="Tus favoritos">${fv.map(opt).join("")}</optgroup><optgroup label="Todos los embalses">` : "") + con.map(opt).join("") + (fv.length ? "</optgroup>" : "");
+  const hoy = dia0(new Date()), max = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + JOR_DIAS - 1);
+  fch.min = isoLocal(hoy); fch.max = isoLocal(max);
+  // De la URL (?e=slug&d=AAAA-MM-DD); si no, el primer favorito y hoy
+  const u = new URLSearchParams(location.search), id = idPorSlug.get(u.get("e") || "");
+  sel.value = id != null && con.some(e => e.id === id) ? String(id) : fv.length ? String(fv[0].id) : "";
+  const d = u.get("d");
+  fch.value = d && d >= fch.min && d <= fch.max ? d : isoLocal(hoy);
+  sel.addEventListener("input", renderJornada); fch.addEventListener("input", renderJornada);
+  $("#jorres").addEventListener("click", ev => { const b = ev.target.closest("[data-jordia]"); if (b){ fch.value = b.dataset.jordia; renderJornada(); } });
+  renderJornada();
+}
+async function renderJornada(){
+  const box = $("#jorres"), e = all.find(x => x.id === +$("#jorembalse").value), fs = $("#jorfecha").value;
+  if (!e || !fs){ box.innerHTML = '<div class="empty jorvacio">Elige un embalse y un día para ver el resumen de tu jornada.</div>'; return; }
+  history.replaceState(null, "", location.pathname + "?" + new URLSearchParams({e: slugs.get(e.id) || "", d: fs}));
+  const token = ++jorToken, fecha = new Date(fs + "T12:00"), s = solunar(fecha, e.lat, e.lon), L = lvl(e);
+  box.innerHTML = jornadaHtml(e, fecha, s, L, null, true);
+  let w = null; try { w = await getWxJornada(e.lat, e.lon); } catch {}
+  if (token !== jorToken) return;
+  box.innerHTML = jornadaHtml(e, fecha, s, L, w, false);
+}
+function jornadaHtml(e, fecha, s, L, w, cargando){
+  const fs = isoLocal(fecha), i = w ? w.daily.time.indexOf(fs) : -1;
+  const sem = w ? mejorSemana(w, e.lat, e.lon) : null, nota = sem && i >= 0 ? sem[i] : null;
+  const mejor = sem ? sem.reduce((a, b) => b.pts > a.pts ? b : a) : null;
+  // Mejores horas: periodos con luz (de una hora antes del amanecer a una después del atardecer);
+  // primero los que caen junto al amanecer o el atardecer, luego los mayores
+  const junto = (p) => [s.orto, s.ocaso].some(x => x != null && Math.abs(x - p.c) <= 90);
+  const conLuz = (p) => s.orto == null || s.ocaso == null || (p.fin > s.orto - 60 && p.ini < s.ocaso + 60);
+  const ventanas = s.per.filter(conLuz).sort((a, b) => (junto(b) - junto(a)) || (a.t === "mayor" ? -1 : 1) - (b.t === "mayor" ? -1 : 1)).slice(0, 2).sort((a, b) => a.c - b.c);
+  const rango = (p) => `${hhmm(Math.max(0, p.ini))}–${hhmm(Math.min(1440, p.fin))}`;
+  const t = tendencias(e), cn = consejoNivel(e, t), tr = trendOf(e);
+  // Tiempo del día y por franjas de 3 horas
+  let tiempo = "", franjas = "", viento = "";
+  if (i >= 0){
+    const d = w.daily, ic = wmo(d.weather_code[i]);
+    const iA = w.hourly.time.indexOf(fs + "T06:00"), iB = w.hourly.time.indexOf(fs + "T20:00");
+    const pa = iA >= 0 ? w.hourly.pressure_msl[iA] : null, pb = iB >= 0 ? w.hourly.pressure_msl[iB] : null;
+    const dp = pa != null && pb != null ? pb - pa : null;
+    tiempo = `<div class="stats jorstats">
+      ${stat("Cielo", `${ico(ic.i)} ${ic.t}`, "")}
+      ${stat("Temperatura", `${Math.round(d.temperature_2m_max[i])}° / ${Math.round(d.temperature_2m_min[i])}°`, "máx. / mín.")}
+      ${stat("Lluvia", `${d.precipitation_probability_max[i] ?? 0} %`, "probabilidad máxima")}
+      ${stat("Viento", `${fmt(d.wind_speed_10m_max[i], 0)} km/h`, d.wind_direction_10m_dominant?.[i] != null ? "del " + dirTxt(d.wind_direction_10m_dominant[i]) : "")}
+      ${stat("Presión", dp == null ? "–" : `<span class="${dp <= -1.5 ? "down" : dp >= 1.5 ? "up" : ""}">${dp > 0 ? "+" : ""}${fmt(dp, 1)} hPa</span>`, dp == null ? "" : "de 6:00 a 20:00 · " + (dp <= -1.5 ? "bajando" : dp >= 1.5 ? "subiendo" : "estable"))}
+    </div>`;
+    franjas = `<div class="jorhoras">${[6, 9, 12, 15, 18, 21].map(h => {
+      const k = w.hourly.time.indexOf(`${fs}T${String(h).padStart(2, "0")}:00`); if (k < 0) return "";
+      const c = wmo(w.hourly.weather_code[k]);
+      return `<div><b>${h}:00</b>${ico(c.i)}<em>${Math.round(w.hourly.temperature_2m[k])}°</em><span>${ico("wind")} ${Math.round(w.hourly.wind_speed_10m[k])} ${dirTxt(w.hourly.wind_direction_10m[k])}</span><span>${ico("drop")} ${w.hourly.precipitation_probability[k] ?? 0} %</span></div>`;
+    }).join("")}</div>`;
+    const vmax = d.wind_speed_10m_max[i] ?? 0;
+    viento = vmax > 30 ? "Mucho viento: con barca o pato, ten cuidado y busca orillas resguardadas." : vmax > 22 ? "Viento fuerte: prueba la orilla donde pega el viento, suele acumular comida." : "";
+  }
+  // Resumen en pocas frases
+  const partes = [];
+  if (nota) partes.push(`<b>${nota.etiqueta}</b> (${nota.pts}/100): ${nota.razones.join(", ")}.`);
+  else partes.push(`Luna: <b>${VEREDICTO[s.estrellas].toLowerCase()}</b> (${s.estrellas}/5).${cargando ? "" : ` La previsión del tiempo solo llega a ${JOR_DIAS} días.`}`);
+  const cuando = (p) => Math.abs((s.orto ?? -999) - p.c) <= 90 ? "amanecer" : "atardecer";
+  const luz = s.orto != null && s.ocaso != null ? ` Aprovecha también la primera y la última luz: amanecer a las <b>${hhmm(s.orto)}</b> y atardecer a las <b>${hhmm(s.ocaso)}</b>.` : "";
+  partes.push((ventanas.length ? `Mejores horas: ${ventanas.map(p => `<b>${rango(p)}</b>` + (junto(p) ? ` (junto al ${cuando(p)})` : "")).join(" y ")}.` : "Ningún periodo solunar cae con luz ese día.") + luz);
+  partes.push(`El embalse está al <b>${fmt(L.pct, 0)} %</b>${cn ? ` (${cn.t.toLowerCase()}). ${cn.d}` : tr === "sube" ? " y subiendo." : tr === "baja" ? " y bajando." : " y estable."}`);
+  if (viento) partes.push(viento);
+  const otro = mejor && nota && mejor.fecha.getTime() !== fecha.getTime() && mejor.pts - nota.pts >= 8
+    ? `<p class="jorotro">En los próximos ${JOR_DIAS} días, el mejor día en este embalse es el <button type="button" data-jordia="${isoLocal(mejor.fecha)}">${larga(mejor.fecha)} (${mejor.pts}/100)</button>.</p>` : "";
+  const notaCol = nota ? (nota.pts >= 72 ? "var(--ok)" : nota.pts >= 58 ? "var(--gold)" : "var(--low)") : "";
+  return `<div class="card jorcard">
+    <div class="jorhead">
+      <div><small class="cap">${larga(fecha)}</small><h3>${esc(e.nombre)}</h3><span class="sub">${e.provincia ? esc(e.provincia) + " · " : ""}${esc(e.cuenca)}</span></div>
+      ${nota ? `<div class="jornota" style="--c:${notaCol}"><b>${nota.pts}</b><span>${nota.etiqueta}</span></div>` : cargando ? '<div class="jornota"><span>Cargando…</span></div>' : ""}
+    </div>
+    <div class="jortxt">${partes.map(p => `<p>${p}</p>`).join("")}</div>${otro}
+    ${confAviso(e)}
+    <h4>Agua</h4>
+    <div class="stats jorstats">
+      ${stat("Nivel", `<span style="color:${hex(L.pct)}">${fmt(L.pct, 1)} %</span>`, `${fmt(L.vol, e.vivo ? 1 : 0)} de ${fmt(e.capacidad)} hm³`)}
+      ${stat("Tendencia", cn ? `<span class="${cn.cls}">${cn.cls === "up" ? "▲" : cn.cls === "down" ? "▼" : "■"} ${cn.t}</span>` : tr === "sube" ? '<span class="up">▲ Subiendo</span>' : tr === "baja" ? '<span class="down">▼ Bajando</span>' : "■ Estable",
+        varDe(e) != null ? `${varDe(e) > 0 ? "+" : ""}${fmt(varDe(e), e.extra ? 2 : 1)} hm³ ${e.extra ? "en 24 h" : "en la semana"}` : "")}
+      ${stat("Dato", edad(e)?.txt || "–", e.vivo ? "lectura en directo" : "boletín semanal")}
+    </div>
+    <div class="badges">${badges(e, L)}</div>
+    <h4>Tiempo</h4>
+    ${i >= 0 ? tiempo + franjas : `<p class="src">${cargando ? "Cargando la previsión…" : `Sin previsión del tiempo para ese día (llega hasta ${JOR_DIAS} días).`}</p>`}
+    <h4>Luna y horas de actividad</h4>
+    <div class="jorluna">${lunaSvg(s.fase, 46)}<div><b>${s.nombre}</b><span>${fmt(s.fraccion * 100, 0)} % iluminada · <span class="est">${estrellas(s.estrellas)}</span> ${VEREDICTO[s.estrellas]}</span></div></div>
+    <div class="sunmoon jorsol">
+      <div><small>Amanecer</small><b>${s.orto != null ? hhmm(s.orto) : "–"}</b></div>
+      <div><small>Atardecer</small><b>${s.ocaso != null ? hhmm(s.ocaso) : "–"}</b></div>
+      <div><small>Sale la luna</small><b>${s.sal != null ? hhmm(s.sal) : "–"}</b></div>
+      <div><small>Se pone la luna</small><b>${s.pue != null ? hhmm(s.pue) : "–"}</b></div>
+    </div>
+    ${lineaDiaPro(s, null)}
+    <ul class="per">${s.per.map(p => `<li class="${p.t}"><span><b class="k">${p.k}</b> ${p.t === "mayor" ? "Mayor" : "Menor"} · ${p.n}</span><b>${rango(p)}</b></li>`).join("")}</ul>
+    <div class="goto"><button type="button" class="btn-go" data-open="${e.id}">Ver ficha completa</button></div>
+    <p class="src">Resumen orientativo: combina la previsión de <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>, el nivel del embalse y los periodos solunares. No es una predicción de capturas.</p>
+  </div>`;
+}
+
 /* ---------- Avisos y alertas (se comprueban con la web abierta) ---------- */
 let alertas = [], estadoAl = {};
 try { alertas = JSON.parse(localStorage.getItem("alertas") || "[]"); estadoAl = JSON.parse(localStorage.getItem("alertasEstado") || "{}"); } catch {}
@@ -935,7 +1056,7 @@ function initSolunar(){
 
 function initHoy(){
   // Menú: resalta la sección en la que estás
-  const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => a.getAttribute("href").startsWith("#") ? document.querySelector(a.getAttribute("href")) : null), RUTAS = {solunar: "/solunar/", lista: "/embalses/", confinados: "/confinados/"};
+  const links = [...document.querySelectorAll("#tblinks a")], secs = links.map(a => a.getAttribute("href").startsWith("#") ? document.querySelector(a.getAttribute("href")) : null), RUTAS = {jornada: "/jornada/", solunar: "/solunar/", lista: "/embalses/", confinados: "/confinados/"};
   const spy = () => {
     let k = -1;
     if (document.body.dataset.page) k = links.findIndex(a => a.getAttribute("href") === RUTAS[document.body.dataset.page]);
@@ -945,7 +1066,7 @@ function initHoy(){
     // el navegador intentaba llevar la página arriba del todo y la subía sola al hacer scroll.
     const caja = $("#tblinks"), a = links[k];
     if (a && caja.scrollWidth > caja.clientWidth){
-      const objetivo = a.offsetLeft - (caja.clientWidth - a.offsetWidth) / 2;
+      const objetivo = caja.scrollLeft + a.getBoundingClientRect().left - caja.getBoundingClientRect().left - (caja.clientWidth - a.offsetWidth) / 2;
       if (Math.abs(caja.scrollLeft - objetivo) > 4) caja.scrollLeft = objetivo;
     }
   };
@@ -1035,6 +1156,7 @@ async function init(){
   addEventListener("load", () => document.querySelectorAll(".ccar").forEach(carArrows));
   $("#confchips").addEventListener("click", ev => { const b = ev.target.closest("[data-cc]"); if (b){ confCuenca = b.dataset.cc; confShown = 12; renderConf(); } });
   addEventListener("hashchange", routeFromHash);
+  if (document.body.dataset.page === "jornada") initJornada();
   initSolunar();
   if (document.body.dataset.page === "solunar") solVisto = true; // en su página el calendario y la tabla se pintan ya
   renderHoy();

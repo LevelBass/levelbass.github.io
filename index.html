@@ -28,14 +28,14 @@
 <meta name="apple-mobile-web-app-title" content="LevelBass">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="theme-color" content="#06141c">
-<meta name="lb-version" content="582c3cb42f3d32b9">
+<meta name="lb-version" content="262fbde60c393559">
 <meta name="description" content="LevelBass: el nivel de agua de los embalses de España al día, pensado para pescadores de black bass.">
 
 
 <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="style.css?v=2f3d32b9">
+<link rel="stylesheet" href="style.css?v=jor1">
 </head>
 <body>
 
@@ -70,6 +70,7 @@
   <div class="tb-inner">
     <a class="tb-logo" href="#top" aria-label="LevelBass, inicio"><img src="img/logo-160.png" alt="" width="36" height="36">Level<b>Bass</b></a>
     <div class="tb-links" id="tblinks">
+      <a href="/jornada/"><svg class="i"><use href="#i-sun"/></svg>Planifica tu jornada</a>
       <a href="#favoritos"><svg class="i"><use href="#i-star"/></svg>Favoritos <small id="tbcount"></small></a>
       <a href="/solunar/"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
       <a href="/embalses/"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
@@ -94,6 +95,7 @@
         <button type="button" id="go">Buscar</button>
       </form>
       <div class="quick" id="quick" aria-label="Cuencas frecuentes"></div>
+      <a class="heroconf herojor" href="/jornada/"><svg class="i"><use href="#i-sun"/></svg><span><b>Planifica tu jornada</b><small>Elige embalse y día y te lo resumimos todo</small></span></a>
       <a class="heroconf" href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg><span><b>Embalses confinados</b><small>Si pescas en barca, mira dónde puedes navegar</small></span><em id="confn"></em></a>
       <div class="stamp" id="stamp"><span class="pill">Cargando…</span></div>
     </div>
@@ -136,6 +138,16 @@
     <div class="favtools" id="favtools" hidden><button type="button" id="favlink" class="mini">🔗 Copiar enlace de mis favoritos</button><span>Ábrelo en tu otro móvil u ordenador para tener allí los mismos favoritos.</span></div>
   </section>
 
+  <section class="section" id="jornada" aria-label="Planifica tu jornada">
+    <a class="volver" href="#top">← Inicio</a>
+    <h2>Planifica tu jornada</h2>
+    <p class="hint">Elige el embalse y el día y te lo resumimos todo: agua, tiempo, viento, luna y las mejores horas para pescar.</p>
+    <div class="jorctl">
+      <label for="jorembalse"><span>Embalse</span><select id="jorembalse"></select></label>
+      <label for="jorfecha"><span>Día</span><input type="date" id="jorfecha"></label>
+    </div>
+    <div id="jorres" aria-live="polite"></div>
+  </section>
   <section class="section" id="solunar" aria-label="Tabla solunar">
     <a class="volver" href="#top">← Inicio</a>
     <h2>Tabla solunar</h2>
@@ -237,6 +249,6 @@
 <script src="data/fichas.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
-<script src="app.js?v=582c3cb4" defer></script>
+<script src="app.js?v=jor4" defer></script>
 </body>
 </html>
