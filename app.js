@@ -1188,8 +1188,8 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  // La lista (portada y /embalses/) enseña 12; «Ver más +» añade otros 12 y «Ver menos −» quita 12
-  if (!document.body.dataset.page || document.body.dataset.page === "lista"){
+  // En /embalses/ se enseñan 12; «Ver más +» añade otros 12 y «Ver menos −» quita 12. La portada lleva el carrusel completo, sin botón
+  if (document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
     if (vm){ vm.hidden = list.length <= shown; vm.textContent = "Ver más +"; $("#vermenos").hidden = shown <= PASO; }
