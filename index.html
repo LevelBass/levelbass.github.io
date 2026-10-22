@@ -35,7 +35,7 @@
 <link rel="preload" href="fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="style.css?v=compact5">
+<link rel="stylesheet" href="style.css?v=compact6">
 </head>
 <body>
 
@@ -74,8 +74,8 @@
       <a href="#solunar"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
       <a href="#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
       <a href="#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
-      <a href="#confinados"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>
-      <a href="#lista"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>    </div>
+      <a href="#lista"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
+      <a href="#confinados"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>    </div>
   </div>
 </nav>
 
@@ -177,19 +177,6 @@
     <div class="windbox" id="windbox"></div>
   </section>
 
-  <section class="section" id="confinados" aria-label="Embalses confinados">
-    <h2>Embalses confinados</h2>
-    <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
-    <div class="chips" id="confchips"></div>
-    <div id="confcount" class="legend"></div>
-    <div class="cwrap">
-      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
-      <div id="confgrid" class="ccar" tabindex="0" aria-label="Embalses confinados, desliza para ver más"></div>
-      <button type="button" class="carr next" aria-label="Siguientes">›</button>
-    </div>
-    <p class="src" id="confsrc"></p>
-  </section>
-
   <section class="section" id="lista">
     <h2>Todos los embalses</h2>
     <div class="controls">
@@ -216,6 +203,19 @@
       <div id="grid" class="ccar" tabindex="0" aria-label="Todos los embalses, desliza para ver más"></div>
       <button type="button" class="carr next" aria-label="Siguientes">›</button>
     </div>
+  </section>
+
+  <section class="section" id="confinados" aria-label="Embalses confinados">
+    <h2>Embalses confinados</h2>
+    <p class="hint">Para pescar desde barca en estos embalses hay <b>mejillón cebra</b>, así que la embarcación queda <b>confinada</b>: solo puede navegar en ese embalse y no puedes llevarla a otros sin limpiarla ni cambiar la autorización. Cada confederación tiene sus normas, por eso van indicadas.</p>
+    <div class="chips" id="confchips"></div>
+    <div id="confcount" class="legend"></div>
+    <div class="cwrap">
+      <button type="button" class="carr prev" aria-label="Anteriores" disabled>‹</button>
+      <div id="confgrid" class="ccar" tabindex="0" aria-label="Embalses confinados, desliza para ver más"></div>
+      <button type="button" class="carr next" aria-label="Siguientes">›</button>
+    </div>
+    <p class="src" id="confsrc"></p>
   </section>
 </main>
 
