@@ -423,10 +423,10 @@ footer p{max-width:780px;margin:6px 0}
 
 /* Lista de todos los embalses en carrusel */
 #grid.ccar{align-items:stretch}
-#grid.ccar .res{flex:0 0 215px;scroll-snap-align:start;content-visibility:auto;contain-intrinsic-size:auto 215px auto 80px;display:grid;grid-template-columns:1fr auto;gap:1px 8px;align-items:center;padding:8px 12px;border-radius:10px;border-left:4px solid var(--c,var(--bronze))}
+#grid.ccar .res{box-sizing:border-box;flex:0 0 240px;min-height:127px;scroll-snap-align:start;content-visibility:auto;contain-intrinsic-size:auto 212px auto 90px;display:grid;grid-template-columns:1fr auto;gap:1px 8px;align-items:center;align-content:start;row-gap:4px;padding:12px 14px;border-radius:10px;border-left:4px solid var(--c,var(--bronze))}
 #grid.ccar .res::before,#grid.ccar .res .badges,#grid.ccar .res .meta,#grid.ccar .res .tank,#grid.ccar .res .trend span{display:none}
 #grid.ccar .res .star{top:auto;bottom:2px;right:6px;font-size:18px;padding:2px 4px}
-#grid.ccar .res h3{grid-column:1;font-size:14px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#grid.ccar .res h3{grid-column:1;font-size:15px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #grid.ccar .res .sub{grid-column:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #grid.ccar .res .row{display:contents}
 #grid.ccar .res .pc{grid-column:2;grid-row:1/3;font-size:20px;color:var(--c,var(--ink))}#grid.ccar .res .pc small{font-size:14px;color:inherit}
@@ -434,7 +434,6 @@ footer p{max-width:780px;margin:6px 0}
 /* Con casi 400 tarjetas, las olas animadas de cada barra se quedan fijas (se animan solo en la ficha y los favoritos) */
 #grid.ccar .res .tank i::after{animation:none}
 #grid.ccar .empty{flex:1}
-@media (max-width:640px){#grid.ccar .res{flex-basis:70%}}
 
 /* ---------- Antigüedad del dato ---------- */
 .live.mid{color:var(--mid)}.live.old{color:var(--low)}.live.wk{color:var(--muted);font-weight:500}.live.wk.old{color:var(--low)}
