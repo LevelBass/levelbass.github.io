@@ -685,3 +685,9 @@ body[data-page="jornada"] main>section:not(#jornada){display:none}
   .jornota{width:70px;height:70px}.jornota b{font-size:24px}
   .jorsol{grid-template-columns:repeat(2,1fr)}
 }
+.jorsel{display:flex;flex-direction:column;gap:6px;min-width:0}
+.jorsel>label span{color:var(--muted);font:600 11px var(--head);letter-spacing:.12em;text-transform:uppercase}
+.jorsel input{font:inherit;color:var(--ink);background:rgba(6,20,28,.7);border:1px solid var(--bronze);border-radius:12px;padding:10px 14px;min-width:0;outline:none}
+.jorsel input:focus{border-color:var(--gold)}
+.jorsel select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 14px;min-width:0;outline:none;color-scheme:dark}
+.jorctl{align-items:end}

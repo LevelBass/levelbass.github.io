@@ -35,7 +35,7 @@
 <link rel="preload" href="/fonts/oswald-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"></noscript>
-<link rel="stylesheet" href="/style.css?v=jor1">
+<link rel="stylesheet" href="/style.css?v=jor2">
 </head>
 <body data-page="jornada">
 
@@ -143,7 +143,7 @@
     <h2>Planifica tu jornada</h2>
     <p class="hint">Elige el embalse y el día y te lo resumimos todo: agua, tiempo, viento, luna y las mejores horas para pescar.</p>
     <div class="jorctl">
-      <label for="jorembalse"><span>Embalse</span><select id="jorembalse"></select></label>
+      <div class="jorsel"><label for="jorbuscar"><span>Embalse</span></label><input type="search" id="jorbuscar" placeholder="🔍 Busca tu embalse…" autocomplete="off"><select id="jorembalse" aria-label="Embalse"></select></div>
       <label for="jorfecha"><span>Día</span><input type="date" id="jorfecha"></label>
     </div>
     <div id="jorres" aria-live="polite"></div>
@@ -247,6 +247,6 @@
 <script src="/data/fichas.js?v=1"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js" defer></script>
-<script src="/app.js?v=jor4" defer></script>
+<script src="/app.js?v=jor6" defer></script>
 </body>
 </html>

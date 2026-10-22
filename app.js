@@ -501,7 +501,20 @@ function initJornada(){
   const con = all.filter(e => e.lat != null).sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
   const opt = (e) => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`;
   const fv = con.filter(e => favs.has(e.id));
-  sel.innerHTML = '<option value="">Elige un embalse…</option>' + (fv.length ? `<optgroup label="Tus favoritos">${fv.map(opt).join("")}</optgroup><optgroup label="Todos los embalses">` : "") + con.map(opt).join("") + (fv.length ? "</optgroup>" : "");
+  const todas = () => '<option value="">Elige un embalse…</option>' + (fv.length ? `<optgroup label="Tus favoritos">${fv.map(opt).join("")}</optgroup><optgroup label="Todos los embalses">` : "") + con.map(opt).join("") + (fv.length ? "</optgroup>" : "");
+  sel.innerHTML = todas();
+  // Buscador: filtra la lista y elige el primero que coincide (con una pequeña pausa al escribir)
+  const bus = $("#jorbuscar"); let pausa;
+  if (bus) bus.addEventListener("input", () => {
+    clearTimeout(pausa);
+    pausa = setTimeout(() => {
+      const q = norm(bus.value.trim()), antes = sel.dataset.ultimo || ""; // el embalse que se está viendo
+      if (!q){ sel.innerHTML = todas(); sel.value = antes; return; }
+      const r = con.filter(e => [e.nombre, natural(e.nombre), e.provincia || "", e.cuenca].some(t => norm(t).includes(q)));
+      sel.innerHTML = r.length ? `<option value="" disabled>${r.length} embalse${r.length > 1 ? "s" : ""} encontrado${r.length > 1 ? "s" : ""}</option>` + r.map(opt).join("") : '<option value="">Ningún embalse con ese nombre</option>';
+      if (r.length){ sel.value = r.some(e => String(e.id) === antes) ? antes : String(r[0].id); if (sel.value !== antes) renderJornada(); }
+    }, 300);
+  });
   const hoy = dia0(new Date()), max = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + JOR_DIAS - 1);
   fch.min = isoLocal(hoy); fch.max = isoLocal(max);
   // De la URL (?e=slug&d=AAAA-MM-DD); si no, el primer favorito y hoy
@@ -516,6 +529,7 @@ function initJornada(){
 async function renderJornada(){
   const box = $("#jorres"), e = all.find(x => x.id === +$("#jorembalse").value), fs = $("#jorfecha").value;
   if (!e || !fs){ box.innerHTML = '<div class="empty jorvacio">Elige un embalse y un día para ver el resumen de tu jornada.</div>'; return; }
+  $("#jorembalse").dataset.ultimo = e.id;
   history.replaceState(null, "", location.pathname + "?" + new URLSearchParams({e: slugs.get(e.id) || "", d: fs}));
   const token = ++jorToken, fecha = new Date(fs + "T12:00"), s = solunar(fecha, e.lat, e.lon), L = lvl(e);
   box.innerHTML = jornadaHtml(e, fecha, s, L, null, true);
