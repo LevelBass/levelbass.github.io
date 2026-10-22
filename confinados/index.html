@@ -72,9 +72,9 @@
     <div class="tb-links" id="tblinks">
       <a href="/#favoritos"><svg class="i"><use href="#i-star"/></svg>Favoritos <small id="tbcount"></small></a>
       <a href="/solunar/"><svg class="i"><use href="#i-moon"/></svg>Tabla solunar</a>
-      <a href="/#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
-      <a href="/#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
       <a href="/embalses/"><svg class="i"><use href="#i-wave"/></svg>Embalses</a>
+      <a href="/#viento"><svg class="i"><use href="#i-wind"/></svg>Viento</a>
+      <a href="/#mapa"><svg class="i"><use href="#i-pin"/></svg>Mapa</a>
       <a href="/confinados/"><svg class="i"><use href="#i-anchor"/></svg>Confinados</a>    </div>
   </div>
 </nav>
@@ -161,23 +161,6 @@
 
   <div class="ribbon" aria-hidden="true"><div class="track" id="ribbon"></div></div>
 
-  <section class="section" id="mapa">
-    <h2>Mapa</h2>
-    <p class="legend">
-      <span><i style="background:var(--low)"></i>menos del 25 %</span>
-      <span><i style="background:var(--mid)"></i>25–50 %</span>
-      <span><i style="background:var(--ok)"></i>50–75 %</span>
-      <span><i style="background:var(--high)"></i>más del 75 %</span>
-    </p>
-    <div id="map"></div>
-  </section>
-
-  <section class="section" id="viento">
-    <h2>Viento en España</h2>
-    <p class="hint">Mapa de viento en tiempo real. Abre la ficha de un embalse para verlo centrado en él.</p>
-    <div class="windbox" id="windbox"></div>
-  </section>
-
   <section class="section" id="lista">
     <a class="volver" href="/">← Inicio</a>
     <h2>Todos los embalses</h2>
@@ -206,6 +189,23 @@
       <button type="button" class="carr next" aria-label="Siguientes">›</button>
     </div>
     <div class="masmenos"><button type="button" id="vermenos" class="vermas" hidden>Ver menos −</button><button type="button" id="vermas" class="vermas" hidden></button></div>
+  </section>
+
+  <section class="section" id="viento">
+    <h2>Viento en España</h2>
+    <p class="hint">Mapa de viento en tiempo real. Abre la ficha de un embalse para verlo centrado en él.</p>
+    <div class="windbox" id="windbox"></div>
+  </section>
+
+  <section class="section" id="mapa">
+    <h2>Mapa</h2>
+    <p class="legend">
+      <span><i style="background:var(--low)"></i>menos del 25 %</span>
+      <span><i style="background:var(--mid)"></i>25–50 %</span>
+      <span><i style="background:var(--ok)"></i>50–75 %</span>
+      <span><i style="background:var(--high)"></i>más del 75 %</span>
+    </p>
+    <div id="map"></div>
   </section>
 
   <section class="section" id="confinados" aria-label="Embalses confinados">
