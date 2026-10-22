@@ -32,7 +32,7 @@ function cookiesInit(){
   $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
 }
 
-const PASO = 24;
+const PASO = 12;
 let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = PASO, tfilter = "";
 let favs = new Set();
 try { favs = new Set(JSON.parse(localStorage.getItem("favs") || "[]")); } catch {}
@@ -1186,7 +1186,7 @@ function render(){
   $("#count").textContent = `${fmt(list.length)} embalses` + (q ? ` para «${$("#q").value.trim()}»` : "");
   const gridEl = $("#grid"), clave = [q, c, pv, $("#sort").value, tfilter].join("|");
   const sl = clave === lastGridKey ? gridEl.scrollLeft : 0; lastGridKey = clave;
-  // La lista (portada y /embalses/) enseña 24 y un botón «Ver más +» añade otros 24
+  // La lista (portada y /embalses/) enseña 12 y un botón «Ver más +» añade otros 12
   if (!document.body.dataset.page || document.body.dataset.page === "lista"){
     const vm = $("#vermas");
     gridEl.innerHTML = list.slice(0, shown).map(card).join("") || '<div class="empty">Sin resultados</div>';
