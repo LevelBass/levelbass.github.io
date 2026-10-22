@@ -559,3 +559,47 @@ footer p{max-width:780px;margin:6px 0}
 #solunar .soltabla .ph span{font-size:11px}
 @media (min-width:900px){#hoy .soltop{grid-template-columns:auto minmax(0,1fr) 300px}#hoy .solnow{grid-column:auto;grid-template-columns:1fr}}
 #solunar .soltabla td{white-space:nowrap}#solunar .soltabla th{white-space:nowrap}#solunar .soltabla{min-width:600px}
+
+/* Solunar: segunda pasada de compactación */
+#hoy .moonglow svg{width:46px;height:46px}
+#hoy .solinfo h3{font-size:20px;margin:0 0 3px}
+#hoy .solinfo .cap{font-size:10px}
+#hoy .chips2{margin-bottom:3px}
+#hoy .rate{gap:8px}#hoy .rate .big{font-size:16px}#hoy .rate b{font-size:16px}
+#hoy .meter{margin-top:3px;height:4px}
+#hoy .estado{padding:4px 10px}
+#hoy .estado small{display:inline;margin-right:6px;font-size:10px}
+#hoy .estado b{display:inline;font-size:15px}
+#hoy .estado span{display:block;font-size:11.5px;line-height:1.25}
+#hoy .why{margin:5px 0 0}
+#hoy .sunmoon{gap:5px;margin:6px 0 0}
+#hoy .sunmoon div{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:3px 9px}
+#hoy .sunmoon small{font-size:9.5px;letter-spacing:.05em}
+#hoy .sunmoon b{font-size:15px}
+#hoy .dia.pro{margin:6px 0 4px}
+#hoy .dia.pro .bar24{height:22px}
+#hoy .leyenda{margin-top:2px;font-size:10.5px}
+#hoy .per{grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:5px}
+#hoy .per li{flex-direction:column-reverse;justify-content:flex-end;align-items:flex-start;gap:1px;padding:3px 8px;font-size:11.5px;line-height:1.25;border-left-width:3px}
+#hoy .per li>b{font-size:13px;color:var(--ink)}
+#hoy .per li>span{color:var(--muted)}
+#hoy .per li .k{font-size:11px;padding:0 4px;margin-right:2px}
+#hoy .proxl{margin:5px 0 0;font-size:12px}
+#solunar .hint{margin:4px 0 8px;font-size:13px}
+#solunar .solctl select,#solunar .datenav input{padding:6px 12px}
+#solunar .solgrid{margin-top:8px}
+#solcal .calgrid .dd svg{width:15px;height:15px}
+#solcal .calgrid .dd b{font-size:11px}
+#solcal .calgrid .dd span{height:7px;line-height:7px}
+#solcal .calgrid .dow{padding:0;font-size:10px}
+#solbest .bestrow{grid-template-columns:repeat(2,1fr)}
+#solbest .cap{font-size:10px}
+#solunar .subh{margin:10px 0 4px}
+#solunar .soltabla td{padding:3px 6px}
+#solunar .soltabla th{padding:5px 6px}
+#solunar .soltabla .ph svg{width:20px;height:20px}
+#solunar .soltabla .ph b{font-size:13px}
+#solunar .soltabla .ph span{display:inline;font-size:10.5px}
+#solunar .soltabla .ph>div{display:flex;flex-direction:column}
+#solunar .soltabla .vv{display:inline;margin-left:4px;font-size:10.5px}
+#solunar .soltabla .est{white-space:nowrap}
