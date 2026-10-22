@@ -639,5 +639,5 @@ body:not([data-page]) #solunar,body:not([data-page]) #confinados{display:none}
 .masmenos{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:16px}
 .masmenos .vermas{margin:0}
 
-/* La cinta de fotos solo se ve en la página de Tabla solunar */
-body:not([data-page]) .ribbon,body[data-page="lista"] .ribbon,body[data-page="confinados"] .ribbon{display:none}
+/* La cinta de fotos solo se ve en la portada */
+body[data-page] .ribbon{display:none}

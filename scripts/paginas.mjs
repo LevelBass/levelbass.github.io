@@ -23,6 +23,7 @@ export async function generarPaginas(raiz) {
       .replace(/(href|src)="(?!https?:|\/|#|data:|mailto:)([^"]+)"/g, '$1="/$2"')   // rutas relativas -> absolutas
       .replace(/href="#(top|favoritos|mapa|viento)"/g, (_, a) => `href="/${a === "top" ? "" : "#" + a}"`)
       .replace("<body>", `<body data-page="${p.page}">`)
+      .replace(/\s*<div class="ribbon"[^\n]*<\/div><\/div>/, "")   // la cinta de fotos solo va en la portada
       .replace(/<title>[^<]*<\/title>/, `<title>${attr(p.titulo)}</title>`)
       .replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${url}$2`)
       .replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${url}$2`)
