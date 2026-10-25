@@ -13,25 +13,6 @@ const natural = (n) => n.replace(/^(.+?),\s*(El|La|Los|Las)$/i, "$2 $1");
 // Silueta de pez (marca de agua de las tarjetas)
 document.documentElement.style.setProperty("--fish", `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 90'><path fill='#fff' d='M4 46c8-18 28-30 56-30 20 0 34 6 46 14l10-14c4-5 10-4 10 3v54c0 7-6 8-10 3l-10-14c-12 8-26 14-46 14C32 76 12 64 4 46Z'/></svg>`)}")`);
 
-/* ---------- Google Analytics (solo si el visitante acepta las cookies) ---------- */
-const GA_ID = "G-K85QE1YT1G"; // ID de medición de Google Analytics
-function cargarGA(){
-  if (!GA_ID || window.__ga) return;
-  window.__ga = 1;
-  const s = document.createElement("script"); s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID; document.head.appendChild(s);
-  window.dataLayer = window.dataLayer || []; window.gtag = function(){ dataLayer.push(arguments); };
-  gtag("js", new Date()); gtag("config", GA_ID, {anonymize_ip: true});
-}
-function cookiesInit(){
-  if (!GA_ID) return; // sin ID no hay analítica ni aviso
-  let ck = null; try { ck = localStorage.getItem("cookies"); } catch {}
-  const caja = $("#cookies"), guardar = (v) => { try { localStorage.setItem("cookies", v); } catch {} caja.hidden = true; if (v === "si") cargarGA(); };
-  $("#ck-si").onclick = () => guardar("si"); $("#ck-no").onclick = () => guardar("no");
-  if (ck === "si") cargarGA(); else if (ck !== "no") caja.hidden = false;
-  const f = $("#foot"); f.insertAdjacentHTML("beforeend", '<p><a href="#" id="ck-reset">Preferencias de cookies</a></p>');
-  $("#ck-reset").onclick = (ev) => { ev.preventDefault(); caja.hidden = false; };
-}
-
 const PASO = 12;
 let lastGridKey = "", all = [], map, layer, markers = new Map(), shown = PASO, tfilter = "";
 let favs = new Set();
@@ -1178,7 +1159,6 @@ async function init(){
     <p>Tiempo y presión: <a href="https://open-meteo.com">Open-Meteo</a>. Viento: <a href="https://www.windy.com">Windy</a>. Mapas: OpenStreetMap, OpenTopoMap y Esri. Fases lunares calculadas con SunCalc; los periodos solunares son una referencia tradicional de pesca, no una predicción científica.</p>
     <p>Las etiquetas de pesca (barco, pato, orillas inundadas o expuestas) son orientativas y se deducen del tamaño y del nivel del embalse. La web no mide la temperatura del agua (la que ves es una estimación a partir del aire), la vegetación ni la actividad de los peces. Consulta la normativa y el permiso de pesca de cada comunidad y cuenca antes de salir.</p>`;
 
-  cookiesInit();
   const cuencas = [...new Set(all.map(e => e.cuenca))].sort((a,b) => a.localeCompare(b,"es"));
   $("#cuenca").innerHTML = '<option value="">Todas las cuencas</option>' + cuencas.map(c => `<option>${esc(c)}</option>`).join("");
   $("#solzona").innerHTML = '<option value="centro">Centro de España (Madrid)</option>' + all.filter(e => e.lat != null).map(e => `<option value="${e.id}">${esc(e.nombre)}${e.provincia ? " · " + esc(e.provincia) : ""}</option>`).join("");

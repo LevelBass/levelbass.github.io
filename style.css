@@ -219,14 +219,6 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--gold),var(--bronz
 .windask button{border:0;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--bronze));color:#2a1c05;font:600 14px var(--head);letter-spacing:.08em;text-transform:uppercase;padding:12px 22px;cursor:pointer}
 .windask small{color:var(--muted);font-size:12px}
 @media (min-width:640px){.q4{grid-template-columns:repeat(5,1fr)}.hoy{grid-template-columns:auto 1fr 1fr;align-items:center}}
-﻿/* ---- aviso de cookies ---- */
-#cookies{position:fixed;left:12px;right:12px;bottom:12px;z-index:1500;max-width:640px;margin:0 auto;background:var(--card2);border:1px solid var(--bronze);border-radius:16px;padding:14px 16px;box-shadow:0 14px 40px rgba(0,0,0,.55);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-#cookies[hidden]{display:none}
-#cookies p{margin:0;flex:1 1 260px;font-size:13.5px;color:var(--muted)}
-#cookies b{color:var(--ink)}
-#cookies div{display:flex;gap:8px}
-#cookies button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:9px 16px;font:inherit;font-size:14px;cursor:pointer}
-#cookies button.si{background:linear-gradient(135deg,var(--gold),var(--bronze));border-color:var(--bronze);color:#2a1c05;font-weight:600}
 /* ---- menú fijo de secciones ---- */
 html{scroll-padding-top:64px}
 .topbar{position:sticky;top:0;z-index:60;background:rgba(6,20,28,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.3)}
